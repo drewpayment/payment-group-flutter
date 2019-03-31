@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "206757578983",
+    "firebase_url": "https://payment-group.firebaseio.com",
+    "project_id": "payment-group",
+    "storage_bucket": "payment-group.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206757578983:android:2dc46d072c36fa5c",
+        "android_client_info": {
+          "package_name": "app.paytrack"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "206757578983-ko6vvnjb3njch0bk2secbr2s12v3cbmm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.paytrack",
+            "certificate_hash": "d14e2c07c77bbdc1fe186f1028ac2dc89d704eca"
+          }
+        },
+        {
+          "client_id": "206757578983-tplsklegi84t94jhnech60899s83bnr6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDX9a9-xjLwE-J7odCaWpOaVoLb_ELrmIc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "206757578983-tplsklegi84t94jhnech60899s83bnr6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "206757578983-ffak1mr8v4d9bmptpbhrqtq2q9jbbeou.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "app.paygroup"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
