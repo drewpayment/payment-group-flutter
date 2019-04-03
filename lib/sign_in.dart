@@ -36,7 +36,7 @@ class SignInFab extends StatelessWidget {
     }
 
     bool _existingUser() {
-        return true;
+        return false;
     }
 
     void _navigateToRegistration(BuildContext context) {
