@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pay_track/pages/map_page.dart';
 import 'package:pay_track/pages/register_page.dart';
 import 'package:pay_track/services/auth.dart';
 
@@ -36,7 +37,7 @@ class SignInFab extends StatelessWidget {
     }
 
     bool _existingUser() {
-        return false;
+        return true;
     }
 
     void _navigateToRegistration(BuildContext context) {

@@ -56,5 +56,7 @@
         </dict>
     </array>
     <!-- End of the Google Sign-in Section -->
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>This app needs access to location when open and in the background.</string>
 </dict>
 </plist>

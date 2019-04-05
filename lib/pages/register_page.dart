@@ -104,8 +104,11 @@ class _RegisterFormState extends State<RegisterForm> {
     }
 
     void _submit() {
-        _formKey.currentState.validate();
-        print('Form Submitted!');
+        if (_formKey.currentState.validate()) {
+            print('Form Submitted!');
+
+            
+        } 
     }
 
     void _setAgreedToTOS(bool newValue) {

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pay_track/drawer.dart';
 import 'package:pay_track/posts_list.dart';
 import 'package:pay_track/services/auth.dart';
 import 'package:pay_track/sign_in.dart';
@@ -19,6 +20,8 @@ class HomePage extends StatefulWidget {
 
   final String title;
 
+  static const String routeName = '/home';
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -34,25 +37,25 @@ class _HomePageState extends State<HomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Center(
-            child: Text(widget.title),
+        appBar: AppBar(
+            // Here we take the value from the MyHomePage object that was created by
+            // the App.build method, and use it to set our appbar title.
+            title: Text(widget.title),
+            centerTitle: true,
+            elevation: 1.0,
         ),
-        elevation: 0.0,
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: PostsList(),
-      ),
-      floatingActionButton: SignInFab(
-          auth: Auth(
-              firebaseAuth: FirebaseAuth.instance,
-              googleSignIn: GoogleSignIn()
-          ),
-      ),
+        body: Center(
+            // Center is a layout widget. It takes a single child and positions it
+            // in the middle of the parent.
+            child: PostsList(),
+        ),
+        floatingActionButton: SignInFab(
+            auth: Auth(
+                firebaseAuth: FirebaseAuth.instance,
+                googleSignIn: GoogleSignIn()
+            ),
+        ),
+        drawer: DrawerWidget(),
     );
   }
 }
