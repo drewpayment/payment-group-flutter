@@ -56,8 +56,10 @@
         </dict>
     </array>
     <!-- End of the Google Sign-in Section -->
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>This app needs access to location when open and in the background.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+	<string>Needed to access location</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Needed to access location</string>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
 </dict>
