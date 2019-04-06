@@ -1,7 +1,9 @@
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:pay_track/drawer.dart';
-// import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapPage extends StatefulWidget {
     const MapPage({Key key}) : super(key: key);
@@ -13,19 +15,12 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
+    Completer<GoogleMapController> _controller = Completer();
 
-    // Position position;
+    static const LatLng _center = const LatLng(45.521563, -122.677433);
 
-    _MapPageState() {
-        // Geolocator().checkGeolocationPermissionStatus()
-        //     .then((permission) {
-        //         print(permission);
-        //     });
-
-        // Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation)
-        //     .then((res) {
-        //         position = res;
-        //     });
+    _onMapCreated(GoogleMapController controller) {
+      _controller.complete();
     }
 
     @override
@@ -36,18 +31,14 @@ class _MapPageState extends State<MapPage> {
                 title: Text('Map'),
                 elevation: 1.0,
             ),
-            body: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                    Padding(
-                        padding: EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-                        child: Center(
-                            // child: Text(position?.longitude.toString()),
-                        ),
-                    ),
-                ],
+            body: GoogleMap(
+              onMapCreated: _onMapCreated,
+              initialCameraPosition: CameraPosition(
+                target: _center,
+                zoom: 11.0,
+              ),
             ),
-            drawer: DrawerWidget(),
+            drawer: new DrawerWidget(),
         );
     }
 

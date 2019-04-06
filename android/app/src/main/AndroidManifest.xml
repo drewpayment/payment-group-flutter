@@ -10,6 +10,8 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="pay_track"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.google.android.geo.API_KEY" 
+            android:value="AIzaSyBOlHeDtx3CO0CLBhJhmLoKlkdlOEpDs9M"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

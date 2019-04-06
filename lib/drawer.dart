@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pay_track/models/DrawerItem.dart';
 import 'package:pay_track/pages/home_page.dart';
 import 'package:pay_track/pages/map_page.dart';
 
@@ -9,24 +10,61 @@ class DrawerWidget extends StatefulWidget {
     _DrawerWidgetState createState() => _DrawerWidgetState();
 }
 
-class _DrawerWidgetState extends State {
+class _DrawerWidgetState extends State<DrawerWidget> {
+
+    int _selectedIndex = 0;
+
+    final drawerItems = [
+        new DrawerItem('Home', Icons.home),
+        new DrawerItem('Map', Icons.map)
+    ];
+
+    _getDrawerItemScreen(int pos) {
+        // navigate
+        String routeTo = '';
+        var item = drawerItems[pos];
+
+        if (item.title == 'Home') {
+            routeTo = HomePage.routeName;
+        } else if (item.title == 'Map') {
+            routeTo = MapPage.routeName;
+        }
+
+        Navigator.of(context).pop();
+        Navigator.pushReplacementNamed(context, routeTo);
+    }
+
+    _onSelectItem(int index) {
+        setState(() {
+            _selectedIndex = index;
+        });
+
+        _getDrawerItemScreen(index);
+    }
+
     @override
     Widget build(BuildContext context) {
+        List<Widget> drawerOptions = [];
+        for (var i = 0; i < drawerItems.length; i++) {
+            var d = drawerItems[i];
+            drawerOptions.add(new ListTile(
+                leading: new Icon(d.icon),
+                title: new Text(
+                    d.title,
+                    style: new TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w400
+                    ),
+                ),
+                selected: i == _selectedIndex,
+                onTap: () => _onSelectItem(i),
+            ));
+        }
+
         return new Drawer(
             child: new ListView(
                 padding: EdgeInsets.all(0.0),
                 children: <Widget>[
-                    // new DrawerHeader(
-                    //     child: new Column(
-                    //         children: <Widget>[
-                                
-                    //         ],
-                    //         crossAxisAlignment: CrossAxisAlignment.start,
-                    //     ),
-                    //     decoration: BoxDecoration(
-                    //         color: Colors.indigoAccent
-                    //     ),
-                    // ),
                     new UserAccountsDrawerHeader(
                         accountName: Text('Drew Payment', style: TextStyle(color: Colors.white)),
                         accountEmail: Text('drew.payment@gmail.com', style: TextStyle(color: Colors.white)),
@@ -44,29 +82,8 @@ class _DrawerWidgetState extends State {
                             color: Colors.cyan,
                         ),
                     ),
-                    new ListTile(
-                        leading: Icon(Icons.home),
-                        title: Text('Home', 
-                            style: TextStyle(
-                                fontSize: 18.0,
-                            ),
-                        ),
-                        onTap: () {
-                            Navigator.pop(context);
-                            Navigator.pushReplacementNamed(context, HomePage.routeName);
-                        },
-                    ),
-                    new ListTile(
-                        leading: Icon(Icons.account_box),
-                        title: Text('Map', 
-                            style: TextStyle(
-                                fontSize: 18.0,
-                            ),
-                        ),
-                        onTap: () {
-                            Navigator.pop(context);
-                            Navigator.pushReplacementNamed(context, MapPage.routeName);
-                        },
+                    new Column(
+                        children: drawerOptions,
                     ),
                 ],
             ),
