@@ -31,12 +31,35 @@ class _MapPageState extends State<MapPage> {
                 title: Text('Map'),
                 elevation: 1.0,
             ),
-            body: GoogleMap(
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: _center,
-                zoom: 11.0,
-              ),
+            body: GridView.count(
+              primary: false,
+              padding: EdgeInsets.all(20.0),
+              crossAxisSpacing: 10.0,
+              crossAxisCount: 1,
+              children: <Widget>[
+                GoogleMap(
+                  zoomGesturesEnabled: true,
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: CameraPosition(
+                    target: _center,
+                    zoom: 11.0,
+                  ),
+                ),
+                ListView.separated(
+                  scrollDirection: Axis.vertical,
+                  separatorBuilder: (context, index) => Divider(
+                    color: Colors.cyan
+                  ),
+                  itemCount: 2,
+                  itemBuilder: (context, index) => ListTile(
+                    leading: Icon(Icons.assignment_late),
+                    title: Text('4038 Zion Ct SE'),
+                    onTap: () {
+                      print('This needs to drop a pin on the map.');
+                    },
+                  ),
+                ),
+              ],
             ),
             drawer: new DrawerWidget(),
         );
