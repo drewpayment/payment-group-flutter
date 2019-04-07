@@ -74,6 +74,8 @@ PODS:
     - GoogleUtilities/Environment (~> 5.2)
     - GoogleUtilities/UserDefaults (~> 5.2)
   - Flutter (1.0.0)
+  - flutter_webview_plugin (0.0.1):
+    - Flutter
   - google_maps_flutter (0.0.1):
     - Flutter
     - GoogleMaps
@@ -153,6 +155,7 @@ DEPENDENCIES:
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - Flutter (from `.symlinks/flutter/ios`)
+  - flutter_webview_plugin (from `.symlinks/plugins/flutter_webview_plugin/ios`)
   - google_maps_flutter (from `.symlinks/plugins/google_maps_flutter/ios`)
   - google_sign_in (from `.symlinks/plugins/google_sign_in/ios`)
   - location (from `.symlinks/plugins/location/ios`)
@@ -189,6 +192,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_core/ios"
   Flutter:
     :path: ".symlinks/flutter/ios"
+  flutter_webview_plugin:
+    :path: ".symlinks/plugins/flutter_webview_plugin/ios"
   google_maps_flutter:
     :path: ".symlinks/plugins/google_maps_flutter/ios"
   google_sign_in:
@@ -210,6 +215,7 @@ SPEC CHECKSUMS:
   FirebaseFirestore: faca891c0f0d1d6c10c793473e2f6a29d75014b5
   FirebaseInstanceID: a122b0c258720cf250551bb2bedf48c699f80d90
   Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
+  flutter_webview_plugin: ed9e8a6a96baf0c867e90e1bce2673913eeac694
   google_maps_flutter: 924970f41ec509a201b593548db005efb2a09ee9
   google_sign_in: 27e70a98b529f0b076d4b19f231b81da28b1750b
   GoogleAppMeasurement: 1624046ab1bcc5e170061a56ef5679000b079c8e

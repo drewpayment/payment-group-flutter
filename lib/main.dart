@@ -20,11 +20,12 @@ void main() {
 
 class MyApp extends StatelessWidget {
 
-    static const String defaultTitle = 'Pay Track';
+  static const String defaultTitle = 'Pay Track';
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       title: 'Flutter Demo',
       theme: buildTheme(),

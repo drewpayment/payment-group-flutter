@@ -27,6 +27,7 @@ class _MapPageState extends State<MapPage> {
   _onMapCreated(GoogleMapController controller) {
     // _controller.complete();
     // do things after the map has shown up... might be a good place to wire up events showing/hiding markers
+    
   }
 
   @override
@@ -44,7 +45,6 @@ class _MapPageState extends State<MapPage> {
           )
         );
       });
-      print(markers);
     });
   }
 
@@ -52,7 +52,7 @@ class _MapPageState extends State<MapPage> {
   Widget build(BuildContext context) {
     var widgets = <Widget>[];
 
-    if (_center == null || markers == null) {
+    if (_center == null) {
       widgets.add(new Center(
         child: Text('Please enable Location Services.'),
       ));

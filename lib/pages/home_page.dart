@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pay_track/auth/auth.dart';
 import 'package:pay_track/models/DrawerItem.dart';
 import 'package:pay_track/pages/map_page.dart';
 import 'package:pay_track/posts_list.dart';
-import 'package:pay_track/services/auth.dart';
 import 'package:pay_track/sign_in.dart';
+import 'package:rxdart/rxdart.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -57,22 +58,77 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  
+  final PageStorageBucket bucket = new PageStorageBucket();
+
+  var _currentUser = new BehaviorSubject<GoogleSignInAccount>();
+  GoogleSignInAccount user;
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+
+    
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    Auth.init();
+
+    Auth.initListen(
+      listen: (account) {
+        if (Auth.isSignedIn()) {
+          setState(() => user = account);
+        } 
+      },
+    );
+
+    Auth.signInSilently();
+  }
+
+  _signOut() {
+    Auth.signOut().then((done) => setState(() => user = null));
+  }
 
   @override
   Widget build(BuildContext context) {
     List<Widget> drawerOptions = [];
     for (var i = 0; i < drawerItems.length; i++) {
       var d = drawerItems[i];
-      drawerOptions.add(new ListTile(
-        leading: new Icon(d.icon),
-        title: new Text(
-          d.title,
-          style: new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w400),
+
+      drawerOptions.add(new Container(
+        margin: EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: i == _selectedIndex ? Colors.cyan[400] : Theme.of(context).canvasColor,
+          borderRadius: BorderRadius.all(Radius.circular(5.0))
         ),
-        selected: i == _selectedIndex,
-        onTap: () => _onSelectItem(i),
+        child: new ListTile(
+          dense: true,
+          leading: new Icon(d.icon, 
+            color: i == _selectedIndex ? Colors.white : Colors.cyan,
+          ),
+          title: new Text(
+            d.title,
+            style: new TextStyle(
+              fontSize: 18.0, 
+              fontWeight: FontWeight.w400,
+              color: i == _selectedIndex ? Colors.white : Colors.cyan,
+            ),
+          ),
+          selected: i == _selectedIndex,
+          onTap: () => _onSelectItem(i),
+        ),
       ));
+    }
+
+    var headerStyle = BoxDecoration(
+      color: Colors.cyan[400],
+    );
+
+    if (user == null && _selectedIndex > 0) {
+      setState(() => _selectedIndex = 0);
     }
 
     // This method is rerun every time setState is called, for instance as done
@@ -89,43 +145,54 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         elevation: 1.0,
       ),
-      body: _getDrawerItemScreen(_selectedIndex),
-      floatingActionButton: SignInFab(
-        auth: Auth(
-          firebaseAuth: FirebaseAuth.instance, googleSignIn: GoogleSignIn()
-        ),
+      body: PageStorage(
+        child: _getDrawerItemScreen(_selectedIndex),
+        bucket: bucket,
       ),
-      drawer: new Drawer(
+      floatingActionButton: user == null ? SignInFab() 
+        : FloatingActionButton.extended(
+          icon: Icon(Icons.exit_to_app),
+          label: Text('Sign Out'),
+          onPressed: _signOut(),
+          backgroundColor: Theme.of(context).canvasColor,
+        ),
+      drawer: user != null 
+        ? new Drawer(
         child: new ListView(
           padding: EdgeInsets.all(0.0),
           children: <Widget>[
-            new UserAccountsDrawerHeader(
-              accountName:
-                  Text('Drew Payment', style: TextStyle(color: Colors.white)),
-              accountEmail: Text('drew.payment@gmail.com',
+            user != null
+              ? new UserAccountsDrawerHeader(
+                accountName:
+                  Text(user?.displayName, style: TextStyle(color: Colors.white)),
+                accountEmail: Text(user?.email,
                   style: TextStyle(color: Colors.white)),
-              currentAccountPicture: new CircleAvatar(
-                backgroundColor: Colors.blueGrey,
-                child: Text(
-                  'DP',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 30.0,
-                  ),
+                currentAccountPicture: new GoogleUserCircleAvatar(
+                  identity: user,
                 ),
-                maxRadius: 8,
+                decoration: headerStyle,
+              )
+              : new UserAccountsDrawerHeader(
+                accountName: Text(''),
+                accountEmail: Text(''),
+                currentAccountPicture: Icon(
+                  Icons.account_circle, 
+                  size: 72.0, 
+                  color: Colors.black45,
+                ),
+                decoration: headerStyle,
               ),
-              decoration: BoxDecoration(
-                color: Colors.cyan,
+            ListTileTheme(
+              child: new Column(
+                children: drawerOptions,  
               ),
-            ),
-            new Column(
-              children: drawerOptions,
-            ),
+            )
           ],
         ),
         elevation: 16.0,
-      ),
+      )
+      : null,
     );
   }
+
 }
