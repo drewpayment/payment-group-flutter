@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pay_track/drawer.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
@@ -15,33 +14,45 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  Completer<GoogleMapController> _controller = Completer();
+  // Completer<GoogleMapController> _controller = Completer();
 
-  LatLng _center = new LatLng(42.9563369, -85.7302999);
+  LatLng _center = new LatLng(42.8900285, -85.584401);
   var location = new Location();
   LocationData userLocation;
   Future<LocationData> userLocationContract;
-  bool _hasPermission;
+
+  // put the list of "do not knock" locations in this list
+  var markers = new Set<Marker>();
 
   _onMapCreated(GoogleMapController controller) {
-    _controller.complete();
+    // _controller.complete();
+    // do things after the map has shown up... might be a good place to wire up events showing/hiding markers
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     userLocationContract = initPlatformState();
+    var mockHttp = new FakeMarkersGetter();
+
+    mockHttp._getMockDoNotKnocks().then((res) {
+      res.forEach((r) {
+        markers.add(
+          new Marker(
+            markerId: new MarkerId('@{r.id}'),
+            position: LatLng(r.latitude, r.longitude)
+          )
+        );
+      });
+      print(markers);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    var markers = new Set<Marker>();
-    markers.add(Marker(markerId: MarkerId('1'), position: _center));
-
     var widgets = <Widget>[];
 
-    if (_center == null) {
+    if (_center == null || markers == null) {
       widgets.add(new Center(
         child: Text('Please enable Location Services.'),
       ));
@@ -52,31 +63,29 @@ class _MapPageState extends State<MapPage> {
         onMapCreated: _onMapCreated,
         initialCameraPosition: CameraPosition(
           target: _center,
-          zoom: 11.0,
+          zoom: 16.0,
         ),
         markers: markers,
       ));
     }
 
-    widgets.add(ListView.separated(
-      scrollDirection: Axis.vertical,
-      separatorBuilder: (context, index) => Divider(color: Colors.cyan),
-      itemCount: 2,
-      itemBuilder: (context, index) => ListTile(
-        leading: Icon(Icons.assignment_late),
-        title: Text('4038 Zion Ct SE'),
-        onTap: () {
-          print('This needs to drop a pin on the map.');
-        },
+    widgets.add(
+      ListView.separated(
+        padding: EdgeInsets.fromLTRB(0, 16.0, 0, 16.0),
+        scrollDirection: Axis.vertical,
+        separatorBuilder: (context, index) => Divider(color: Colors.black54),
+        itemCount: 2,
+        itemBuilder: (context, index) => ListTile(
+          leading: Icon(Icons.assignment_late),
+          title: Text('4038 Zion Ct SE'),
+          onTap: () {
+            print('This needs to drop a pin on the map.');
+          },
+        ),
       ),
-    ));
+    );
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('Map'),
-        elevation: 1.0,
-      ),
+    return new Scaffold(
       body: GridView.count(
         primary: false,
         padding: EdgeInsets.all(20.0),
@@ -84,9 +93,7 @@ class _MapPageState extends State<MapPage> {
         crossAxisCount: 1,
         children: widgets,
       ),
-      drawer: new DrawerWidget(),
     );
-
   }
 
   Future<LocationData> initPlatformState() async {
@@ -94,7 +101,6 @@ class _MapPageState extends State<MapPage> {
 
     try {
       userLocationContract = location.getLocation();
-      _hasPermission = await location.hasPermission();
     } on PlatformException catch(e) {
       if (e.code == 'PERMISSION_DENIED') {
         print('Permission Denied.');
@@ -106,35 +112,41 @@ class _MapPageState extends State<MapPage> {
     return userLocationContract;
   }
 
-  CircularProgressIndicator _loadLocation() {
-    _getLocation().then((res) {
-      setState(() {
-        userLocation = res;
-        _center = LatLng(res.latitude, res.longitude);
-      });
+}
+
+class FakeMarkersGetter {
+
+  Future<List<DoNotKnock>> _getMockDoNotKnocks() {
+    return new Future(() {
+      return [
+        new DoNotKnock(
+          id: 1,
+          address: '4038 Zion Ct SE',
+          latitude: 42.8900285,
+          longitude: -85.584401
+        ),
+        new DoNotKnock(
+          id: 2,
+          address: '3269 Mesa Verde Ct SE',
+          latitude: 42.890140,
+          longitude: -85.585441
+        )
+      ];
     });
-
-    return CircularProgressIndicator();
   }
 
-  Future<LocationData> _getLocation() async {
-    LocationData currLocation;
+}
 
-    try {
-      var isPermissable = await location.hasPermission();
-      var isServiceEnabled = await location.requestService();
+class DoNotKnock {
+  DoNotKnock({
+    @required this.id,
+    @required this.address,
+    @required this.latitude,
+    @required this.longitude
+  });
 
-      if (isPermissable && isServiceEnabled) {
-        currLocation = await location.getLocation();
-      } else {
-        currLocation = null;
-      }
-      
-    } catch (e) {
-      currLocation = null;
-    }
-
-    return currLocation;
-  }
-
+  final int id;
+  final String address;
+  final double latitude;
+  final double longitude;
 }

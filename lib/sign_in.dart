@@ -16,7 +16,13 @@ class SignInFab extends StatelessWidget {
         return FloatingActionButton.extended(
             onPressed: () => _handleSignIn(context),
             icon: Image.asset('assets/g-logo.png', height: 24.0),
-            label: const Text('Sign in with Google'),
+            label: const Text(
+             'Sign in with Google',
+             style: TextStyle(
+               color: Colors.black,
+             ),
+            ),
+            backgroundColor: Colors.white,
         );
     }
 
