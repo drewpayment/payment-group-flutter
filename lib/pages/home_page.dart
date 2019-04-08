@@ -29,6 +29,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  GlobalKey _scaffold = GlobalKey();
   int _selectedIndex = 0;
 
   final drawerItems = [
@@ -38,7 +39,7 @@ class _HomePageState extends State<HomePage> {
 
   _onSelectItem(int index) {
     setState(() => _selectedIndex = index);
-    Navigator.of(context).pop(); // closer the drawer when user selects new item
+    Navigator.of(context).pop(); // close the drawer when user selects new item
   }
 
   // get widget to fill body
@@ -59,16 +60,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   final PageStorageBucket bucket = new PageStorageBucket();
-
-  var _currentUser = new BehaviorSubject<GoogleSignInAccount>();
   GoogleSignInAccount user;
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-
     
+    Auth.initListen(
+      listen: (googleUser) => _updateUser(),
+    );
   }
 
   @override
@@ -76,20 +76,17 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     Auth.init();
-
-    Auth.initListen(
-      listen: (account) {
-        if (Auth.isSignedIn()) {
-          setState(() => user = account);
-        } 
-      },
-    );
-
-    Auth.signInSilently();
   }
 
   _signOut() {
     Auth.signOut().then((done) => setState(() => user = null));
+  }
+
+  _updateUser() {
+    print('UPDATING USER!');
+    print(Auth.googleUser);
+    
+    setState(() => user = Auth.googleUser);
   }
 
   @override
@@ -138,6 +135,7 @@ class _HomePageState extends State<HomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
+      key: _scaffold,
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
