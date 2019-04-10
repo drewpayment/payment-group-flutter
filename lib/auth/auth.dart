@@ -657,7 +657,7 @@ class Auth {
   }
 
   /// Google Signed in.
-  static bool isSignedIn() => _fireBaseAuth?.currentUser() != null;
+  static bool isSignedIn() => _googleSignIn.currentUser != null;
 
   /// FireBase Logged in.
   static bool isLoggedIn() => _user != null;

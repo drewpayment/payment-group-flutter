@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pay_track/pages/home_page.dart';
 import 'package:pay_track/pages/register_page.dart';
 // import 'package:pay_track/services/auth.dart';
 import 'package:pay_track/auth/auth.dart';
@@ -27,6 +28,7 @@ class SignInFab extends StatelessWidget {
     _signInWithGoogle().then((user) {
       if (_existingUser()) {
         _showSnackBar(context, 'Welcome ${user.displayName}');
+        Navigator.of(context).pushReplacementNamed(HomePage.routeName);
       } else {
         _navigateToRegistration(context);
       }

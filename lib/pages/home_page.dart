@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pay_track/auth/auth.dart';
@@ -6,10 +5,9 @@ import 'package:pay_track/models/DrawerItem.dart';
 import 'package:pay_track/pages/map_page.dart';
 import 'package:pay_track/posts_list.dart';
 import 'package:pay_track/sign_in.dart';
-import 'package:rxdart/rxdart.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title}) : super(key: key);
+  HomePage({Key key, @required this.title, }) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -58,38 +56,43 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  final PageStorageBucket bucket = new PageStorageBucket();
-
-  var _currentUser = new BehaviorSubject<GoogleSignInAccount>();
   GoogleSignInAccount user;
 
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
-
-    
   }
 
   @override
   void initState() {
     super.initState();
 
-    Auth.init();
-
-    Auth.initListen(
-      listen: (account) {
-        if (Auth.isSignedIn()) {
-          setState(() => user = account);
-        } 
+    Auth.init(
+      signInOption: SignInOption.standard,
+      onError: (err) {
+        print('ERROR FROM AUTH!');
+        print(err);
       },
+      listen: (googleUser) {
+        if (googleUser != null) {
+          print('Listen event fired!' + googleUser?.displayName ?? '');
+        } else {
+          print(Auth.isSignedIn());
+        }
+        
+        setState(() {
+          user = googleUser;
+        });
+      }
     );
-
     Auth.signInSilently();
   }
 
-  _signOut() {
-    Auth.signOut().then((done) => setState(() => user = null));
+  Future<GoogleSignInAccount> _signOut() async {
+    var gUser = await Auth.googleSignIn.disconnect();
+    await Auth.signOut();
+    return gUser;
   }
 
   @override
@@ -127,7 +130,7 @@ class _HomePageState extends State<HomePage> {
       color: Colors.cyan[400],
     );
 
-    if (user == null && _selectedIndex > 0) {
+    if (!Auth.isSignedIn() && _selectedIndex > 0) {
       setState(() => _selectedIndex = 0);
     }
 
@@ -145,53 +148,55 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         elevation: 1.0,
       ),
-      body: PageStorage(
-        child: _getDrawerItemScreen(_selectedIndex),
-        bucket: bucket,
-      ),
-      floatingActionButton: user == null ? SignInFab() 
-        : FloatingActionButton.extended(
+      body: _getDrawerItemScreen(_selectedIndex),
+      floatingActionButton: Auth.isSignedIn() 
+        ? FloatingActionButton.extended(
           icon: Icon(Icons.exit_to_app),
           label: Text('Sign Out'),
-          onPressed: _signOut(),
+          onPressed: () {
+            _signOut().then((d) {
+              
+            });
+          },
           backgroundColor: Theme.of(context).canvasColor,
-        ),
-      drawer: user != null 
+        )
+        : SignInFab(),
+      drawer: Auth.isSignedIn() 
         ? new Drawer(
-        child: new ListView(
-          padding: EdgeInsets.all(0.0),
-          children: <Widget>[
-            user != null
-              ? new UserAccountsDrawerHeader(
-                accountName:
-                  Text(user?.displayName, style: TextStyle(color: Colors.white)),
-                accountEmail: Text(user?.email,
-                  style: TextStyle(color: Colors.white)),
-                currentAccountPicture: new GoogleUserCircleAvatar(
-                  identity: user,
+          child: new ListView(
+            padding: EdgeInsets.all(0.0),
+            children: <Widget>[
+              user != null
+                ? new UserAccountsDrawerHeader(
+                  accountName:
+                    Text(user?.displayName, style: TextStyle(color: Colors.white)),
+                  accountEmail: Text(user?.email,
+                    style: TextStyle(color: Colors.white)),
+                  currentAccountPicture: new GoogleUserCircleAvatar(
+                    identity: user,
+                  ),
+                  decoration: headerStyle,
+                )
+                : new UserAccountsDrawerHeader(
+                  accountName: Text(''),
+                  accountEmail: Text(''),
+                  currentAccountPicture: Icon(
+                    Icons.account_circle, 
+                    size: 72.0, 
+                    color: Colors.black45,
+                  ),
+                  decoration: headerStyle,
                 ),
-                decoration: headerStyle,
+              ListTileTheme(
+                child: new Column(
+                  children: drawerOptions,  
+                ),
               )
-              : new UserAccountsDrawerHeader(
-                accountName: Text(''),
-                accountEmail: Text(''),
-                currentAccountPicture: Icon(
-                  Icons.account_circle, 
-                  size: 72.0, 
-                  color: Colors.black45,
-                ),
-                decoration: headerStyle,
-              ),
-            ListTileTheme(
-              child: new Column(
-                children: drawerOptions,  
-              ),
-            )
-          ],
-        ),
-        elevation: 16.0,
-      )
-      : null,
+            ],
+          ),
+          elevation: 16.0,
+        )
+        : null,
     );
   }
 
