@@ -26,7 +26,7 @@ class SignInFab extends StatelessWidget {
 
   void _handleSignIn(BuildContext context) {
     _signInWithGoogle().then((user) {
-      if (_existingUser()) {
+      if (user.isEmailVerified) {
         _showSnackBar(context, 'Welcome ${user.displayName}');
         Navigator.of(context).pushReplacementNamed(HomePage.routeName);
       } else {
@@ -38,10 +38,6 @@ class SignInFab extends StatelessWidget {
   void _showSnackBar(BuildContext context, String msg) {
     final SnackBar snackBar = SnackBar(content: Text(msg));
     Scaffold.of(context).showSnackBar(snackBar);
-  }
-
-  bool _existingUser() {
-    return true;
   }
 
   void _navigateToRegistration(BuildContext context) {
