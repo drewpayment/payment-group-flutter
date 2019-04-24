@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:pay_track/data/repository.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key key}) : super(key: key);
@@ -45,6 +46,17 @@ class _MapPageState extends State<MapPage> {
           )
         );
       });
+    });
+
+    var repo = Repository.get();
+
+    repo.getKnocks(1).then((res) {
+      print(res.statusCode);
+      if (res.isOk()) {
+        res.body.forEach((k) {
+          print(k);
+        });
+      }
     });
   }
 

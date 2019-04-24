@@ -35,11 +35,18 @@ class KnockDatabase {
         await db.execute(
           """
             CREATE TABLE $tableName (
-              ${Knock.dbId} STRING PRIMARY KEY,
+              ${Knock.dbDncContactId} STRING PRIMARY KEY,
+              ${Knock.dbClientId} INT,
+              ${Knock.dbFirstName} STRING,
+              ${Knock.dbLastName} STRING,
+              ${Knock.dbDescription} STRING,
               ${Knock.dbAddress} STRING,
-              ${Knock.dbLatitude} DOUBLE,
-              ${Knock.dbLongitude} DOUBLE,
-              ${Knock.dbIsEnabled} BIT
+              ${Knock.dbAddressCont} STRING,
+              ${Knock.dbCity} STRING,
+              ${Knock.dbState} STRING,
+              ${Knock.dbZip} STRING,
+              ${Knock.dbLat} DECIMAL,
+              ${Knock.dbLong} DECIMAL
               )
           """
         );
@@ -51,7 +58,7 @@ class KnockDatabase {
 
   Future<Knock> getKnock(String id) async {
     var db = await _getDb();
-    var result = await db.rawQuery('SELECT * FROM $tableName WHERE ${Knock.dbId} = "$id"');
+    var result = await db.rawQuery('SELECT * FROM $tableName WHERE ${Knock.dbDncContactId} = "$id"');
     if (result.length == 0) return null;
     return new Knock.fromMap(result[0]);
   }
@@ -59,7 +66,7 @@ class KnockDatabase {
   Future<List<Knock>> getKnocks(List<String> ids) async {
     var db = await _getDb();
     var idString = ids.map((it) => '"$it"').join(',');
-    var result = await db.rawQuery('SELECT * FROM $tableName WHERE ${Knock.dbId} in ($idString)');
+    var result = await db.rawQuery('SELECT * FROM $tableName WHERE ${Knock.dbDncContactId} in ($idString)');
     var knocks = [];
     for(Map<String, dynamic> item in result) {
       knocks.add(new Knock.fromMap(item));
