@@ -35,14 +35,14 @@ class Repository {
     database = KnockDatabase.get();
   }
 
-  Future<ParsedResponse<List<Knock>>> getKnocks(int clientId) async {
-    String token = Auth.accessToken;
-    String url = '${api}dnc-contacts';
+  Future<ParsedResponse<List<Knock>>> getKnocks() async {
+    String token = Auth.idToken;
+    var user = await Auth.fireBaseUser();
+    String uid = user.uid;
+    String url = '$api/dnc-contacts?fbid=$uid';
 
-    print(url);
-    print(token);
     http.Response response = await http.get(url, headers: {
-        'Authorizaton': 'Bearer $token'
+        'Authorization': 'Bearer $token'
       })
       .catchError((resp) {});
 
@@ -50,6 +50,7 @@ class Repository {
       return new ParsedResponse(NO_INTERNET, []);
     }
 
+    print(response.statusCode);
     List<dynamic> list = json.decode(response.body);
 
     Map<String, Knock> networkKnocks = {};
@@ -66,17 +67,17 @@ class Repository {
         city: jsonKnock['city'],
         state: jsonKnock['state'],
         zip: jsonKnock['zip'],
-        lat: jsonKnock['lat'],
-        long: jsonKnock['long']
+        lat: double.tryParse(jsonKnock['lat']) ?? 0,
+        long: double.tryParse(jsonKnock['long']) ?? 0
       );
 
       networkKnocks[knock.dncContactId.toString()] = knock;
     }
 
-    List<Knock> databaseKnock = await database.getKnocks([]..addAll(networkKnocks.keys));
-    for(Knock knock in databaseKnock) {
-      networkKnocks[knock.dncContactId.toString()] = knock;
-    }
+    // List<Knock> databaseKnock = await database.getKnocks([]..addAll(networkKnocks.keys));
+    // for(Knock knock in databaseKnock) {
+    //   networkKnocks[knock.dncContactId.toString()] = knock;
+    // }
 
     return new ParsedResponse(response.statusCode, []..addAll(networkKnocks.values));
   }

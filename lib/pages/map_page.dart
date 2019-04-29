@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:pay_track/data/repository.dart';
+import 'package:pay_track/models/Knock.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key key}) : super(key: key);
@@ -24,6 +25,8 @@ class _MapPageState extends State<MapPage> {
 
   // put the list of "do not knock" locations in this list
   var markers = new Set<Marker>();
+  var contacts = new List<Knock>();
+  var widgets = <Widget>[];
 
   _onMapCreated(GoogleMapController controller) {
     // _controller.complete();
@@ -35,34 +38,11 @@ class _MapPageState extends State<MapPage> {
   void initState() {
     super.initState();
     userLocationContract = initPlatformState();
-    var mockHttp = new FakeMarkersGetter();
-
-    mockHttp._getMockDoNotKnocks().then((res) {
-      res.forEach((r) {
-        markers.add(
-          new Marker(
-            markerId: new MarkerId('@{r.id}'),
-            position: LatLng(r.latitude, r.longitude)
-          )
-        );
-      });
-    });
-
-    var repo = Repository.get();
-
-    repo.getKnocks(1).then((res) {
-      print(res.statusCode);
-      if (res.isOk()) {
-        res.body.forEach((k) {
-          print(k);
-        });
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    var widgets = <Widget>[];
+    constructKnockWidgets();
 
     if (_center == null) {
       widgets.add(new Center(
@@ -86,10 +66,10 @@ class _MapPageState extends State<MapPage> {
         padding: EdgeInsets.fromLTRB(0, 16.0, 0, 16.0),
         scrollDirection: Axis.vertical,
         separatorBuilder: (context, index) => Divider(color: Colors.black54),
-        itemCount: 2,
+        itemCount: contacts.length,
         itemBuilder: (context, index) => ListTile(
           leading: Icon(Icons.assignment_late),
-          title: Text('4038 Zion Ct SE'),
+          title: Text(contacts[index].address),
           onTap: () {
             print('This needs to drop a pin on the map.');
           },
@@ -124,41 +104,23 @@ class _MapPageState extends State<MapPage> {
     return userLocationContract;
   }
 
-}
+  void constructKnockWidgets() {
+    var repo = Repository.get();
 
-class FakeMarkersGetter {
+    repo.getKnocks().then((res) {
+      if (res.isOk()) {
+        contacts.addAll(res.body);
 
-  Future<List<DoNotKnock>> _getMockDoNotKnocks() {
-    return new Future(() {
-      return [
-        new DoNotKnock(
-          id: 1,
-          address: '4038 Zion Ct SE',
-          latitude: 42.8900285,
-          longitude: -85.584401
-        ),
-        new DoNotKnock(
-          id: 2,
-          address: '3269 Mesa Verde Ct SE',
-          latitude: 42.890140,
-          longitude: -85.585441
-        )
-      ];
+        res.body.forEach((k) {
+          markers.add(
+            new Marker(
+              markerId: new MarkerId('@{k.dncContactId}'),
+              position: LatLng(k.lat, k.long)
+            )
+          );
+        });
+      }
     });
   }
 
-}
-
-class DoNotKnock {
-  DoNotKnock({
-    @required this.id,
-    @required this.address,
-    @required this.latitude,
-    @required this.longitude
-  });
-
-  final int id;
-  final String address;
-  final double latitude;
-  final double longitude;
 }
