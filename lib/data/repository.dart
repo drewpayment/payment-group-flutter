@@ -50,6 +50,10 @@ class Repository {
       return new ParsedResponse(NO_INTERNET, []);
     }
 
+    if (response.statusCode >= 400) {
+      return new ParsedResponse(response.statusCode, null);
+    }
+
     print(response.statusCode);
     List<dynamic> list = json.decode(response.body);
 

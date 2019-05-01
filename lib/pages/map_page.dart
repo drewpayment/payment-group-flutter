@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:pay_track/auth/auth.dart';
 import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/Knock.dart';
 
@@ -20,18 +21,17 @@ class _MapPageState extends State<MapPage> {
 
   LatLng _center = new LatLng(42.8900285, -85.584401);
   var location = new Location();
+  List contacts;
   LocationData userLocation;
   Future<LocationData> userLocationContract;
 
   // put the list of "do not knock" locations in this list
   var markers = new Set<Marker>();
-  var contacts = new List<Knock>();
   var widgets = <Widget>[];
 
   _onMapCreated(GoogleMapController controller) {
     // _controller.complete();
     // do things after the map has shown up... might be a good place to wire up events showing/hiding markers
-    
   }
 
   @override
@@ -42,8 +42,7 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
-    constructKnockWidgets();
-
+    var repo = Repository.get();
     if (_center == null) {
       widgets.add(new Center(
         child: Text('Please enable Location Services.'),
@@ -62,19 +61,56 @@ class _MapPageState extends State<MapPage> {
     }
 
     widgets.add(
-      ListView.separated(
-        padding: EdgeInsets.fromLTRB(0, 16.0, 0, 16.0),
-        scrollDirection: Axis.vertical,
-        separatorBuilder: (context, index) => Divider(color: Colors.black54),
-        itemCount: contacts.length,
-        itemBuilder: (context, index) => ListTile(
-          leading: Icon(Icons.assignment_late),
-          title: Text(contacts[index].address),
-          onTap: () {
-            print('This needs to drop a pin on the map.');
-          },
-        ),
-      ),
+      FutureBuilder<ParsedResponse<List<Knock>>>(
+        future: repo.getKnocks(),
+        builder: (BuildContext context, AsyncSnapshot<ParsedResponse<List<Knock>>> snapshot) {
+          if (snapshot.hasData && snapshot.data.isOk()) {
+            contacts = snapshot.data.body;
+            return ListView.separated(
+              padding: EdgeInsets.fromLTRB(0, 16.0, 0, 16.0),
+              scrollDirection: Axis.vertical,
+              separatorBuilder: (context, index) => Divider(color: Colors.black54),
+              itemCount: contacts.length,
+              itemBuilder: (context, index) => ListTile(
+                leading: Icon(Icons.assignment_late),
+                title: Text(contacts[index].address),
+                onTap: () {
+                  print('This needs to drop a pin on the map.');
+                },
+              ),
+            );
+          } else {
+            if (snapshot.hasData && !snapshot.data.isOk()) {
+              return AlertDialog(
+                title: Text('Sorry...'),
+                content: Text('Looks like you have been logged out. Please log back in to continue.'),
+                actions: <Widget>[
+                  MaterialButton(
+                    child: Text('Login'),
+                    onPressed: () {
+                      Auth.signOut();
+                    },
+                  )
+                ],
+              );
+            }
+
+            return ListView.separated(
+              padding: EdgeInsets.fromLTRB(0, 16.0, 0, 16.0),
+              scrollDirection: Axis.vertical,
+              separatorBuilder: (context, index) => Divider(color: Colors.black54),
+              itemCount: 1,
+              itemBuilder: (context, index) => ListTile(
+                leading: Icon(Icons.my_location),
+                title: Text('No Locations Yet'),
+                onTap: () {
+                  print('This needs to drop a pin on the map.');
+                },
+              ),
+            );
+          }
+        }
+      )
     );
 
     return new Scaffold(
@@ -102,25 +138,6 @@ class _MapPageState extends State<MapPage> {
     }
 
     return userLocationContract;
-  }
-
-  void constructKnockWidgets() {
-    var repo = Repository.get();
-
-    repo.getKnocks().then((res) {
-      if (res.isOk()) {
-        contacts.addAll(res.body);
-
-        res.body.forEach((k) {
-          markers.add(
-            new Marker(
-              markerId: new MarkerId('@{k.dncContactId}'),
-              position: LatLng(k.lat, k.long)
-            )
-          );
-        });
-      }
-    });
   }
 
 }
