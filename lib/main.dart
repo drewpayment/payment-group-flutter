@@ -20,7 +20,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
 
-  static const String defaultTitle = 'Pay Track';
+  static const String defaultTitle = 'DoNKs';
 
   // This widget is the root of your application.
   @override
