@@ -21,9 +21,10 @@ class _MapPageState extends State<MapPage> {
 
   LatLng _center = new LatLng(42.8900285, -85.584401);
   var location = new Location();
-  List contacts;
+  List<Knock> contacts;
   LocationData userLocation;
   Future<LocationData> userLocationContract;
+  GoogleMapController _controller;
 
   // put the list of "do not knock" locations in this list
   var markers = new Set<Marker>();
@@ -32,6 +33,7 @@ class _MapPageState extends State<MapPage> {
   _onMapCreated(GoogleMapController controller) {
     // _controller.complete();
     // do things after the map has shown up... might be a good place to wire up events showing/hiding markers
+    _controller = controller;
   }
 
   @override
@@ -42,7 +44,65 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
-    var repo = Repository.get();
+    return FutureBuilder(
+      future: Repository.get().getKnocks(),
+      builder: (BuildContext context, AsyncSnapshot<ParsedResponse<List<Knock>>> snapshot) {
+        Widget body;
+
+        if (snapshot.hasData && snapshot.data.isOk()) {
+          contacts = snapshot.data.body;
+
+          _handleApiResponseAndBuildWidgets();
+
+          body = GridView.count(
+            primary: false,
+            padding: EdgeInsets.all(20.0),
+            crossAxisSpacing: 10.0,
+            crossAxisCount: 1,
+            children: widgets,
+          );
+        } else {
+          body = Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Center(
+                child: new CircularProgressIndicator()
+              ),
+            ],
+          );
+
+          // the API returned an error code, most likely related to the user being unauthenticated
+          if (snapshot.hasData && !snapshot.data.isOk()) {
+            Auth.signOut();
+          }
+        }
+
+        return new Scaffold(
+          body: body,
+        );
+      }
+    );
+  }
+
+  void _handleApiResponseAndBuildWidgets() {
+    if (contacts.length > 0) {
+      markers.addAll(contacts.map((c) {
+        var desc = c.firstName != null ? '${c.firstName} ${c.lastName}' : '${c.description}';
+
+        return Marker(
+          markerId: MarkerId(c.dncContactId.toString()),
+          draggable: false,
+          visible: true,
+          position: LatLng(c.lat, c.long),
+          infoWindow: InfoWindow(
+            title: '${c.address}',
+            snippet: '$desc',
+          ),
+        );
+      }));
+    }
+
     if (_center == null) {
       widgets.add(new Center(
         child: Text('Please enable Location Services.'),
@@ -57,71 +117,44 @@ class _MapPageState extends State<MapPage> {
           zoom: 16.0,
         ),
         markers: markers,
+        compassEnabled: true,
       ));
     }
 
-    widgets.add(
-      FutureBuilder<ParsedResponse<List<Knock>>>(
-        future: repo.getKnocks(),
-        builder: (BuildContext context, AsyncSnapshot<ParsedResponse<List<Knock>>> snapshot) {
-          if (snapshot.hasData && snapshot.data.isOk()) {
-            contacts = snapshot.data.body;
-            return ListView.separated(
-              padding: EdgeInsets.fromLTRB(0, 16.0, 0, 16.0),
-              scrollDirection: Axis.vertical,
-              separatorBuilder: (context, index) => Divider(color: Colors.black54),
-              itemCount: contacts.length,
-              itemBuilder: (context, index) => ListTile(
-                leading: Icon(Icons.assignment_late),
-                title: Text(contacts[index].address),
-                onTap: () {
-                  print('This needs to drop a pin on the map.');
-                },
-              ),
-            );
-          } else {
-            if (snapshot.hasData && !snapshot.data.isOk()) {
-              return AlertDialog(
-                title: Text('Sorry...'),
-                content: Text('Looks like you have been logged out. Please log back in to continue.'),
-                actions: <Widget>[
-                  MaterialButton(
-                    child: Text('Login'),
-                    onPressed: () {
-                      Auth.signOut();
-                    },
-                  )
-                ],
-              );
-            }
-
-            return ListView.separated(
-              padding: EdgeInsets.fromLTRB(0, 16.0, 0, 16.0),
-              scrollDirection: Axis.vertical,
-              separatorBuilder: (context, index) => Divider(color: Colors.black54),
-              itemCount: 1,
-              itemBuilder: (context, index) => ListTile(
-                leading: Icon(Icons.my_location),
-                title: Text('No Locations Yet'),
-                onTap: () {
-                  print('This needs to drop a pin on the map.');
-                },
-              ),
-            );
-          }
-        }
-      )
-    );
-
-    return new Scaffold(
-      body: GridView.count(
-        primary: false,
-        padding: EdgeInsets.all(20.0),
-        crossAxisSpacing: 10.0,
-        crossAxisCount: 1,
-        children: widgets,
-      ),
-    );
+    if (contacts.length > 0) {
+      widgets.add(ListView.separated(
+        padding: EdgeInsets.fromLTRB(0, 16.0, 0, 16.0),
+        scrollDirection: Axis.vertical,
+        separatorBuilder: (context, index) => Divider(color: Colors.black54),
+        itemCount: contacts.length,
+        itemBuilder: (context, index) => ListTile(
+          leading: Icon(Icons.assignment_late),
+          title: Text(contacts[index].address),
+          onTap: () {
+            var con = contacts[index];
+            _controller.moveCamera(CameraUpdate.newCameraPosition(
+              CameraPosition(target: LatLng(con.lat, con.long),
+                zoom: 18.0,
+              )
+            ));
+          },
+          selected: false,
+        ),
+      ));
+    } else {
+      widgets.add(AlertDialog(
+        title: Text('Sorry...'),
+        content: Text('Looks like you have been logged out. Please log back in to continue.'),
+        actions: <Widget>[
+          MaterialButton(
+            child: Text('Login'),
+            onPressed: () {
+              Auth.signOut();
+            },
+          )
+        ],
+      ));
+    }
   }
 
   Future<LocationData> initPlatformState() async {
