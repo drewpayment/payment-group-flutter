@@ -127,19 +127,30 @@ class _MapPageState extends State<MapPage> {
         scrollDirection: Axis.vertical,
         separatorBuilder: (context, index) => Divider(color: Colors.black54),
         itemCount: contacts.length,
-        itemBuilder: (context, index) => ListTile(
-          leading: Icon(Icons.assignment_late),
-          title: Text(contacts[index].address),
-          onTap: () {
-            var con = contacts[index];
-            _controller.moveCamera(CameraUpdate.newCameraPosition(
-              CameraPosition(target: LatLng(con.lat, con.long),
-                zoom: 18.0,
-              )
-            ));
-          },
-          selected: false,
-        ),
+        itemBuilder: (context, index) {
+          var color = Colors.transparent;
+
+          return Container(
+            color: color,
+            child: ListTile(
+              leading: Icon(Icons.assignment_late),
+              title: Text(contacts[index].address),
+              onTap: () {
+                var con = contacts[index];
+                _controller.moveCamera(CameraUpdate.newCameraPosition(
+                  CameraPosition(target: LatLng(con.lat, con.long),
+                    zoom: 18.0,
+                  )
+                ));
+
+                setState(() {
+                  color = Colors.red;
+                });
+              },
+              selected: false,
+            ),
+          );
+        }
       ));
     } else {
       widgets.add(AlertDialog(
