@@ -1,2 +1,2 @@
 
-final String api = 'http://verostack:8888/api/v2';
+final String api = 'http://verostack/api/v2';

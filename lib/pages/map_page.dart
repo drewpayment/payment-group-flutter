@@ -55,7 +55,7 @@ class _MapPageState extends State<MapPage> {
           _handleApiResponseAndBuildWidgets();
 
           body = GridView.count(
-            primary: false,
+            primary: true,
             padding: EdgeInsets.all(20.0),
             crossAxisSpacing: 10.0,
             crossAxisCount: 1,
@@ -89,7 +89,6 @@ class _MapPageState extends State<MapPage> {
     if (contacts.length > 0) {
       markers.addAll(contacts.map((c) {
         var desc = c.firstName != null ? '${c.firstName} ${c.lastName}' : '${c.description}';
-
         return Marker(
           markerId: MarkerId(c.dncContactId.toString()),
           draggable: false,
@@ -108,49 +107,59 @@ class _MapPageState extends State<MapPage> {
         child: Text('Please enable Location Services.'),
       ));
     } else {
-      widgets.add(GoogleMap(
-        zoomGesturesEnabled: true,
-        myLocationEnabled: true,
-        onMapCreated: _onMapCreated,
-        initialCameraPosition: CameraPosition(
-          target: _center,
-          zoom: 16.0,
+      widgets.add(Container(
+        constraints: BoxConstraints.expand(),
+        height: 400.0,
+        child: GoogleMap(
+          zoomGesturesEnabled: true,
+          myLocationEnabled: true,
+          onMapCreated: _onMapCreated,
+          initialCameraPosition: CameraPosition(
+            target: _center,
+            zoom: 16.0,
+          ),
+          markers: markers,
+          compassEnabled: true,
         ),
-        markers: markers,
-        compassEnabled: true,
       ));
     }
 
     if (contacts.length > 0) {
-      widgets.add(ListView.separated(
-        padding: EdgeInsets.fromLTRB(0, 16.0, 0, 16.0),
-        scrollDirection: Axis.vertical,
-        separatorBuilder: (context, index) => Divider(color: Colors.black54),
-        itemCount: contacts.length,
-        itemBuilder: (context, index) {
-          var color = Colors.transparent;
+      widgets.add(GridView.count(
+        crossAxisCount: 1,
+        primary: false,
+        children: <Widget>[
+          ListView.separated(
+            padding: EdgeInsets.fromLTRB(0, 16.0, 0, 16.0),
+            scrollDirection: Axis.vertical,
+            separatorBuilder: (context, index) => Divider(color: Colors.black54),
+            itemCount: contacts.length,
+            itemBuilder: (context, index) {
+              var color = Colors.transparent;
 
-          return Container(
-            color: color,
-            child: ListTile(
-              leading: Icon(Icons.assignment_late),
-              title: Text(contacts[index].address),
-              onTap: () {
-                var con = contacts[index];
-                _controller.moveCamera(CameraUpdate.newCameraPosition(
-                  CameraPosition(target: LatLng(con.lat, con.long),
-                    zoom: 18.0,
-                  )
-                ));
+              return Container(
+                color: color,
+                child: ListTile(
+                  leading: Icon(Icons.assignment_late),
+                  title: Text(contacts[index].address),
+                  onTap: () {
+                    var con = contacts[index];
+                    _controller.moveCamera(CameraUpdate.newCameraPosition(
+                      CameraPosition(target: LatLng(con.lat, con.long),
+                        zoom: 18.0,
+                      )
+                    ));
 
-                setState(() {
-                  color = Colors.red;
-                });
-              },
-              selected: false,
-            ),
-          );
-        }
+                    setState(() {
+                      color = Colors.red;
+                    });
+                  },
+                  selected: false,
+                ),
+              );
+            }
+          )
+        ],
       ));
     } else {
       widgets.add(AlertDialog(
