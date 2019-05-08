@@ -8,31 +8,37 @@ class ColorListTile extends StatefulWidget {
   bool enabled = true;
   bool selected = false;
   final EdgeInsetsGeometry contentPadding;
+  final Color selectedColor;
 
-  ColorListTile(this.leading, this.title, this.subtitle, this.onTap, this.contentPadding, this.enabled, this.selected);
+  ColorListTile({this.leading, this.title, this.subtitle, this.onTap, 
+    this.contentPadding, this.enabled, this.selected, this.selectedColor
+  });
 
   @override
-  ColorListTileState createState() => ColorListTileState(leading, title, subtitle, onTap, contentPadding, enabled, selected);
+  ColorListTileState createState() => ColorListTileState(leading, title, subtitle, onTap, contentPadding, enabled, selected, selectedColor);
 }
 
 class ColorListTileState extends State<ColorListTile> {
   final Widget leading;
   final Widget customTitle;
   final Widget subtitle;
-  final Function onTap;
-  final bool enabled;
-  final bool selected;
+  final Function onTapDelegate;
+  bool enabled = true;
+  bool selected = false;
   final EdgeInsetsGeometry contentPadding;
   Color color;
+  final Color baseColor = Colors.transparent;
+  final Color selectedColor;
 
   ColorListTileState(
     this.leading, 
     this.customTitle, 
     this.subtitle, 
-    this.onTap, 
+    this.onTapDelegate, 
     this.contentPadding,
     this.enabled, 
     this.selected,
+    this.selectedColor
   );
 
   @override
@@ -48,9 +54,15 @@ class ColorListTileState extends State<ColorListTile> {
       child: ListTile(
         leading: leading,
         title: customTitle,
-        onTap: onTap,
+        onTap: () {
+          setState(() {
+            selected = !selected;
+            color = selected ? selectedColor : baseColor;
+          });
+          onTapDelegate(selected);
+        },
         selected: selected,
-        enabled: enabled,
+        enabled: true,
       ),
     );
   }

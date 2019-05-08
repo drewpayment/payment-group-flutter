@@ -6,6 +6,7 @@ import 'package:location/location.dart';
 import 'package:pay_track/auth/auth.dart';
 import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/Knock.dart';
+import 'package:pay_track/utils/color_list_tile.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key key}) : super(key: key);
@@ -17,29 +18,31 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  // Completer<GoogleMapController> _controller = Completer();
+  Completer<GoogleMapController> _controller = Completer();
 
-  LatLng _center = new LatLng(42.8900285, -85.584401);
+  LatLng _center;
   var location = new Location();
   List<Knock> contacts;
   LocationData userLocation;
   Future<LocationData> userLocationContract;
-  GoogleMapController _controller;
+  // GoogleMapController _controller;
 
   // put the list of "do not knock" locations in this list
-  var markers = new Set<Marker>();
+  final Set<Marker> _markers = Set();
+  List<MarkerId> _markerIds = <MarkerId>[];
   var widgets = <Widget>[];
 
   _onMapCreated(GoogleMapController controller) {
     // _controller.complete();
     // do things after the map has shown up... might be a good place to wire up events showing/hiding markers
-    _controller = controller;
+    _controller.complete(controller);
   }
 
   @override
   void initState() {
     super.initState();
-    userLocationContract = initPlatformState();
+
+    initPlatformState().then((loc) => setState(() { _center = LatLng(loc.latitude, loc.longitude); }));
   }
 
   @override
@@ -86,21 +89,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _handleApiResponseAndBuildWidgets() {
-    if (contacts.length > 0) {
-      markers.addAll(contacts.map((c) {
-        var desc = c.firstName != null ? '${c.firstName} ${c.lastName}' : '${c.description}';
-        return Marker(
-          markerId: MarkerId(c.dncContactId.toString()),
-          draggable: false,
-          visible: true,
-          position: LatLng(c.lat, c.long),
-          infoWindow: InfoWindow(
-            title: '${c.address}',
-            snippet: '$desc',
-          ),
-        );
-      }));
-    }
+    widgets = <Widget>[];
 
     if (_center == null) {
       widgets.add(new Center(
@@ -118,7 +107,7 @@ class _MapPageState extends State<MapPage> {
             target: _center,
             zoom: 16.0,
           ),
-          markers: markers,
+          markers: _markers,
           compassEnabled: true,
         ),
       ));
@@ -135,27 +124,15 @@ class _MapPageState extends State<MapPage> {
             separatorBuilder: (context, index) => Divider(color: Colors.black54),
             itemCount: contacts.length,
             itemBuilder: (context, index) {
-              var color = Colors.transparent;
-
-              return Container(
-                color: color,
-                child: ListTile(
-                  leading: Icon(Icons.assignment_late),
-                  title: Text(contacts[index].address),
-                  onTap: () {
-                    var con = contacts[index];
-                    _controller.moveCamera(CameraUpdate.newCameraPosition(
-                      CameraPosition(target: LatLng(con.lat, con.long),
-                        zoom: 18.0,
-                      )
-                    ));
-
-                    setState(() {
-                      color = Colors.red;
-                    });
-                  },
-                  selected: false,
-                ),
+              return ColorListTile(
+                leading: Icon(Icons.assignment_late),
+                title: Text(contacts[index].address),
+                onTap: (bool isSelected) {
+                  var con = contacts[index];
+                  _goToAddress(con, isSelected);
+                },
+                selected: false,
+                selectedColor: Colors.lightBlue[50].withOpacity(0.5),
               );
             }
           )
@@ -177,11 +154,38 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
-  Future<LocationData> initPlatformState() async {
-    Future<LocationData> userLocationContract;
+  Future<void> _goToAddress(Knock con, bool isSelected) async {
+    GoogleMapController controller = await _controller.future;
 
+    controller.animateCamera(CameraUpdate.newCameraPosition(
+      CameraPosition(target: LatLng(con.lat, con.long),
+        zoom: 18.0,
+      )
+    ));
+
+    _markers.clear();
+
+    if (isSelected) {
+      var desc = con.firstName != null ? '${con.firstName} ${con.lastName}' : '${con.description}';
+      var marker = Marker(
+        markerId: MarkerId('${con.dncContactId}'),
+        position: LatLng(con.lat, con.long),
+        infoWindow: InfoWindow(
+          title: '${con.address}',
+          snippet: '$desc',
+        ),
+      );
+      setState(() {
+        _markers.add(marker);
+      });
+    } 
+    
+  }
+
+  Future<LocationData> initPlatformState() async {
+    LocationData userLocation;
     try {
-      userLocationContract = location.getLocation();
+      userLocation = await location.getLocation();
     } on PlatformException catch(e) {
       if (e.code == 'PERMISSION_DENIED') {
         print('Permission Denied.');
@@ -189,8 +193,7 @@ class _MapPageState extends State<MapPage> {
         print('Permission denied - please ask the user to enable it from the app settings');
       }
     }
-
-    return userLocationContract;
+    return userLocation;
   }
 
 }
