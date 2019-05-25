@@ -44,6 +44,23 @@ class Knock {
     this.dncContactId
   });
 
+  factory Knock.fromJson(Map<String, dynamic> jsonKnock) {
+    return Knock(
+      dncContactId: jsonKnock['dncContactId'],
+      clientId: jsonKnock['clientId'],
+      firstName: jsonKnock['firstName'],
+      lastName: jsonKnock['lastName'],
+      description: jsonKnock['description'],
+      address: jsonKnock['address'],
+      addressCont: jsonKnock['addressCont'],
+      city: jsonKnock['city'],
+      state: jsonKnock['state'],
+      zip: jsonKnock['zip'],
+      lat: double.tryParse(jsonKnock['lat']) ?? 0,
+      long: double.tryParse(jsonKnock['long']) ?? 0
+    );
+  }
+
   Knock.fromMap(Map<String, dynamic> map): this(
     dncContactId: map[dbDncContactId],
     clientId: map[dbClientId],
@@ -74,5 +91,17 @@ class Knock {
       dbLat: lat,
       dbLong: long
     };
+  }
+}
+
+class KnockList {
+  final List<Knock> knocks;
+
+  KnockList({ this.knocks });
+
+  factory KnockList.fromJson(List<dynamic> j) {
+    return KnockList(
+      knocks: j.map((i) => Knock.fromJson(i)).toList(),
+    );
   }
 }

@@ -1,6 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pay_track/auth/auth.dart';
+import 'package:pay_track/data/http.dart';
+import 'package:pay_track/data/user_repository.dart';
 import 'package:pay_track/models/DrawerItem.dart';
 import 'package:pay_track/pages/map_page.dart';
 import 'package:pay_track/posts_list.dart';
@@ -60,7 +63,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
   }
 
@@ -77,6 +79,26 @@ class _HomePageState extends State<HomePage> {
       listen: (googleUser) {
         if (googleUser != null) {
           print('Listen event fired!' + googleUser?.displayName ?? '');
+
+          HttpClient.addInterceptor(InterceptorsWrapper(
+            onRequest: (RequestOptions options) {
+              options.headers.addAll({
+                'authorization': 'Bearer ${Auth.idToken}'
+              });
+
+              options.queryParameters.addAll({
+                'fbid': Auth.user.uid,
+              });
+
+              return options;
+            },
+
+            onError: (DioError err) {
+              print(err.message);
+            },
+          ));
+
+          _loadUser();
         } else {
           print(Auth.isSignedIn());
         }
@@ -87,6 +109,15 @@ class _HomePageState extends State<HomePage> {
       }
     );
     Auth.signInSilently();
+  }
+
+  _loadUser() async {
+    var userRepo = UserRepository();
+    var userResponse = await userRepo.getUser();
+
+    if (userResponse.isOk()) {
+      HttpClient.user = userResponse.body;
+    }
   }
 
   Future<GoogleSignInAccount> _signOut() async {

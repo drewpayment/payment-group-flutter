@@ -6,6 +6,7 @@ import 'package:location/location.dart';
 import 'package:pay_track/auth/auth.dart';
 import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/Knock.dart';
+import 'package:pay_track/models/parsed_response.dart';
 import 'package:pay_track/utils/color_list_tile.dart';
 
 class MapPage extends StatefulWidget {

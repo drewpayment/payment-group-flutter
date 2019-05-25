@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pay_track/data/http.dart';
 import 'package:pay_track/pages/home_page.dart';
 import 'package:pay_track/pages/map_page.dart';
 import 'package:pay_track/pages/register_page.dart';
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
+    HttpClient.init();
     return MaterialApp(
       title: 'Flutter Demo',
       theme: buildTheme(),
