@@ -1,5 +1,5 @@
-import 'dart:_http';
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pay_track/models/user.dart';
@@ -26,6 +26,12 @@ class HttpClient {
   static init() {
     if (_dio == null) _dio = Dio();
     (_dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
+
+    addInterceptor(InterceptorsWrapper(
+      onError: (DioError err) {
+        print(err.message);
+      },
+    ));
   }
 
   static addInterceptor(InterceptorsWrapper interceptor) {

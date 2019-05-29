@@ -31,10 +31,10 @@ class Repository {
 
   Future<ParsedResponse<List<Knock>>> getKnocks() async {
     ParsedResponse result;
-    String token = Auth.idToken;
     var user = await Auth.fireBaseUser();
     String uid = user.uid;
     String url = '$api/dnc-contacts?fbid=$uid';
+    print('$url');
 
     var response = await HttpClient.get<Response<dynamic>>(url);
     result = ParsedResponse(response.statusCode, response.data);

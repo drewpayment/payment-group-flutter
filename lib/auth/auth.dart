@@ -527,10 +527,17 @@ class Auth {
             .signInSilently(suppressErrors: suppressErrors)
             .catchError((ex) {
           _ex = ex;
-        }).then((user) {
-          _setFireBaseUserFromGoogle(user).then((set) {
-            _listGoogleListeners(user);
-          });
+        }).then((user) async {
+          var isSetFireBaseUser = await _setFireBaseUserFromGoogle(user);
+
+          if (!isSetFireBaseUser) {
+            print('FireBase User is NOT set');
+          }
+
+          _listGoogleListeners(user);
+          // _setFireBaseUserFromGoogle(user).then((set) {
+          //   _listGoogleListeners(user);
+          // });
           return user;
         }).catchError((ex) {
           _ex = ex;
@@ -657,7 +664,7 @@ class Auth {
   }
 
   /// Google Signed in.
-  static bool isSignedIn() => _googleSignIn.currentUser != null;
+  static bool isSignedIn() => _googleSignIn?.currentUser != null;
 
   /// FireBase Logged in.
   static bool isLoggedIn() => _user != null;

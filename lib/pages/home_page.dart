@@ -1,13 +1,7 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:pay_track/auth/auth.dart';
-import 'package:pay_track/data/http.dart';
-import 'package:pay_track/data/user_repository.dart';
-import 'package:pay_track/models/DrawerItem.dart';
 import 'package:pay_track/pages/map_page.dart';
-import 'package:pay_track/posts_list.dart';
-import 'package:pay_track/sign_in.dart';
+import 'package:pay_track/services/auth.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, @required this.title, }) : super(key: key);
@@ -30,36 +24,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
-
-  final drawerItems = [
-    new DrawerItem('Home', Icons.home),
-    new DrawerItem('Map', Icons.map)
-  ];
-
-  _onSelectItem(int index) {
-    setState(() => _selectedIndex = index);
-    Navigator.of(context).pop(); // closer the drawer when user selects new item
-  }
-
-  // get widget to fill body
-  _getDrawerItemScreen(int pos) {
-    switch (pos) {
-      case 0:
-        return new Center(
-          // Center is a layout widget. It takes a single child and positions it
-          // in the middle of the parent.
-          child: PostsList(),
-        );
-      case 1:
-        return MapPage();
-
-      default:
-        return new Text('Error!');
-    }
-  }
+  final _formKey = GlobalKey<FormState>();
+  String _username;
+  String _password;
 
   GoogleSignInAccount user;
+  BoxDecoration headerStyle;
+  List<Widget> drawerOptions;
+  int _selectedNavigationItem = 0;
 
   @override
   void didChangeDependencies() {
@@ -69,101 +41,21 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-
-    Auth.init(
-      signInOption: SignInOption.standard,
-      onError: (err) {
-        print('ERROR FROM AUTH!');
-        print(err);
-      },
-      listen: (googleUser) {
-        if (googleUser != null) {
-          print('Listen event fired!' + googleUser?.displayName ?? '');
-
-          HttpClient.addInterceptor(InterceptorsWrapper(
-            onRequest: (RequestOptions options) {
-              options.headers.addAll({
-                'authorization': 'Bearer ${Auth.idToken}'
-              });
-
-              options.queryParameters.addAll({
-                'fbid': Auth.user.uid,
-              });
-
-              return options;
-            },
-
-            onError: (DioError err) {
-              print(err.message);
-            },
-          ));
-
-          _loadUser();
-        } else {
-          print(Auth.isSignedIn());
-        }
-        
-        setState(() {
-          user = googleUser;
-        });
-      }
-    );
-    Auth.signInSilently();
-  }
-
-  _loadUser() async {
-    var userRepo = UserRepository();
-    var userResponse = await userRepo.getUser();
-
-    if (userResponse.isOk()) {
-      HttpClient.user = userResponse.body;
-    }
-  }
-
-  Future<GoogleSignInAccount> _signOut() async {
-    var gUser = await Auth.googleSignIn.disconnect();
-    await Auth.signOut();
-    return gUser;
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> drawerOptions = [];
-    for (var i = 0; i < drawerItems.length; i++) {
-      var d = drawerItems[i];
-
-      drawerOptions.add(new Container(
-        margin: EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          color: i == _selectedIndex ? Colors.cyan[400] : Theme.of(context).canvasColor,
-          borderRadius: BorderRadius.all(Radius.circular(5.0))
-        ),
-        child: new ListTile(
-          dense: true,
-          leading: new Icon(d.icon, 
-            color: i == _selectedIndex ? Colors.white : Colors.cyan,
-          ),
-          title: new Text(
-            d.title,
-            style: new TextStyle(
-              fontSize: 18.0, 
-              fontWeight: FontWeight.w400,
-              color: i == _selectedIndex ? Colors.white : Colors.cyan,
-            ),
-          ),
-          selected: i == _selectedIndex,
-          onTap: () => _onSelectItem(i),
-        ),
-      ));
-    }
-
-    var headerStyle = BoxDecoration(
+    headerStyle = BoxDecoration(
       color: Colors.cyan[400],
     );
 
-    if (!Auth.isSignedIn() && _selectedIndex > 0) {
-      setState(() => _selectedIndex = 0);
-    }
+    var _bottomNavItems = [BottomNavigationBarItem(
+      icon: Icon(Icons.home),
+      title: Text('Home'),
+    ), BottomNavigationBarItem(
+      icon: Icon(Icons.map),
+      title: Text('Map'),
+    )];
 
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -179,56 +71,129 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         elevation: 1.0,
       ),
-      body: _getDrawerItemScreen(_selectedIndex),
+      body: _getWidgetBody(_selectedNavigationItem),
       floatingActionButton: Auth.isSignedIn() 
         ? FloatingActionButton.extended(
           icon: Icon(Icons.exit_to_app),
           label: Text('Sign Out'),
           onPressed: () {
-            _signOut().then((d) {
-              
+            _signOut().then((account) {
+              user = account;
             });
           },
           backgroundColor: Theme.of(context).canvasColor,
         )
-        : SignInFab(),
-      drawer: Auth.isSignedIn() 
-        ? new Drawer(
-          child: new ListView(
-            padding: EdgeInsets.all(0.0),
-            children: <Widget>[
-              user != null
-                ? new UserAccountsDrawerHeader(
-                  accountName:
-                    Text(user?.displayName, style: TextStyle(color: Colors.white)),
-                  accountEmail: Text(user?.email,
-                    style: TextStyle(color: Colors.white)),
-                  currentAccountPicture: new GoogleUserCircleAvatar(
-                    identity: user,
-                  ),
-                  decoration: headerStyle,
-                )
-                : new UserAccountsDrawerHeader(
-                  accountName: Text(''),
-                  accountEmail: Text(''),
-                  currentAccountPicture: Icon(
-                    Icons.account_circle, 
-                    size: 72.0, 
-                    color: Colors.black45,
-                  ),
-                  decoration: headerStyle,
-                ),
-              ListTileTheme(
-                child: new Column(
-                  children: drawerOptions,  
-                ),
-              )
-            ],
-          ),
-          elevation: 16.0,
-        )
         : null,
+      bottomNavigationBar: Auth.isSignedIn() ? BottomNavigationBar(
+        items: _bottomNavItems,
+        currentIndex: _selectedNavigationItem,
+        onTap: _onNavigationBarTap,
+      ) : null,
     );
+  }
+
+  _onNavigationBarTap(int index) {
+    print('Tapped number $index');
+    setState(() {
+      _selectedNavigationItem = index;
+    });
+  }
+
+  Future<GoogleSignInAccount> _signOut() async {
+    // await Auth.signOut();
+    // return await Auth.googleSignIn.disconnect();
+  }
+
+  // get widget to fill body
+  _getWidgetBody(int pos) {
+    switch (pos) {
+      case 0:
+        return Center(
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          child: Form(
+            key: _formKey,
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              color: Theme.of(context).backgroundColor,
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: TextFormField(
+                        autocorrect: false,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                          labelText: 'Username',
+                        ),
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter a username';
+                          }
+
+                          _username = value;
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: TextFormField(
+                        autocorrect: false,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                          labelText: 'Password',
+                        ),
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter a password.';
+                          }
+
+                          _password = value;
+                        },
+                      ),
+                    ),
+                    RaisedButton(
+                      padding: EdgeInsets.all(16.0),
+                      child: Row(
+                        children: <Widget>[
+                          Icon(Icons.exit_to_app),
+                          Text('Sign In'),
+                        ],
+                        mainAxisAlignment: MainAxisAlignment.center,
+                      ),
+                      onPressed: () {
+                        if (_formKey.currentState.validate()) {
+                          Auth.signIn(_username, _password).then((result) {
+                            print('Status is OK: ${result.isOk()}');
+                            print('User display name: ${Auth.user?.firstName} ${Auth.user?.lastName}');
+                            print('Token: ${result.body?.token}');
+                          });
+                        }
+                      },
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      case 1:
+        return MapPage();
+
+      default:
+        return new Text('Error!');
+    }
   }
 
 }

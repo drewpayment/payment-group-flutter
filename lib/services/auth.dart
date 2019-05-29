@@ -1,28 +1,48 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+
+
+import 'package:dio/dio.dart';
+import 'package:pay_track/data/http.dart';
+import 'package:pay_track/data/repository.dart';
+import 'package:pay_track/environment.dart';
+import 'package:pay_track/models/auth_response.dart';
+import 'package:pay_track/models/parsed_response.dart';
+import 'package:pay_track/models/user.dart';
 
 class Auth {
-    Auth({
-        @required this.googleSignIn,
-        @required this.firebaseAuth
-    });
+  static String _token;
+  static User _user;
 
-    final GoogleSignIn googleSignIn;
-    final FirebaseAuth firebaseAuth;
+  static User get user => _user;
 
-    Future<FirebaseUser> signInWithGoogle() async {
-        final GoogleSignInAccount googleAccount = await googleSignIn.signIn();
-        // TODO: handle null google account
-        final GoogleSignInAuthentication googleAuth = await googleAccount.authentication;
+  static set user(User value) {
+    if (value == null) return;
+    _user = value;
+  }
 
-        final AuthCredential credential = GoogleAuthProvider.getCredential(
-            accessToken: googleAuth.accessToken,
-            idToken: googleAuth.idToken
-        );
+  static Future<ParsedResponse<AuthResponse>> signIn(String username, String password) async {
+    ParsedResponse<AuthResponse> result = ParsedResponse(NO_INTERNET, null);
+    var url = '$oldapi/authenticate';
+    print('URL: $url');
+    var resp = await HttpClient.post(url, 
+      data: {
+        'username': username,
+        'password': password
+      }
+    );
 
-        final FirebaseUser user = await firebaseAuth.signInWithCredential(credential);
-        print("Signed in " + user.displayName);
-        return user;
+    result = ParsedResponse(resp.statusCode, null);
+
+    if (result.isOk()) {
+      result = ParsedResponse<AuthResponse>(result.statusCode, AuthResponse.fromJson(resp.data));
+      _user = result.body.user;
+      _token = result.body.token;
     }
+
+    return result;
+  }
+
+  static bool isSignedIn() {
+    return _user != null && _token != null;
+  }
+
 }

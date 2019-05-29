@@ -1,6 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pay_track/data/http.dart';
+import 'package:pay_track/data/user_repository.dart';
 import 'package:pay_track/pages/home_page.dart';
 import 'package:pay_track/pages/register_page.dart';
 // import 'package:pay_track/services/auth.dart';
@@ -24,15 +27,61 @@ class SignInFab extends StatelessWidget {
     );
   }
 
-  void _handleSignIn(BuildContext context) {
-    _signInWithGoogle().then((user) {
-      if (user.isEmailVerified) {
-        _showSnackBar(context, 'Welcome ${user.displayName}');
-        Navigator.of(context).pushReplacementNamed(HomePage.routeName);
-      } else {
-        _navigateToRegistration(context);
-      }
-    });
+  _handleSignIn(BuildContext context) async {
+    var user = await _signInWithGoogle();
+
+    if (user != null) _loadUser();
+
+    // Auth.signInSilently(
+    //   signInOption: SignInOption.standard,
+    //   onError: (err) {
+    //     print('ERROR FROM AUTH!');
+    //     print(err);
+    //   },
+    //   listen: (googleUser) {
+    //     if (googleUser != null) {
+    //       print('Listen event fired!' + googleUser?.displayName ?? '');
+    //       _loadUser();
+    //     } else {
+    //       print(Auth.isSignedIn());
+    //     }
+    //   }
+    // );
+  }
+
+  
+
+    // _signInWithGoogle().then((user) {
+      // if (user.isEmailVerified) {
+      //   _showSnackBar(context, 'Welcome ${user.displayName}');
+      //   Navigator.of(context).pushReplacementNamed(HomePage.routeName);
+      // } else {
+      //   _navigateToRegistration(context);
+      // }
+    // });
+  // }
+
+  _loadUser() async {
+    HttpClient.addInterceptor(InterceptorsWrapper(
+      onRequest: (RequestOptions options) {
+        options.headers.addAll({
+          'authorization': 'Bearer ${Auth.idToken}'
+        });
+
+        options.queryParameters.addAll({
+          'fbid': Auth.uid,
+        });
+
+        return options;
+      },
+    ));
+
+    var userRepo = UserRepository();
+    var userResponse = await userRepo.getUser();
+
+    if (userResponse.isOk()) {
+      HttpClient.user = userResponse.body;
+    }
   }
 
   void _showSnackBar(BuildContext context, String msg) {
