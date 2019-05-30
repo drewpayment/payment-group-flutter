@@ -30,17 +30,15 @@ class Repository {
   }
 
   Future<ParsedResponse<List<Knock>>> getKnocks() async {
-    ParsedResponse result;
-    var user = await Auth.fireBaseUser();
-    String uid = user.uid;
-    String url = '$api/dnc-contacts?fbid=$uid';
-    print('$url');
+    ParsedResponse<List<Knock>> result = ParsedResponse(NO_INTERNET, null);
+    String url = '$oldapi/dnc-contacts';
 
-    var response = await HttpClient.get<Response<dynamic>>(url);
-    result = ParsedResponse(response.statusCode, response.data);
+    print(url);
+    var response = await HttpClient.get<List<dynamic>>(url);
+    result = ParsedResponse(response.statusCode, null);
 
     if (result.isOk()) {
-      result = ParsedResponse(result.statusCode, KnockList.fromJson(result.body));
+      result = ParsedResponse(result.statusCode, KnockList.fromJson(response.data).knocks);
     }
 
     return result;

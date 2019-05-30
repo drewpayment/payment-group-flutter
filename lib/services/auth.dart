@@ -3,6 +3,7 @@
 import 'package:dio/dio.dart';
 import 'package:pay_track/data/http.dart';
 import 'package:pay_track/data/repository.dart';
+import 'package:pay_track/data/user_repository.dart';
 import 'package:pay_track/environment.dart';
 import 'package:pay_track/models/auth_response.dart';
 import 'package:pay_track/models/parsed_response.dart';
@@ -22,7 +23,7 @@ class Auth {
   static Future<ParsedResponse<AuthResponse>> signIn(String username, String password) async {
     ParsedResponse<AuthResponse> result = ParsedResponse(NO_INTERNET, null);
     var url = '$oldapi/authenticate';
-    print('URL: $url');
+
     var resp = await HttpClient.post(url, 
       data: {
         'username': username,
@@ -36,6 +37,8 @@ class Auth {
       result = ParsedResponse<AuthResponse>(result.statusCode, AuthResponse.fromJson(resp.data));
       _user = result.body.user;
       _token = result.body.token;
+
+      await _setInterceptorToken();
     }
 
     return result;
@@ -43,6 +46,17 @@ class Auth {
 
   static bool isSignedIn() {
     return _user != null && _token != null;
+  }
+
+  static _setInterceptorToken() async {
+    HttpClient.addInterceptor(InterceptorsWrapper(
+      onRequest: (RequestOptions options) {
+        options.headers.addAll({
+          'authorization': 'Bearer $_token'
+        });
+        return options;
+      },
+    ));
   }
 
 }

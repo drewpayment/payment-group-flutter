@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 ThemeData buildTheme() {
     return ThemeData(
-      primarySwatch: Colors.cyan,
+      primarySwatch: Colors.deepPurple,
         // brightness: Brightness.light,
         // primaryColor: Colors.white,
         // accentColor: Colors.white,

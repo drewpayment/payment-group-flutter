@@ -115,12 +115,19 @@ class _HomePageState extends State<HomePage> {
             key: _formKey,
             child: Container(
               padding: EdgeInsets.all(16.0),
-              color: Theme.of(context).backgroundColor,
+              color: Colors.white,
               child: Padding(
                 padding: EdgeInsets.all(16.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      child: Image.asset(
+                        'assets/undraw_walking_around_25f5.png',
+                        fit: BoxFit.scaleDown,
+                      ),
+                    ),
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 8.0),
                       child: TextFormField(
@@ -164,8 +171,8 @@ class _HomePageState extends State<HomePage> {
                       padding: EdgeInsets.all(16.0),
                       child: Row(
                         children: <Widget>[
-                          Icon(Icons.exit_to_app),
-                          Text('Sign In'),
+                          Icon(Icons.exit_to_app, color: Colors.white,),
+                          Text('Sign In', style: TextStyle(color: Colors.white)),
                         ],
                         mainAxisAlignment: MainAxisAlignment.center,
                       ),
@@ -175,12 +182,18 @@ class _HomePageState extends State<HomePage> {
                             print('Status is OK: ${result.isOk()}');
                             print('User display name: ${Auth.user?.firstName} ${Auth.user?.lastName}');
                             print('Token: ${result.body?.token}');
+                            if (result.isOk()) {
+                              _formKey.currentState?.reset();
+                              Navigator.pushReplacementNamed(context, MapPage.routeName);
+                            }
                           });
                         }
                       },
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                       ),
+                      color: Theme.of(context).primaryColor,
+                      elevation: 2.0,
                     ),
                   ],
                 ),
