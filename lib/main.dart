@@ -30,9 +30,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: buildTheme(),
-      home: HomePage(title: defaultTitle),
+      home: HomePage(),
       routes: <String, WidgetBuilder>{
-          HomePage.routeName: (BuildContext context) => HomePage(title: defaultTitle,),
+          HomePage.routeName: (BuildContext context) => HomePage(),
           RegisterPage.routeName: (BuildContext context) => RegisterPage(),
           MapPage.routeName: (BuildContext context) => MapPage(),
       },

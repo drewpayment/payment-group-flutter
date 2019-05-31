@@ -7,6 +7,9 @@ import 'package:pay_track/auth/auth.dart';
 import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/Knock.dart';
 import 'package:pay_track/models/parsed_response.dart';
+import 'package:pay_track/pages/custom_app_bar.dart';
+import 'package:pay_track/pages/custom_bottom_nav.dart';
+import 'package:pay_track/pages/home_page.dart';
 import 'package:pay_track/utils/color_list_tile.dart';
 
 class MapPage extends StatefulWidget {
@@ -27,11 +30,13 @@ class _MapPageState extends State<MapPage> {
   LocationData userLocation;
   Future<LocationData> userLocationContract;
   // GoogleMapController _controller;
+  Future<bool> _initData;
 
   // put the list of "do not knock" locations in this list
   final Set<Marker> _markers = Set();
   List<MarkerId> _markerIds = <MarkerId>[];
   var widgets = <Widget>[];
+  var _selectedNavigationItem = 1;
 
   _onMapCreated(GoogleMapController controller) {
     // _controller.complete();
@@ -44,49 +49,63 @@ class _MapPageState extends State<MapPage> {
     super.initState();
 
     initPlatformState().then((loc) => setState(() { _center = LatLng(loc.latitude, loc.longitude); }));
+
+    _initData = _getKnocks();
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Repository.get().getKnocks(),
-      builder: (BuildContext context, AsyncSnapshot<ParsedResponse<List<Knock>>> snapshot) {
+      future: _initData,
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         Widget body;
 
-        if (snapshot.hasData && snapshot.data.isOk()) {
-          contacts = snapshot.data.body;
+        if (snapshot.hasError) {
+          Auth.signOut();
+        }
 
-          _handleApiResponseAndBuildWidgets();
-
-          body = GridView.count(
-            primary: true,
-            padding: EdgeInsets.all(20.0),
-            crossAxisSpacing: 10.0,
-            crossAxisCount: 1,
-            children: widgets,
-          );
-        } else {
-          body = Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Center(
-                child: new CircularProgressIndicator()
-              ),
-            ],
-          );
-
-          // the API returned an error code, most likely related to the user being unauthenticated
-          if (snapshot.hasData && !snapshot.data.isOk()) {
-            Auth.signOut();
-          }
+        switch(snapshot.connectionState) {
+          case ConnectionState.done:
+            _handleApiResponseAndBuildWidgets();
+            body = GridView.count(
+              primary: true,
+              padding: EdgeInsets.all(20.0),
+              crossAxisSpacing: 10.0,
+              crossAxisCount: 1,
+              children: widgets,
+            );
+            break;
+          case ConnectionState.waiting: 
+          default:
+            body = Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Center(
+                  child: new CircularProgressIndicator()
+                ),
+              ],
+            );
         }
 
         return new Scaffold(
+          appBar: CustomAppBar(title: Text(HomePage.title)),
           body: body,
+          bottomNavigationBar: CustomBottomNav(
+            items: HomePage.bottomNavItems,
+            currentIndex: _selectedNavigationItem,
+            onTap: _onNavigationBarTap,
+          ),
         );
       }
     );
+  }
+
+  _onNavigationBarTap(int index) {
+    print('Tapped number $index');
+    setState(() {
+      _selectedNavigationItem = index;
+    });
   }
 
   void _handleApiResponseAndBuildWidgets() {
@@ -114,7 +133,7 @@ class _MapPageState extends State<MapPage> {
       ));
     }
 
-    if (contacts.length > 0) {
+    if (contacts != null && contacts.length > 0) {
       widgets.add(GridView.count(
         crossAxisCount: 1,
         primary: false,
@@ -153,6 +172,20 @@ class _MapPageState extends State<MapPage> {
         ],
       ));
     }
+  }
+
+  Future<bool> _getKnocks() async {
+    var result = await Repository.get().getKnocks();
+    var comp = Completer();
+
+    if (result.isOk()) {
+      contacts = result.body;
+      comp.complete(true);
+    } else {
+      comp.complete(false);
+    }
+
+    return comp.future;
   }
 
   Future<void> _goToAddress(Knock con, bool isSelected) async {

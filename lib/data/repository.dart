@@ -33,7 +33,6 @@ class Repository {
     ParsedResponse<List<Knock>> result = ParsedResponse(NO_INTERNET, null);
     String url = '$oldapi/dnc-contacts';
 
-    print(url);
     var response = await HttpClient.get<List<dynamic>>(url);
     result = ParsedResponse(response.statusCode, null);
 

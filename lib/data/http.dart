@@ -86,9 +86,7 @@ class HttpClient {
       options: options,
       cancelToken: cancelToken,
       onReceiveProgress: onReceiveProgress,
-    ).catchError((DioError err) {
-      print(err.message);
-    });
+    );
   }
 
   static Future<Response<T>> getUri<T>(Uri uri, {Options options, CancelToken cancelToken, onReceiveProgress}) {

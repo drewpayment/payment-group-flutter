@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pay_track/pages/custom_app_bar.dart';
+import 'package:pay_track/pages/custom_bottom_nav.dart';
 import 'package:pay_track/pages/map_page.dart';
 import 'package:pay_track/services/auth.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key, @required this.title, }) : super(key: key);
+  HomePage({Key key }) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -15,9 +17,17 @@ class HomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  final String title;
-
+  static const String title = 'GeoKnocks';
   static const String routeName = '/home';
+
+  static const List<BottomNavigationBarItem> bottomNavItems = [BottomNavigationBarItem(
+      icon: Icon(Icons.home),
+      title: Text('Home'),
+    ), BottomNavigationBarItem(
+      icon: Icon(Icons.map),
+      title: Text('Map'),
+    )
+  ];
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -49,14 +59,6 @@ class _HomePageState extends State<HomePage> {
       color: Colors.cyan[400],
     );
 
-    var _bottomNavItems = [BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      title: Text('Home'),
-    ), BottomNavigationBarItem(
-      icon: Icon(Icons.map),
-      title: Text('Map'),
-    )];
-
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -64,13 +66,7 @@ class _HomePageState extends State<HomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-        centerTitle: true,
-        elevation: 1.0,
-      ),
+      appBar: CustomAppBar(title: Text(HomePage.title)),
       body: _getWidgetBody(_selectedNavigationItem),
       floatingActionButton: Auth.isSignedIn() 
         ? FloatingActionButton.extended(
@@ -84,8 +80,8 @@ class _HomePageState extends State<HomePage> {
           backgroundColor: Theme.of(context).canvasColor,
         )
         : null,
-      bottomNavigationBar: Auth.isSignedIn() ? BottomNavigationBar(
-        items: _bottomNavItems,
+      bottomNavigationBar: Auth.isSignedIn() ? CustomBottomNav(
+        items: HomePage.bottomNavItems,
         currentIndex: _selectedNavigationItem,
         onTap: _onNavigationBarTap,
       ) : null,
