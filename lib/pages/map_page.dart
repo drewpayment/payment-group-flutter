@@ -106,6 +106,10 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       _selectedNavigationItem = index;
     });
+
+    if (_selectedNavigationItem == 0) {
+      Navigator.pushReplacementNamed(context, HomePage.routeName);
+    }
   }
 
   void _handleApiResponseAndBuildWidgets() {

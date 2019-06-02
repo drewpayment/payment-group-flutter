@@ -1,9 +1,10 @@
 
 
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:pay_track/data/http.dart';
 import 'package:pay_track/data/repository.dart';
-import 'package:pay_track/data/user_repository.dart';
 import 'package:pay_track/environment.dart';
 import 'package:pay_track/models/auth_response.dart';
 import 'package:pay_track/models/parsed_response.dart';
@@ -57,6 +58,14 @@ class Auth {
         return options;
       },
     ));
+  }
+
+  static Future<bool> signOut() {
+    var comp = Completer<bool>();
+    _user = null;
+    _token = null;
+    comp.complete(true);
+    return comp.future;
   }
 
 }
