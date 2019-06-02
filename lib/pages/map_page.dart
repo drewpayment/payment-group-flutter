@@ -6,7 +6,6 @@ import 'package:location/location.dart';
 import 'package:pay_track/auth/auth.dart';
 import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/Knock.dart';
-import 'package:pay_track/models/parsed_response.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/pages/custom_bottom_nav.dart';
 import 'package:pay_track/pages/home_page.dart';

@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  static const String title = 'GeoKnocks';
+  static const String title = 'Locale.Marketing';
   static const String routeName = '/home';
 
   static const List<BottomNavigationBarItem> bottomNavItems = [BottomNavigationBarItem(
@@ -67,7 +67,7 @@ class _HomePageState extends State<HomePage> {
     // than having to individually change instances of widgets.
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(title: Text(HomePage.title)),
+      appBar: CustomAppBar(title: Text('${HomePage.title}')),
       body: _getWidgetBody(_selectedNavigationItem),
       bottomNavigationBar: Auth.isSignedIn() ? CustomBottomNav(
         items: HomePage.bottomNavItems,
@@ -101,7 +101,7 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(
                   fontFamily: 'Starjedi',
                   fontSize: 36,
-                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2.0,
                   color: Theme.of(context).accentColor,
                 ),
               ),
