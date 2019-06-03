@@ -25,21 +25,25 @@ class _MapPageState extends State<MapPage> {
 
   LatLng _center;
   var location = new Location();
-  List<Knock> contacts;
+  List<Knock> _contacts;
+  List<Knock> mapContacts;
+  LatLngBounds bounds;
   LocationData userLocation;
   Future<LocationData> userLocationContract;
   // GoogleMapController _controller;
   Future<bool> _initData;
 
   // put the list of "do not knock" locations in this list
-  final Set<Marker> _markers = Set();
+  Set<Marker> _markers = Set();
   List<MarkerId> _markerIds = <MarkerId>[];
   var widgets = <Widget>[];
   var _selectedNavigationItem = 1;
 
-  _onMapCreated(GoogleMapController controller) {
+  _onMapCreated(GoogleMapController controller) async {
     // _controller.complete();
     // do things after the map has shown up... might be a good place to wire up events showing/hiding markers
+    bounds = await controller.getVisibleRegion();
+
     _controller.complete(controller);
   }
 
@@ -66,11 +70,8 @@ class _MapPageState extends State<MapPage> {
         switch(snapshot.connectionState) {
           case ConnectionState.done:
             _handleApiResponseAndBuildWidgets();
-            body = GridView.count(
-              primary: true,
-              padding: EdgeInsets.all(20.0),
-              crossAxisSpacing: 10.0,
-              crossAxisCount: 1,
+            body = Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: widgets,
             );
             break;
@@ -119,9 +120,7 @@ class _MapPageState extends State<MapPage> {
         child: Text('Please enable Location Services.'),
       ));
     } else {
-      widgets.add(Container(
-        constraints: BoxConstraints.expand(),
-        height: 400.0,
+      widgets.add(SizedBox(
         child: GoogleMap(
           zoomGesturesEnabled: true,
           myLocationEnabled: true,
@@ -130,37 +129,37 @@ class _MapPageState extends State<MapPage> {
             target: _center,
             zoom: 16.0,
           ),
-          markers: _markers,
+          markers: _markers.toSet(),
           compassEnabled: true,
         ),
+        height: 400,
+        width: MediaQuery.of(context).size.width,
       ));
     }
 
-    if (contacts != null && contacts.length > 0) {
-      widgets.add(GridView.count(
-        crossAxisCount: 1,
-        primary: false,
-        children: <Widget>[
-          ListView.separated(
-            padding: EdgeInsets.fromLTRB(0, 16.0, 0, 16.0),
-            scrollDirection: Axis.vertical,
-            separatorBuilder: (context, index) => Divider(color: Colors.black54),
-            itemCount: contacts.length,
-            itemBuilder: (context, index) {
-              return ColorListTile(
-                leading: Icon(Icons.assignment_late),
-                title: Text(contacts[index].address),
-                onTap: (bool isSelected) {
-                  var con = contacts[index];
-                  _goToAddress(con, isSelected);
-                },
-                selected: false,
-                selectedColor: Colors.lightBlue[50].withOpacity(0.5),
-              );
-            }
-          )
-        ],
+    if (mapContacts != null && mapContacts.length > 0) {
+      widgets.add(LimitedBox(
+        child: ListView.separated(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          scrollDirection: Axis.vertical,
+          separatorBuilder: (context, index) => Divider(color: Colors.black54),
+          itemCount: mapContacts.length,
+          itemBuilder: (context, index) {
+            return ColorListTile(
+              leading: Icon(Icons.assignment_late),
+              title: Text(mapContacts[index].address),
+              onTap: (bool isSelected) {
+                var con = mapContacts[index];
+                _goToAddress(con, isSelected);
+              },
+              selected: false,
+              selectedColor: Colors.lightBlue[50].withOpacity(0.5),
+            );
+          }
+        ),
       ));
+    } else if (_contacts != null && _contacts.length > 0) {
+      _getViewableContacts();
     } else {
       widgets.add(AlertDialog(
         title: Text('Sorry...'),
@@ -182,13 +181,47 @@ class _MapPageState extends State<MapPage> {
     var comp = Completer();
 
     if (result.isOk()) {
-      contacts = result.body;
+      _contacts = result.body;
+      _getViewableContacts();
+
       comp.complete(true);
     } else {
       comp.complete(false);
     }
 
     return comp.future;
+  }
+
+  _getViewableContacts() async {
+    if (bounds == null) {
+      var controller = await _controller.future;
+      bounds = await controller.getVisibleRegion();
+    }
+    var viewableContacts = List<Knock>();
+    var viewableMarkers = Set<Marker>();
+
+    _contacts.forEach((c) {
+      var pos = LatLng(c.lat, c.long);
+      var desc = c.firstName != null ? '${c.firstName} ${c.lastName}' : '${c.description}';
+      if (bounds.contains(pos)) {
+        viewableContacts.add(c);
+        viewableMarkers.add(Marker(
+          markerId: MarkerId(c.dncContactId.toString()),
+          position: pos,
+          infoWindow: InfoWindow(
+            title: '${c.address}',
+            snippet: '$desc'
+          ),
+        ));
+      }
+    });
+
+    if (viewableContacts != null && viewableContacts.length > 0) {
+      setState(() {
+        mapContacts = viewableContacts;
+        _markers = viewableMarkers;
+      });
+    }
   }
 
   Future<void> _goToAddress(Knock con, bool isSelected) async {

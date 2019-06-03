@@ -41,50 +41,6 @@ class Repository {
     }
 
     return result;
-
-    // http.Response response = await http.get(url, headers: {
-    //     'Authorization': 'Bearer $token'
-    //   })
-    //   .catchError((resp) {});
-
-    // if (response == null) {
-    //   return new ParsedResponse(NO_INTERNET, []);
-    // }
-
-    // if (response.statusCode >= 400) {
-    //   return new ParsedResponse(response.statusCode, null);
-    // }
-
-    // print(response.statusCode);
-    // List<dynamic> list = json.decode(response.body);
-
-    // Map<String, Knock> networkKnocks = {};
-
-    // for(dynamic jsonKnock in list) {
-    //   Knock knock = new Knock(
-    //     dncContactId: jsonKnock['dncContactId'],
-    //     clientId: jsonKnock['clientId'],
-    //     firstName: jsonKnock['firstName'],
-    //     lastName: jsonKnock['lastName'],
-    //     description: jsonKnock['description'],
-    //     address: jsonKnock['address'],
-    //     addressCont: jsonKnock['addressCont'],
-    //     city: jsonKnock['city'],
-    //     state: jsonKnock['state'],
-    //     zip: jsonKnock['zip'],
-    //     lat: double.tryParse(jsonKnock['lat']) ?? 0,
-    //     long: double.tryParse(jsonKnock['long']) ?? 0
-    //   );
-
-    //   networkKnocks[knock.dncContactId.toString()] = knock;
-    // }
-
-    // List<Knock> databaseKnock = await database.getKnocks([]..addAll(networkKnocks.keys));
-    // for(Knock knock in databaseKnock) {
-    //   networkKnocks[knock.dncContactId.toString()] = knock;
-    // }
-
-    // return new ParsedResponse(response.statusCode, []..addAll(networkKnocks.values));
   }
 
   // Future updateKnock(Knock knock) async {
