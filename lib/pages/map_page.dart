@@ -6,10 +6,12 @@ import 'package:location/location.dart';
 import 'package:pay_track/auth/auth.dart';
 import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/Knock.dart';
+import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/pages/custom_bottom_nav.dart';
 import 'package:pay_track/pages/home_page.dart';
 import 'package:pay_track/utils/color_list_tile.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key key}) : super(key: key);
@@ -88,14 +90,18 @@ class _MapPageState extends State<MapPage> {
             );
         }
 
-        return new Scaffold(
-          appBar: CustomAppBar(title: Text(HomePage.title)),
-          body: body,
-          bottomNavigationBar: CustomBottomNav(
-            items: HomePage.bottomNavItems,
-            currentIndex: _selectedNavigationItem,
-            onTap: _onNavigationBarTap,
-          ),
+        return ScopedModelDescendant<ConfigModel>(
+          builder: (context, child, model) {
+            return Scaffold(
+              appBar: CustomAppBar(title: Text(model.appName)),
+              body: body,
+              bottomNavigationBar: CustomBottomNav(
+                items: HomePage.bottomNavItems,
+                currentIndex: _selectedNavigationItem,
+                onTap: _onNavigationBarTap,
+              ),
+            );
+          },
         );
       }
     );
@@ -137,8 +143,9 @@ class _MapPageState extends State<MapPage> {
       ));
     }
 
+    print('Map Contacts: ${mapContacts?.length}');
     if (mapContacts != null && mapContacts.length > 0) {
-      widgets.add(LimitedBox(
+      widgets.add(Flexible(
         child: ListView.separated(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           scrollDirection: Axis.vertical,
@@ -157,8 +164,9 @@ class _MapPageState extends State<MapPage> {
             );
           }
         ),
+        fit: FlexFit.tight,
       ));
-    } else if (_contacts != null && _contacts.length > 0) {
+    } else if (_contacts != null && _contacts.length > 0 && mapContacts == null) {
       _getViewableContacts();
     } else {
       widgets.add(AlertDialog(
@@ -178,7 +186,7 @@ class _MapPageState extends State<MapPage> {
 
   Future<bool> _getKnocks() async {
     var result = await Repository.get().getKnocks();
-    var comp = Completer();
+    var comp = Completer<bool>();
 
     if (result.isOk()) {
       _contacts = result.body;
@@ -186,9 +194,8 @@ class _MapPageState extends State<MapPage> {
 
       comp.complete(true);
     } else {
-      comp.complete(false);
+      comp.completeError(false);
     }
-
     return comp.future;
   }
 
@@ -217,6 +224,7 @@ class _MapPageState extends State<MapPage> {
     });
 
     if (viewableContacts != null && viewableContacts.length > 0) {
+      print('Viewable contacts: ${viewableContacts.length}');
       setState(() {
         mapContacts = viewableContacts;
         _markers = viewableMarkers;

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/pages/custom_bottom_nav.dart';
 import 'package:pay_track/pages/map_page.dart';
 import 'package:pay_track/services/auth.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key }) : super(key: key);
@@ -17,7 +19,7 @@ class HomePage extends StatefulWidget {
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
 
-  static const String title = 'Locale.Marketing';
+  // static const String title = 'Locale.Marketing';
   static const String routeName = '/home';
 
   static const List<BottomNavigationBarItem> bottomNavItems = [BottomNavigationBarItem(
@@ -65,15 +67,19 @@ class _HomePageState extends State<HomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: CustomAppBar(title: Text('${HomePage.title}')),
-      body: _getWidgetBody(_selectedNavigationItem),
-      bottomNavigationBar: Auth.isSignedIn() ? CustomBottomNav(
-        items: HomePage.bottomNavItems,
-        currentIndex: _selectedNavigationItem,
-        onTap: _onNavigationBarTap,
-      ) : null,
+    return ScopedModelDescendant<ConfigModel>(
+      builder: (context, child, model) {
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: CustomAppBar(title: Text('${model.appName}')),
+          body: _getWidgetBody(_selectedNavigationItem),
+          bottomNavigationBar: Auth.isSignedIn() ? CustomBottomNav(
+            items: HomePage.bottomNavItems,
+            currentIndex: _selectedNavigationItem,
+            onTap: _onNavigationBarTap,
+          ) : null,
+        );
+      },
     );
   }
 
