@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:pay_track/auth/auth.dart';
 import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/Knock.dart';
 import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/pages/custom_bottom_nav.dart';
 import 'package:pay_track/pages/home_page.dart';
+import 'package:pay_track/services/auth.dart';
 import 'package:pay_track/utils/color_list_tile.dart';
 import 'package:scoped_model/scoped_model.dart';
 

@@ -7,12 +7,18 @@ import 'package:pay_track/models/user.dart';
 class HttpClient {
   static User _user;
   static Dio _dio;
+  static String _baseUrl;
 
   static User get user => _user;
+  static String get baseUrl => _baseUrl;
 
   static set user(User user) {
     if (user == null) return;
     _user = user;
+  }
+
+  static String url(String path) {
+    return '$_baseUrl/$path';
   }
 
   static _parseAndDecode(String response) {
@@ -23,7 +29,9 @@ class HttpClient {
     return compute(_parseAndDecode, text);
   }
 
-  static init() {
+  static init(String url) {
+    _baseUrl = url;
+
     if (_dio == null) _dio = Dio();
     (_dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
 

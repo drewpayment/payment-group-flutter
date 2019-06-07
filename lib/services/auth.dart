@@ -1,11 +1,7 @@
-
-
 import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:pay_track/data/http.dart';
 import 'package:pay_track/data/repository.dart';
-import 'package:pay_track/environment.dart';
 import 'package:pay_track/models/auth_response.dart';
 import 'package:pay_track/models/parsed_response.dart';
 import 'package:pay_track/models/user.dart';
@@ -23,8 +19,7 @@ class Auth {
 
   static Future<ParsedResponse<AuthResponse>> signIn(String username, String password) async {
     ParsedResponse<AuthResponse> result = ParsedResponse(NO_INTERNET, null);
-    var url = '$oldapi/authenticate';
-
+    var url = '${HttpClient.url('authenticate')}';
     var resp = await HttpClient.post(url, 
       data: {
         'username': username,
