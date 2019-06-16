@@ -71,7 +71,9 @@ class _HomePageState extends State<HomePage> {
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: CustomAppBar(title: Text('${model.appName}')),
-          body: _getWidgetBody(_selectedNavigationItem),
+          body: Auth.isSignedIn()
+            ? _getSignedInBody()
+            : _getSignedOutBody(),
           bottomNavigationBar: Auth.isSignedIn() ? CustomBottomNav(
             items: HomePage.bottomNavItems,
             currentIndex: _selectedNavigationItem,
@@ -93,179 +95,178 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // get widget to fill body
-  _getWidgetBody(int pos) {
-    if (Auth.isSignedIn()) {
-      return Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Center(
-                child: Text('WELCOME',
-                  style: TextStyle(
-                    fontFamily: 'Starjedi',
-                    fontSize: 36,
-                    letterSpacing: 2.0,
-                    color: Theme.of(context).accentColor,
-                  ),
-                ),
-              ),
-              Container(
-                width: MediaQuery.of(context).size.width,
-                child: Image.asset(
-                  'assets/undraw_settings_ii2j.png',
-                  height: 200,
-                ),
-              ),
-              Center(
-                child: Card(
-                  margin: EdgeInsets.all(16.0),
+  Widget _getSignedOutBody() {
+    return Center(
+      // Center is a layout widget. It takes a single child and positions it
+      // in the middle of the parent.
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Form(
+              key: _formKey,
+              child: Container(
+                padding: EdgeInsets.all(16.0),
+                color: Colors.white,
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: <Widget>[
-                      ListTile(
-                        leading: Icon(Icons.person_outline),
-                        dense: false,
-                        title: Text('${Auth.user.firstName} ${Auth.user.lastName}'),
-                        subtitle: Text('${Auth.user.email}'),
-                      ),
-                      ButtonTheme.bar(
-                        child: ButtonBar(
-                          alignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            FlatButton(
-                              child: Text('Sign Out',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                ),
-                              ),
-                              onPressed: () {
-                                Auth.signOut().then((success) {
-                                  setState(() {
-                                    _selectedNavigationItem = 0;
-                                  });
-                                });
-                              }
-                            ),
-                          ],
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16.0),
+                        child: Image.asset(
+                          'assets/undraw_walking_around_25f5.png',
+                          fit: BoxFit.scaleDown,
                         ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: TextFormField(
+                          autocorrect: false,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                            labelText: 'Username',
+                          ),
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Please enter a username';
+                            }
+                            _username = value;
+                          },
+                          textInputAction: TextInputAction.next,
+                          onEditingComplete: () {
+                            
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: TextFormField(
+                          key: ValueKey('passwordField'),
+                          autocorrect: false,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                            labelText: 'Password',
+                          ),
+                          validator: (value) {
+                            if (value.isEmpty) {
+                              return 'Please enter a password.';
+                            }
+                            _password = value;
+                          },
+                        ),
+                      ),
+                      RaisedButton(
+                        padding: EdgeInsets.all(16.0),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(Icons.exit_to_app, color: Colors.white,),
+                            Text('Sign In', style: TextStyle(color: Colors.white)),
+                          ],
+                          mainAxisAlignment: MainAxisAlignment.center,
+                        ),
+                        onPressed: () {
+                          if (_formKey.currentState.validate()) {
+                            Auth.signIn(_username, _password).then((result) {
+                              print('Status is OK: ${result.isOk()}');
+                              print('User display name: ${Auth.user?.firstName} ${Auth.user?.lastName}');
+                              print('Token: ${result.body?.token}');
+                              if (result.isOk()) {
+                                _formKey.currentState?.reset();
+                                Navigator.pushReplacementNamed(context, MapPage.routeName);
+                              }
+                            });
+                          }
+                        },
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        color: Theme.of(context).primaryColor,
+                        elevation: 2.0,
                       ),
                     ],
                   ),
                 ),
               ),
-            ],
-          )
+            ),
+          ],
         ),
-      );
-    } else {
-      return Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Form(
-                key: _formKey,
-                child: Container(
-                  padding: EdgeInsets.all(16.0),
-                  color: Colors.white,
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.0),
-                          child: Image.asset(
-                            'assets/undraw_walking_around_25f5.png',
-                            fit: BoxFit.scaleDown,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                          child: TextFormField(
-                            autocorrect: false,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              ),
-                              labelText: 'Username',
-                            ),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter a username';
-                              }
-                              _username = value;
-                            },
-                            textInputAction: TextInputAction.next,
-                            onEditingComplete: () {
-                              
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
-                          child: TextFormField(
-                            key: ValueKey('passwordField'),
-                            autocorrect: false,
-                            obscureText: true,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              ),
-                              labelText: 'Password',
-                            ),
-                            validator: (value) {
-                              if (value.isEmpty) {
-                                return 'Please enter a password.';
-                              }
-                              _password = value;
-                            },
-                          ),
-                        ),
-                        RaisedButton(
-                          padding: EdgeInsets.all(16.0),
-                          child: Row(
-                            children: <Widget>[
-                              Icon(Icons.exit_to_app, color: Colors.white,),
-                              Text('Sign In', style: TextStyle(color: Colors.white)),
-                            ],
-                            mainAxisAlignment: MainAxisAlignment.center,
-                          ),
-                          onPressed: () {
-                            if (_formKey.currentState.validate()) {
-                              Auth.signIn(_username, _password).then((result) {
-                                print('Status is OK: ${result.isOk()}');
-                                print('User display name: ${Auth.user?.firstName} ${Auth.user?.lastName}');
-                                print('Token: ${result.body?.token}');
-                                if (result.isOk()) {
-                                  _formKey.currentState?.reset();
-                                  Navigator.pushReplacementNamed(context, MapPage.routeName);
-                                }
-                              });
-                            }
-                          },
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                          color: Theme.of(context).primaryColor,
-                          elevation: 2.0,
-                        ),
-                      ],
-                    ),
-                  ),
+      ),
+    );
+  }
+
+  Widget _getSignedInBody() {
+    return Center(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Center(
+              child: Text('WELCOME',
+                style: TextStyle(
+                  fontFamily: 'Starjedi',
+                  fontSize: 36,
+                  letterSpacing: 2.0,
+                  color: Theme.of(context).accentColor,
                 ),
               ),
-            ],
-          ),
-        ),
-      );
-    }
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              child: Image.asset(
+                'assets/undraw_settings_ii2j.png',
+                height: 200,
+              ),
+            ),
+            Center(
+              child: Card(
+                margin: EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ListTile(
+                      leading: Icon(Icons.person_outline),
+                      dense: false,
+                      title: Text('${Auth.user.firstName} ${Auth.user.lastName}'),
+                      subtitle: Text('${Auth.user.email}'),
+                    ),
+                    ButtonTheme.bar(
+                      child: ButtonBar(
+                        alignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          FlatButton(
+                            child: Text('Sign Out',
+                              style: TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                            onPressed: () {
+                              Auth.signOut().then((success) {
+                                setState(() {
+                                  _selectedNavigationItem = 0;
+                                });
+                              });
+                            }
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        )
+      ),
+    );
   }
 
 }

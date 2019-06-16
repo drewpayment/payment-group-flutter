@@ -4,13 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
-import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/Knock.dart';
 import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/pages/custom_bottom_nav.dart';
 import 'package:pay_track/pages/home_page.dart';
-import 'package:pay_track/services/auth.dart';
 import 'package:pay_track/utils/color_list_tile.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -45,6 +43,8 @@ class _MapPageState extends State<MapPage> {
     // do things after the map has shown up... might be a good place to wire up events showing/hiding markers
     bounds = await controller.getVisibleRegion();
 
+    _filterContactsByMapBoundary();
+
     _controller.complete(controller);
   }
 
@@ -63,23 +63,13 @@ class _MapPageState extends State<MapPage> {
       builder: (context, AsyncSnapshot<List<Knock>> snapshot) {
         Widget body;
         if (snapshot.hasData) {
-          var knocks = snapshot.data;
-
-          knocks.forEach((Knock k) {
-            _markers.add(Marker(
-              markerId: MarkerId(k.dncContactId.toString()),
-              position: LatLng(k.lat, k.long),
-              infoWindow: InfoWindow(
-                title: '${k.address}',
-                snippet: '${k.description}',
-              ),
-            ));
+          _filterContactsByMapBoundary().then((wtf) {
+            print('complete');
+            body = Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: _buildUI(),
+            );
           });
-
-          body = Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: _buildUI(snapshot.data),
-          );
         } else {
           body = Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -88,8 +78,17 @@ class _MapPageState extends State<MapPage> {
             ],
           );
         }
+        
+        return _compileWidgets(body);
+      }
+    );
+  }
+
+  Widget _compileWidgets(Widget body) {
+    return ScopedModelDescendant<ConfigModel>(
+      builder: (context, child, model) {
         return Scaffold(
-          appBar: CustomAppBar(title: Text('TESTING')),
+          appBar: CustomAppBar(title: Text('${model.appName}')),
           body: body,
           bottomNavigationBar: CustomBottomNav(
             items: HomePage.bottomNavItems,
@@ -97,11 +96,11 @@ class _MapPageState extends State<MapPage> {
             onTap: _onNavigationBarTap,
           ),
         );
-      }
+      },
     );
   }
 
-  List<Widget> _buildUI(List<Knock> data) {
+  List<Widget> _buildUI() {
     widgets = <Widget>[];
 
     if (_center == null) {
@@ -120,6 +119,10 @@ class _MapPageState extends State<MapPage> {
           ),
           markers: _markers.toSet(),
           compassEnabled: true,
+          tiltGesturesEnabled: false,
+          onCameraIdle: () {
+            _filterContactsByMapBoundary();
+          },
         ),
         height: 400,
         width: MediaQuery.of(context).size.width,
@@ -131,13 +134,13 @@ class _MapPageState extends State<MapPage> {
         padding: EdgeInsets.symmetric(horizontal: 16.0),
         scrollDirection: Axis.vertical,
         separatorBuilder: (context, index) => Divider(color: Colors.black54),
-        itemCount: data.length,
+        itemCount: _contacts.length,
         itemBuilder: (context, index) {
           return ColorListTile(
             leading: Icon(Icons.assignment_late),
-            title: Text(data[index].address),
+            title: Text(_contacts[index].address),
             onTap: (bool isSelected) {
-              var con = data[index];
+              var con = _contacts[index];
               _goToAddress(con, isSelected);
             },
             selected: false,
@@ -202,6 +205,39 @@ class _MapPageState extends State<MapPage> {
       }
     }
     return userLocation;
+  }
+
+  Future _filterContactsByMapBoundary() async {
+    var result = Completer();
+    var allKnocks = await bloc.allKnocks.last;
+    if (allKnocks.length > 0) {
+      var filteredContacts = List<Knock>();
+      allKnocks.forEach((kn) {
+        var pos = LatLng(kn.lat, kn.long);
+
+        if (bounds.contains(pos)) {
+          filteredContacts.add(kn);
+        }
+      });
+
+      filteredContacts.forEach((Knock k) {
+        _markers.add(Marker(
+          markerId: MarkerId(k.dncContactId.toString()),
+          position: LatLng(k.lat, k.long),
+          infoWindow: InfoWindow(
+            title: '${k.address}',
+            snippet: '${k.description}',
+          ),
+        ));
+      });
+
+      setState(() {
+        _contacts = filteredContacts;
+      });
+
+      result.complete();
+    }
+    return result.future;
   }
 
 }
