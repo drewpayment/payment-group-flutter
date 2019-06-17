@@ -1,3 +1,4 @@
+import 'package:catcher/catcher_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:pay_track/data/http.dart';
 import 'package:pay_track/models/config.dart';
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         return child;
       }, 
       child: MaterialApp(
+        navigatorKey: Catcher.navigatorKey,
         title: 'Flutter Demo',
         theme: buildTheme(),
         home: HomePage(),

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dio/dio.dart';
 import 'package:pay_track/data/database.dart';
 import 'package:pay_track/data/http.dart';
 import 'package:pay_track/models/Knock.dart';
@@ -22,8 +23,7 @@ class Repository {
   Future<ParsedResponse<List<Knock>>> getKnocks() async {
     ParsedResponse<List<Knock>> result = ParsedResponse(NO_INTERNET, null);
     String url = '${HttpClient.url('dnc-contacts')}';
-
-    var response = await HttpClient.get<List<dynamic>>(url);
+    var response = await HttpClient.get<List<dynamic>>(url);    
     result = ParsedResponse(response.statusCode, null);
 
     if (result.isOk()) {
