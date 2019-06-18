@@ -7,23 +7,17 @@ import 'package:location/location.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
 
 class GoogleMapWidget extends StatefulWidget {
-  final KnockBloc bloc;
-
-  GoogleMapWidget(this.bloc);
 
   @override
-  GoogleMapState createState() => GoogleMapState(bloc);
+  GoogleMapState createState() => GoogleMapState();
 }
 
 class GoogleMapState extends State<GoogleMapWidget> {
   Completer<GoogleMapController> _controller = Completer();
 
-  KnockBloc bloc;
   Location _location;
   LatLng _mapCenter;
   LatLngBounds bounds;
-
-  GoogleMapState(this.bloc);
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +41,7 @@ class GoogleMapState extends State<GoogleMapWidget> {
                     onMapCreated: _onMapCreated,
                     initialCameraPosition: CameraPosition(
                       target: _mapCenter,
-                      zoom: 16.0,
+                      zoom: 18.0,
                     ),
                     markers: bloc.markers,
                     compassEnabled: true,

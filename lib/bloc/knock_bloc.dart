@@ -8,7 +8,7 @@ class KnockBloc {
 
   List<Knock> _knocks;
   final _knockRepo = Repository.get();
-  final _knockFetcher = PublishSubject<List<Knock>>();
+  final _knockFetcher = ReplaySubject<List<Knock>>(maxSize: 1);
 
   Set<Marker> _markers;
   final _markerFetcher = PublishSubject<Set<Marker>>();
@@ -18,6 +18,10 @@ class KnockBloc {
 
   Set<Marker> get markers => _markers;
   List<Knock> get knocks => _knocks;
+
+  KnockBloc() {
+    fetchAllKnocks();
+  }
 
   void fetchAllKnocks() async {
     var knocksResp = await _knockRepo.getKnocks();
@@ -45,17 +49,32 @@ class KnockBloc {
 
   void filterKnocksByBoundary(LatLngBounds bounds) async {
     var filtered = List<Knock>();
-    _knocks.forEach((kn) {
-      var pos = LatLng(kn.lat, kn.long);
 
-      if (bounds.contains(pos)) {
-        filtered.add(kn);
-      }
+    knocksStream.take(1).listen((knocks) {
+      knocks.forEach((kn) {
+        var pos = LatLng(kn.lat, kn.long);
+
+        if (bounds.contains(pos)) {
+          filtered.add(kn);
+        }
+      });
+
+      _fetchMarkers(filtered);
+
+      _knockFetcher.add(filtered);
     });
 
-    _fetchMarkers(filtered);
+    // _knocks.forEach((kn) {
+    //   var pos = LatLng(kn.lat, kn.long);
 
-    _knockFetcher.add(filtered);
+    //   if (bounds.contains(pos)) {
+    //     filtered.add(kn);
+    //   }
+    // });
+
+    // _fetchMarkers(filtered);
+
+    // _knockFetcher.add(filtered);
   }
 
   dispose() => _knockFetcher.close();
