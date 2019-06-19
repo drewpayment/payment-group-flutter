@@ -23,43 +23,31 @@ class _MapPageState extends State<MapPage> {
 
   @override
   void initState() {
-    super.initState();
     bloc.fetchAllKnocks();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    // return StreamBuilder(
-    //   stream: bloc.knocksStream,
-    //   builder: (context, AsyncSnapshot<List<Knock>> snapshot) {
-    //     Widget body;
-    //     if ((snapshot.connectionState == ConnectionState.done || snapshot.connectionState == ConnectionState.active) 
-    //       && snapshot.hasData) {
-    //       body = Column(
-    //         crossAxisAlignment: CrossAxisAlignment.stretch,
-    //         children: <Widget>[
-    //           GoogleMapWidget(),
-    //           MapListWidget(),
-    //         ],
-    //       );
-    //     } else {
-    //       body = Column(
-    //         mainAxisAlignment: MainAxisAlignment.center,
-    //         children: <Widget>[
-    //           Center(child: CircularProgressIndicator()),
-    //         ],
-    //       );
-    //     }
-        
-        return _compileWidgets(Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            GoogleMapWidget(),
-            MapListWidget(),
-          ],
-        ));
-    //   }
-    // );
+    return StreamBuilder(
+      initialData: null,
+      stream: bloc.knocksStream,
+      builder: (context, AsyncSnapshot<List<Knock>> snapshot) {
+        if (snapshot.connectionState != ConnectionState.waiting && snapshot.hasData) {
+          return _compileWidgets(Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              GoogleMapWidget(),
+              // MapListWidget(),
+            ],
+          ));
+        } else {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      },
+    );
   }
 
   Widget _compileWidgets(Widget body) {

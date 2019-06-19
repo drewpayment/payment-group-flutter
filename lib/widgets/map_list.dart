@@ -10,22 +10,25 @@ class MapListWidget extends StatelessWidget {
       initialData: null,
       stream: bloc.knocksStream,
       builder: (context, AsyncSnapshot<List<Knock>> snapshot) {
-        if (snapshot.connectionState != ConnectionState.waiting && snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.active && snapshot.hasData) {
           var knocks = snapshot.data;
           return SizedBox(
             child: ListView(
               children: ListTile.divideTiles(
                 tiles: knocks.map((k) {
                   return ListTile(
-                    leading: Icon(Icons.assignment_late),
-                    title: Text(k.address),
+                    leading: CircleAvatar(
+                      child: Icon(Icons.assignment_late),
+                    ),
+                    title: k.firstName != null ? Text('${k.firstName} ${k.lastName}') : Text(k.description),
+                    subtitle: Text(k.address),
                     onTap: () {
                       // _goToAddress(k, isSelected);
                     },
                     selected: false,
                   );
                 }).toList(),
-                color: Theme.of(context).appBarTheme.color,
+                color: Colors.black87,
                 context: context,
               ).toList(),
             ),
@@ -39,28 +42,6 @@ class MapListWidget extends StatelessWidget {
         }
       },
     );
-    
-    // return Flexible(
-    //   child: ListView.separated(
-    //     padding: EdgeInsets.symmetric(horizontal: 16.0),
-    //     scrollDirection: Axis.vertical,
-    //     separatorBuilder: (context, index) => Divider(color: Colors.black54),
-    //     itemCount: knocks.length,
-    //     itemBuilder: (context, index) {
-    //       return ColorListTile(
-    //         leading: Icon(Icons.assignment_late),
-    //         title: Text(knocks[index].address),
-    //         onTap: (bool isSelected) {
-    //           var con = knocks[index];
-    //           // _goToAddress(con, isSelected);
-    //         },
-    //         selected: false,
-    //         selectedColor: Colors.lightBlue[50].withOpacity(0.5),
-    //       );
-    //     }
-    //   ),
-    //   fit: FlexFit.tight,
-    // );
   }
 
 }

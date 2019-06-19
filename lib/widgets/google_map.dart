@@ -43,15 +43,16 @@ class GoogleMapState extends State<GoogleMapWidget> {
                       target: _mapCenter,
                       zoom: 18.0,
                     ),
-                    markers: bloc.markers,
+                    markers: snapshot.data,
                     compassEnabled: true,
                     tiltGesturesEnabled: false,
                     onCameraIdle: () {
                       // _filterContactsByMapBoundary();
                       print('when does this fire?');
+                      bloc.filterKnocksByBoundary(bounds);
                     },
                   ),
-                  height: 400,
+                  height: MediaQuery.of(context).size.height - (Scaffold.of(context).appBarMaxHeight + 83),
                   width: MediaQuery.of(context).size.width,
                 ); 
               } else {
@@ -87,37 +88,8 @@ class GoogleMapState extends State<GoogleMapWidget> {
     // _controller.complete();
     // do things after the map has shown up... might be a good place to wire up events showing/hiding markers
     bounds = await controller.getVisibleRegion();
-    bloc.filterKnocksByBoundary(bounds);
 
     _controller.complete(controller);
   }
-
-  // Future<void> _goToAddress(Knock con, bool isSelected) async {
-  //   GoogleMapController controller = await _controller.future;
-
-  //   controller.animateCamera(CameraUpdate.newCameraPosition(
-  //     CameraPosition(target: LatLng(con.lat, con.long),
-  //       zoom: 18.0,
-  //     )
-  //   ));
-
-  //   _markers.clear();
-
-  //   if (isSelected) {
-  //     var desc = con.firstName != null ? '${con.firstName} ${con.lastName}' : '${con.description}';
-  //     var marker = Marker(
-  //       markerId: MarkerId('${con.dncContactId}'),
-  //       position: LatLng(con.lat, con.long),
-  //       infoWindow: InfoWindow(
-  //         title: '${con.address}',
-  //         snippet: '$desc',
-  //       ),
-  //     );
-  //     setState(() {
-  //       _markers.add(marker);
-  //     });
-  //   } 
-    
-  // }
 
 }
