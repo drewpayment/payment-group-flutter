@@ -5,10 +5,14 @@ import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/auth_response.dart';
 import 'package:pay_track/models/parsed_response.dart';
 import 'package:pay_track/models/user.dart';
+import 'package:rxdart/rxdart.dart';
 
 class Auth {
   static String _token;
   static User _user;
+
+  static BehaviorSubject<bool> _isAuthenticated$ = BehaviorSubject<bool>()..add(false);
+  static Stream<bool> get isAuthenticated => _isAuthenticated$.stream;
 
   static User get user => _user;
 
@@ -33,6 +37,8 @@ class Auth {
       result = ParsedResponse<AuthResponse>(result.statusCode, AuthResponse.fromJson(resp.data));
       _user = result.body.user;
       _token = result.body.token;
+
+      _isAuthenticated$.sink.add(true);
 
       await _setInterceptorToken();
     }
@@ -59,8 +65,13 @@ class Auth {
     var comp = Completer<bool>();
     _user = null;
     _token = null;
+    _isAuthenticated$.sink.add(false);
     comp.complete(true);
     return comp.future;
+  }
+
+  void dispose() {
+    _isAuthenticated$.sink.close();
   }
 
 }

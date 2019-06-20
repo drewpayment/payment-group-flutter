@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/pages/custom_bottom_nav.dart';
+import 'package:pay_track/pages/login_page.dart';
 import 'package:pay_track/pages/map_page.dart';
 import 'package:pay_track/services/auth.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -35,14 +36,13 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final _formKey = GlobalKey<FormState>();
-  String _username;
-  String _password;
-
+class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   BoxDecoration headerStyle;
   List<Widget> drawerOptions;
   int _selectedNavigationItem = 0;
+
+  @override
+  BuildContext get context;
 
   @override
   void didChangeDependencies() {
@@ -52,6 +52,15 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
+    /// listen for changed to authenticated state in auth service
+    Auth.isAuthenticated.listen((signedIn) {
+      if (signedIn) {
+        bloc.fetchAllKnocks();
+      } else {
+        Navigator.pushReplacementNamed(context, LoginPage.routeName);
+      }
+    });
   }
 
   @override
@@ -71,9 +80,7 @@ class _HomePageState extends State<HomePage> {
         return Scaffold(
           backgroundColor: Colors.white,
           appBar: CustomAppBar(title: Text('${model.appName}')),
-          body: Auth.isSignedIn()
-            ? _getSignedInBody()
-            : _getSignedOutBody(),
+          body: _getSignedInBody(),
           bottomNavigationBar: Auth.isSignedIn() ? CustomBottomNav(
             items: HomePage.bottomNavItems,
             currentIndex: _selectedNavigationItem,
@@ -93,113 +100,6 @@ class _HomePageState extends State<HomePage> {
     if (_selectedNavigationItem == 1) {
       Navigator.pushReplacementNamed(context, MapPage.routeName);
     }
-  }
-
-  Widget _getSignedOutBody() {
-    return Center(
-      // Center is a layout widget. It takes a single child and positions it
-      // in the middle of the parent.
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Form(
-              key: _formKey,
-              child: Container(
-                padding: EdgeInsets.all(16.0),
-                color: Colors.white,
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: Image.asset(
-                          'assets/undraw_walking_around_25f5.png',
-                          fit: BoxFit.scaleDown,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: TextFormField(
-                          autocorrect: false,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                            ),
-                            labelText: 'Username',
-                          ),
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Please enter a username';
-                            }
-                            _username = value;
-                          },
-                          textInputAction: TextInputAction.next,
-                          onEditingComplete: () {
-                            
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: TextFormField(
-                          key: ValueKey('passwordField'),
-                          autocorrect: false,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                            ),
-                            labelText: 'Password',
-                          ),
-                          validator: (value) {
-                            if (value.isEmpty) {
-                              return 'Please enter a password.';
-                            }
-                            _password = value;
-                          },
-                        ),
-                      ),
-                      RaisedButton(
-                        padding: EdgeInsets.all(16.0),
-                        child: Row(
-                          children: <Widget>[
-                            Icon(Icons.exit_to_app, color: Colors.white,),
-                            Text('Sign In', style: TextStyle(color: Colors.white)),
-                          ],
-                          mainAxisAlignment: MainAxisAlignment.center,
-                        ),
-                        onPressed: () {
-                          if (_formKey.currentState.validate()) {
-                            Auth.signIn(_username, _password).then((result) {
-                              print('Status is OK: ${result.isOk()}');
-                              print('User display name: ${Auth.user?.firstName} ${Auth.user?.lastName}');
-                              print('Token: ${result.body?.token}');
-                              if (result.isOk()) {
-                                _formKey.currentState?.reset();
-                                Navigator.pushReplacementNamed(context, MapPage.routeName);
-                              }
-                            });
-                          }
-                        },
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
-                        color: Theme.of(context).primaryColor,
-                        elevation: 2.0,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _getSignedInBody() {
@@ -250,9 +150,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             onPressed: () {
                               Auth.signOut().then((success) {
-                                setState(() {
-                                  _selectedNavigationItem = 0;
-                                });
+                                // Navigator.of(context).pushReplacementNamed(HomePage.routeName);
                               });
                             }
                           ),
