@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
+import 'package:pay_track/models/Knock.dart';
 
 class GoogleMapWidget extends StatefulWidget {
 
@@ -30,27 +31,81 @@ class GoogleMapState extends State<GoogleMapWidget> {
           var loc = snapshot.data;
           _mapCenter = LatLng(loc.latitude, loc.longitude);
           return StreamBuilder(
-            initialData: Set<Marker>(),
-            stream: bloc.markerStream,
-            builder: (context, AsyncSnapshot<Set<Marker>> snapshot) {
+            initialData: null,
+            stream: bloc.knocksStream,
+            builder: (context, AsyncSnapshot<List<Knock>> snapshot) {
               if (snapshot.hasData) {
+                var knocks = snapshot.data;
                 return SizedBox(
-                  child: GoogleMap(
-                    zoomGesturesEnabled: true,
-                    myLocationEnabled: true,
-                    onMapCreated: _onMapCreated,
-                    initialCameraPosition: CameraPosition(
-                      target: _mapCenter,
-                      zoom: 18.0,
-                    ),
-                    markers: snapshot.data,
-                    compassEnabled: true,
-                    tiltGesturesEnabled: false,
-                    onCameraIdle: () {
-                      // _filterContactsByMapBoundary();
-                      print('when does this fire?');
-                      bloc.filterKnocksByBoundary(bounds);
-                    },
+                  child: Stack(
+                    children: <Widget>[
+                      GoogleMap(
+                        zoomGesturesEnabled: true,
+                        myLocationEnabled: true,
+                        onMapCreated: _onMapCreated,
+                        initialCameraPosition: CameraPosition(
+                          target: _mapCenter,
+                          zoom: 18.0,
+                        ),
+                        markers: bloc.markers,
+                        compassEnabled: true,
+                        tiltGesturesEnabled: false,
+                        onCameraIdle: () {
+                          print('when does this fire?');
+                          bloc.filterKnocksByBoundary();
+                        },
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Align(
+                          alignment: Alignment.bottomLeft,
+                          child: FloatingActionButton(
+                            materialTapTargetSize: MaterialTapTargetSize.padded,
+                            onPressed: () {
+                              showModalBottomSheet<void>(
+                                isScrollControlled: true,
+                                context: context, 
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                                ),
+                                builder: (context) {
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: <Widget>[
+                                          IconButton(
+                                            icon: Icon(Icons.clear),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            color: Colors.black45,
+                                          ),
+                                        ],
+                                      ),
+                                    ]..addAll(knocks.map((k) {
+                                      return ListTile(
+                                        leading: Icon(Icons.account_box),
+                                        title: Text('${k.firstName} ${k.lastName}'),
+                                        subtitle: Text('${k.address}'),
+                                        onTap: () {
+                                          // close bottom sheet & reposition camera on this knock
+                                        }
+                                      );
+                                    }).toList()),
+                                  );
+                                }
+                              );
+                            },
+                            child: Icon(Icons.view_list),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   height: MediaQuery.of(context).size.height - (Scaffold.of(context).appBarMaxHeight + 83),
                   width: MediaQuery.of(context).size.width,
@@ -88,6 +143,7 @@ class GoogleMapState extends State<GoogleMapWidget> {
     // _controller.complete();
     // do things after the map has shown up... might be a good place to wire up events showing/hiding markers
     bounds = await controller.getVisibleRegion();
+    bloc.mapController = controller;
 
     _controller.complete(controller);
   }

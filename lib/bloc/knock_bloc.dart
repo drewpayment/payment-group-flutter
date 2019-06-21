@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/Knock.dart';
 import 'package:rxdart/rxdart.dart';
@@ -21,10 +22,9 @@ class KnockBloc {
   Set<Marker> get markers => _markers;
   List<Knock> get knocks => _knocks;
 
-  StreamSubscription markerStreamListener;
+  GoogleMapController mapController;
 
   KnockBloc() {
-    markerStreamListener = _knockFetcher.listen(_fetchMarkers);
     fetchAllKnocks();
   }
 
@@ -32,7 +32,7 @@ class KnockBloc {
     var knocksResp = await _knockRepo.getKnocks();
     if (knocksResp.isOk()) {
       _knocks = knocksResp.body;
-      _knockFetcher.add(_knocks);
+      filterKnocksByBoundary();
     }
   }
 
@@ -52,27 +52,31 @@ class KnockBloc {
     _markerFetcher.add(_markers);
   }
 
-  void filterKnocksByBoundary(LatLngBounds bounds) async {
+  void filterKnocksByBoundary() async {
     var filtered = List<Knock>();
-    var knocks = _knocks;
 
-    knocks.forEach((kn) {
-      var pos = LatLng(kn.lat, kn.long);
+    if (mapController != null) {
+      final mapBounds = await mapController.getVisibleRegion();
 
-      if (bounds.contains(pos)) {
-        filtered.add(kn);
+      for (var i = 0; i < knocks.length; i++) {
+        final kn = knocks[i];
+        var pos = LatLng(kn.lat, kn.long);
+        if (mapBounds.contains(pos)) {
+          filtered.add(kn);
+        }
       }
-    });
+    } else {
+      filtered = knocks;
+    }
 
-    // _fetchMarkers(filtered);
+    _fetchMarkers(filtered);
 
     _knockFetcher.add(filtered);
   }
 
-  dispose() {
+  void dispose() {
     _knockFetcher.close();
     _markerFetcher.close();
-    markerStreamListener.cancel();
   }
 
 }
