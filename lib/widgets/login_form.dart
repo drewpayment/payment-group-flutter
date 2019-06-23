@@ -14,11 +14,21 @@ class LoginFormState extends State<LoginForm> {
   String _username;
   String _password;
 
+  bool isLoading = false;
+
   @override
   BuildContext get context;
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Center(
+        widthFactor: 1.0,
+        heightFactor: 1.0,
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return Form(
       key: _formKey,
       child: Container(
@@ -103,9 +113,14 @@ class LoginFormState extends State<LoginForm> {
 
   void _signIn() async {
     if (_formKey.currentState.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+
       Auth.signIn(_username, _password).then((result) {
         if (result.isOk()) {
           _formKey.currentState?.reset();
+          isLoading = false;
           Navigator.pushReplacementNamed(context, HomePage.routeName);
         }
       });

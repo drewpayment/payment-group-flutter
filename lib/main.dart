@@ -2,6 +2,7 @@ import 'package:catcher/catcher_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:pay_track/data/http.dart';
 import 'package:pay_track/models/config.dart';
+import 'package:pay_track/pages/add_contact.dart';
 import 'package:pay_track/pages/home_page.dart';
 import 'package:pay_track/pages/login_page.dart';
 import 'package:pay_track/pages/map_page.dart';
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
             RegisterPage.routeName: (BuildContext context) => RegisterPage(),
             MapPage.routeName: (BuildContext context) => MapPage(),
             LoginPage.routeName: (BuildContext context) => LoginPage(),
+            AddContactPage.routeName: (BuildContext context) => AddContactPage(),
         },
       ),
       rebuildOnChange: false,

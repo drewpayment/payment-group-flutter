@@ -51,7 +51,6 @@ class GoogleMapState extends State<GoogleMapWidget> {
                   compassEnabled: true,
                   tiltGesturesEnabled: false,
                   onCameraIdle: () {
-                    print('when does this fire?');
                     bloc.filterKnocksByBoundary();
                   },
                 ));
@@ -65,7 +64,8 @@ class GoogleMapState extends State<GoogleMapWidget> {
                   child: Stack(
                     children: sizedBoxChildren,
                   ),
-                  height: MediaQuery.of(context).size.height - (Scaffold.of(context).appBarMaxHeight + 83),
+                  // height: MediaQuery.of(context).size.height - (Scaffold.of(context).appBarMaxHeight + 83),
+                  height: MediaQuery.of(context).size.height - Scaffold.of(context).appBarMaxHeight,
                   width: MediaQuery.of(context).size.width,
                 ); 
               } else {
@@ -110,7 +110,7 @@ class GoogleMapState extends State<GoogleMapWidget> {
     return Padding(
       padding: EdgeInsets.all(8.0),
       child: Align(
-        alignment: Alignment.bottomLeft,
+        alignment: Alignment.topRight,
         child: FloatingActionButton(
           materialTapTargetSize: MaterialTapTargetSize.padded,
           onPressed: () {
@@ -159,7 +159,15 @@ class GoogleMapState extends State<GoogleMapWidget> {
                         onTap: () {
                           // close bottom sheet & reposition camera on this knock
                           Navigator.pop(context);
-                          print('need to move camera position still...');
+                          bloc.mapController.moveCamera(
+                            CameraUpdate.newCameraPosition(
+                              CameraPosition(
+                                target: LatLng(k.lat, k.long),
+                                zoom: 19.0,
+                              ),
+                            ),
+                          );
+                          // print('need to move camera position still...');
                         }
                       );
                     })),
@@ -176,7 +184,9 @@ class GoogleMapState extends State<GoogleMapWidget> {
 
   @override
   void dispose() {
-    _controller.complete();
+    if (!_controller.isCompleted) {
+      _controller.complete();
+    }
     super.dispose();
   }
 

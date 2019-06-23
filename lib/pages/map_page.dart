@@ -56,11 +56,11 @@ class _MapPageState extends State<MapPage> {
         return Scaffold(
           appBar: CustomAppBar(title: Text('${model.appName}')),
           body: body,
-          bottomNavigationBar: CustomBottomNav(
-            items: HomePage.bottomNavItems,
-            currentIndex: _selectedNavigationItem,
-            onTap: _onNavigationBarTap,
-          ),
+          // bottomNavigationBar: CustomBottomNav(
+          //   items: HomePage.bottomNavItems,
+          //   currentIndex: _selectedNavigationItem,
+          //   onTap: _onNavigationBarTap,
+          // ),
         );
       },
     );

@@ -70,7 +70,7 @@ class Auth {
     return comp.future;
   }
 
-  void dispose() {
+  static void dispose() {
     _isAuthenticated$.sink.close();
   }
 

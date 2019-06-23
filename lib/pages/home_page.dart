@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
+import 'package:pay_track/bloc/route_bloc.dart';
 import 'package:pay_track/models/config.dart';
+import 'package:pay_track/pages/add_contact.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
-import 'package:pay_track/pages/custom_bottom_nav.dart';
 import 'package:pay_track/pages/login_page.dart';
 import 'package:pay_track/pages/map_page.dart';
 import 'package:pay_track/services/auth.dart';
@@ -57,9 +58,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     Auth.isAuthenticated.listen((signedIn) {
       if (signedIn) {
         bloc.fetchAllKnocks();
-      } else {
-        Navigator.pushReplacementNamed(context, LoginPage.routeName);
-      }
+      } 
     });
   }
 
@@ -79,28 +78,54 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       builder: (context, child, model) {
         return Scaffold(
           backgroundColor: Colors.white,
-          appBar: CustomAppBar(title: Text('${model.appName}')),
+          appBar: CustomAppBar(
+            title: Text('${model.appName}'),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.exit_to_app),
+                onPressed: () {
+                  Auth.signOut().then((isSignedOut) {
+                    if (isSignedOut) {
+                      Navigator.pushNamedAndRemoveUntil(context, LoginPage.routeName, ModalRoute.withName('/'));
+                    }
+                  });
+                },
+              ),
+            ],
+          ),
           body: _getSignedInBody(),
-          bottomNavigationBar: Auth.isSignedIn() ? CustomBottomNav(
-            items: HomePage.bottomNavItems,
-            currentIndex: _selectedNavigationItem,
-            onTap: _onNavigationBarTap,
-          ) : null,
+          // bottomNavigationBar: Auth.isSignedIn() 
+          //   ? StreamBuilder(
+          //     initialData: null,
+          //     stream: routeBloc.selectedRoute,
+          //     builder: (context, AsyncSnapshot<int> snap) {
+          //       if (snap.hasData) {
+          //         return CustomBottomNav(
+          //           items: HomePage.bottomNavItems,
+          //           currentIndex: snap.data,
+          //           onTap: _onNavigationBarTap,
+          //         );
+          //       } else {
+          //         return Container();
+          //       }
+          //     }
+          //   )  
+          //   : null,
         );
       },
     );
   }
 
-  _onNavigationBarTap(int index) {
-    print('Tapped number $index');
-    setState(() {
-      _selectedNavigationItem = index;
-    });
+  // _onNavigationBarTap(int index) {
+  //   print('Tapped number $index');
+  //   setState(() {
+  //     _selectedNavigationItem = index;
+  //   });
 
-    if (_selectedNavigationItem == 1) {
-      Navigator.pushReplacementNamed(context, MapPage.routeName);
-    }
-  }
+  //   if (_selectedNavigationItem == 1) {
+  //     Navigator.pushNamed(context, MapPage.routeName);
+  //   }
+  // }
 
   Widget _getSignedInBody() {
     return SingleChildScrollView(
@@ -140,31 +165,93 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   title: Text('${Auth.user.firstName} ${Auth.user.lastName}'),
                   subtitle: Text('${Auth.user.email}'),
                 ),
-                ButtonTheme.bar(
-                  child: ButtonBar(
-                    alignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      FlatButton(
-                        child: Text('Sign Out',
-                          style: TextStyle(
-                            fontSize: 18,
-                          ),
-                        ),
-                        onPressed: () {
-                          Auth.signOut().then((success) {
-                            // Navigator.of(context).pushReplacementNamed(HomePage.routeName);
-                          });
-                        }
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+              ]..addAll(_getButtonBarButtons()),
             ),
           ),
         ],
       )
     );
+  }
+
+  List<Widget> _getButtonBarButtons() {
+    var buttons = <Widget>[];
+
+    if (Auth.user.userRole.role > 5) {
+      buttons.add(ButtonTheme.bar(
+        child: ButtonBar(
+          alignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            RaisedButton(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+              padding: EdgeInsets.all(12.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Text('Add Restricts'),
+                  Icon(Icons.add_circle)
+                ],
+              ),
+              textColor: Colors.white,
+              onPressed: () {
+                print('We are going to navigate to the create a contact page');
+                Navigator.pushNamed(context, AddContactPage.routeName);
+              },
+            ),
+            RaisedButton(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+              padding: EdgeInsets.all(12.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Text('Manage Restricts'),
+                  Icon(Icons.code)
+                ],
+              ),
+              textColor: Colors.white,
+              onPressed: () {
+                print('Navigate to page to manage existing contacts');
+              },
+            ),
+          ],
+        ),
+      ));
+    }
+
+    buttons.add(ButtonTheme.bar(
+      child: ButtonBar(
+        alignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          RaisedButton(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+            padding: EdgeInsets.all(12.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text('Go to Map'),
+                Icon(Icons.map),
+              ],
+            ),
+            textColor: Colors.white,
+            onPressed: () {
+              Navigator.pushNamed(context, MapPage.routeName);
+            },
+          )
+        ],
+      ),
+    ));
+
+    return buttons;
+  }
+
+  @override
+  void dispose() {
+    routeBloc.dispose();
+    super.dispose();
   }
 
 }
