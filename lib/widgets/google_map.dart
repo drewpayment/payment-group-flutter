@@ -36,76 +36,34 @@ class GoogleMapState extends State<GoogleMapWidget> {
             builder: (context, AsyncSnapshot<List<Knock>> snapshot) {
               if (snapshot.hasData) {
                 var knocks = snapshot.data;
+
+                var sizedBoxChildren = <Widget>[];
+
+                sizedBoxChildren.add(GoogleMap(
+                  zoomGesturesEnabled: true,
+                  myLocationEnabled: true,
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: CameraPosition(
+                    target: _mapCenter,
+                    zoom: 18.0,
+                  ),
+                  markers: bloc.markers,
+                  compassEnabled: true,
+                  tiltGesturesEnabled: false,
+                  onCameraIdle: () {
+                    print('when does this fire?');
+                    bloc.filterKnocksByBoundary();
+                  },
+                ));
+
+                // if the view is showing markers, display the trigger to show the bottom sheet model also 
+                if (bloc.markers.length > 0) {
+                  sizedBoxChildren.add(_getBottomSheetTrigger(knocks));
+                }
+
                 return SizedBox(
                   child: Stack(
-                    children: <Widget>[
-                      GoogleMap(
-                        zoomGesturesEnabled: true,
-                        myLocationEnabled: true,
-                        onMapCreated: _onMapCreated,
-                        initialCameraPosition: CameraPosition(
-                          target: _mapCenter,
-                          zoom: 18.0,
-                        ),
-                        markers: bloc.markers,
-                        compassEnabled: true,
-                        tiltGesturesEnabled: false,
-                        onCameraIdle: () {
-                          print('when does this fire?');
-                          bloc.filterKnocksByBoundary();
-                        },
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Align(
-                          alignment: Alignment.bottomLeft,
-                          child: FloatingActionButton(
-                            materialTapTargetSize: MaterialTapTargetSize.padded,
-                            onPressed: () {
-                              showModalBottomSheet<void>(
-                                isScrollControlled: true,
-                                context: context, 
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                ),
-                                builder: (context) {
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: <Widget>[
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: <Widget>[
-                                          IconButton(
-                                            icon: Icon(Icons.clear),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            color: Colors.black45,
-                                          ),
-                                        ],
-                                      ),
-                                    ]..addAll(knocks.map((k) {
-                                      return ListTile(
-                                        leading: Icon(Icons.account_box),
-                                        title: Text('${k.firstName} ${k.lastName}'),
-                                        subtitle: Text('${k.address}'),
-                                        onTap: () {
-                                          // close bottom sheet & reposition camera on this knock
-                                        }
-                                      );
-                                    }).toList()),
-                                  );
-                                }
-                              );
-                            },
-                            child: Icon(Icons.view_list),
-                          ),
-                        ),
-                      ),
-                    ],
+                    children: sizedBoxChildren,
                   ),
                   height: MediaQuery.of(context).size.height - (Scaffold.of(context).appBarMaxHeight + 83),
                   width: MediaQuery.of(context).size.width,
@@ -146,6 +104,80 @@ class GoogleMapState extends State<GoogleMapWidget> {
     bloc.mapController = controller;
 
     _controller.complete(controller);
+  }
+
+  Widget _getBottomSheetTrigger(List<Knock> knocks) {
+    return Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Align(
+        alignment: Alignment.bottomLeft,
+        child: FloatingActionButton(
+          materialTapTargetSize: MaterialTapTargetSize.padded,
+          onPressed: () {
+            showModalBottomSheet<void>(
+              isScrollControlled: true,
+              context: context, 
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              ),
+              builder: (context) {
+                return Container(
+                  height: MediaQuery.of(context).size.height * 0.9,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Flex(
+                        direction: Axis.horizontal,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(left: 10.0),
+                            child: Text('Restricted Addresses',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            color: Colors.black45,
+                          ),
+                        ],
+                      ),
+                    ]..addAll(knocks.map((k) {
+                      return ListTile(
+                        leading: Icon(Icons.account_box),
+                        title: Text('${k.firstName} ${k.lastName}'),
+                        subtitle: Text('${k.address}'),
+                        onTap: () {
+                          // close bottom sheet & reposition camera on this knock
+                          Navigator.pop(context);
+                          print('need to move camera position still...');
+                        }
+                      );
+                    })),
+                  ),
+                );
+              }
+            );
+          },
+          child: Icon(Icons.view_list),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.complete();
+    super.dispose();
   }
 
 }

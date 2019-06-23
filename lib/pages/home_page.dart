@@ -103,67 +103,67 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _getSignedInBody() {
-    return Center(
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Center(
-              child: Text('WELCOME',
-                style: TextStyle(
-                  fontFamily: 'Starjedi',
-                  fontSize: 36,
-                  letterSpacing: 2.0,
-                  color: Theme.of(context).accentColor,
-                ),
-              ),
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width,
-              child: Image.asset(
-                'assets/undraw_settings_ii2j.png',
-                height: 200,
-              ),
-            ),
-            Center(
-              child: Card(
-                margin: EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    ListTile(
-                      leading: Icon(Icons.person_outline),
-                      dense: false,
-                      title: Text('${Auth.user.firstName} ${Auth.user.lastName}'),
-                      subtitle: Text('${Auth.user.email}'),
-                    ),
-                    ButtonTheme.bar(
-                      child: ButtonBar(
-                        alignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          FlatButton(
-                            child: Text('Sign Out',
-                              style: TextStyle(
-                                fontSize: 18,
-                              ),
-                            ),
-                            onPressed: () {
-                              Auth.signOut().then((success) {
-                                // Navigator.of(context).pushReplacementNamed(HomePage.routeName);
-                              });
-                            }
-                          ),
-                        ],
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Card(
+            margin: EdgeInsets.all(16.0),
+            elevation: 8.0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+                  child: Center(
+                    child: Text('WELCOME',
+                      style: TextStyle(
+                        fontFamily: 'Rockwell',
+                        fontSize: 36,
+                        letterSpacing: 2.0,
+                        color: Theme.of(context).accentColor,
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  child: Image.asset(
+                    'assets/undraw_settings_ii2j.png',
+                    height: 200,
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(Icons.person_outline),
+                  dense: false,
+                  title: Text('${Auth.user.firstName} ${Auth.user.lastName}'),
+                  subtitle: Text('${Auth.user.email}'),
+                ),
+                ButtonTheme.bar(
+                  child: ButtonBar(
+                    alignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      FlatButton(
+                        child: Text('Sign Out',
+                          style: TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                        onPressed: () {
+                          Auth.signOut().then((success) {
+                            // Navigator.of(context).pushReplacementNamed(HomePage.routeName);
+                          });
+                        }
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        )
-      ),
+          ),
+        ],
+      )
     );
   }
 

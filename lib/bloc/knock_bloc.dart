@@ -44,7 +44,7 @@ class KnockBloc {
         position: LatLng(k.lat, k.long),
         infoWindow: InfoWindow(
           title: '${k.address}',
-          snippet: '${k.description}',
+          snippet: k.firstName != null ? '${k.firstName} ${k.lastName}' : '${k.description}',
         ),
       ));
     });
@@ -72,6 +72,12 @@ class KnockBloc {
     _fetchMarkers(filtered);
 
     _knockFetcher.add(filtered);
+  }
+
+  void moveCameraPosition(LatLng target) {
+    if (mapController != null) {
+      mapController.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(target: target)));
+    }
   }
 
   void dispose() {
