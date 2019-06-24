@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:pay_track/data/database.dart';
 import 'package:pay_track/data/http.dart';
@@ -30,6 +31,19 @@ class Repository {
       result = ParsedResponse(result.statusCode, KnockList.fromJson(response.data).knocks);
     }
 
+    return result;
+  }
+
+  Future<ParsedResponse<Knock>> saveKnock(Knock dto) async {
+    ParsedResponse<Knock> result = ParsedResponse(NO_INTERNET, null);
+    String uri = '${HttpClient.url('dnc-contacts')}';
+    var payload = json.encode(dto.toMap());
+    var response = await HttpClient.post(uri, data: payload);
+    result = ParsedResponse(response.statusCode, null);
+
+    if (result.isOk()) {
+      result = ParsedResponse(result.statusCode, Knock.fromJson(response.data));
+    }
     return result;
   }
 

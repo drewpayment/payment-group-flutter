@@ -1,5 +1,6 @@
 
 import 'package:meta/meta.dart';
+import 'package:pay_track/utils/helpers.dart';
 
 class Knock {
   static final dbDncContactId = "dncContactId";
@@ -34,8 +35,8 @@ class Knock {
     @required this.city,
     @required this.state,
     @required this.zip,
-    @required this.lat,
-    @required this.long,
+    this.lat,
+    this.long,
 
     this.firstName,
     this.lastName,
@@ -45,6 +46,13 @@ class Knock {
   });
 
   factory Knock.fromJson(Map<String, dynamic> jsonKnock) {
+    double latitude = jsonKnock['lat'] is String && Helpers.isNumeric(jsonKnock['lat']) 
+      ? double.tryParse(jsonKnock['lat'])
+      : jsonKnock['lat'];
+    double longitude = jsonKnock['long'] is String && Helpers.isNumeric(jsonKnock['long'])
+      ? double.tryParse(jsonKnock['long'])
+      : jsonKnock['long'];
+
     return Knock(
       dncContactId: jsonKnock['dncContactId'],
       clientId: jsonKnock['clientId'],
@@ -56,8 +64,8 @@ class Knock {
       city: jsonKnock['city'],
       state: jsonKnock['state'],
       zip: jsonKnock['zip'],
-      lat: double.tryParse(jsonKnock['lat']) ?? 0,
-      long: double.tryParse(jsonKnock['long']) ?? 0
+      lat: latitude,
+      long: longitude
     );
   }
 

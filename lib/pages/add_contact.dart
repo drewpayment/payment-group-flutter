@@ -16,7 +16,7 @@ class AddContactPage extends StatefulWidget {
 
 class AddContactPageState extends State<AddContactPage> {
 
-
+  
   @override
   void initState() {
     super.initState();
@@ -30,13 +30,39 @@ class AddContactPageState extends State<AddContactPage> {
       builder: (context, child, model) {
         return Scaffold(
           appBar: CustomAppBar(title: Text('${model.appName}')),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          body: ListView(
             children: <Widget>[
-              Text('New Contact'),
-              SingleChildScrollView(
-                child: AddContactForm(),
+              Padding(
+                padding: EdgeInsets.only(top: 16.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Text('NEW RESTRICTION',
+                      style: TextStyle(
+                        fontSize: 28.0,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 2.0,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Text('Create a new location on the map that can be referenced in real-time by users.',
+                  style: TextStyle(
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              Divider(
+                color: Colors.black45,
+                indent: 8.0,
+                endIndent: 8.0,
+              ),
+              AddContactForm()
             ],
           ),
         );

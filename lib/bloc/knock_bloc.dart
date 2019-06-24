@@ -36,6 +36,21 @@ class KnockBloc {
     }
   }
 
+  Future<bool> saveKnock(Knock knock) async {
+    var completer = Completer<bool>();
+    var resp = await _knockRepo.saveKnock(knock);
+    if (resp.isOk()) {
+      var copyKnocks = List<Knock>()..addAll(knocks);
+      copyKnocks.add(resp.body);
+      _knocks = copyKnocks;
+      filterKnocksByBoundary();
+      completer.complete(true);
+    } else {
+      completer.complete(false);
+    }
+    return completer.future;
+  }
+
   void _fetchMarkers(List<Knock> knocks) async {
     var marks = Set<Marker>();
     knocks.forEach((k) {
