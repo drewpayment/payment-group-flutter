@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
-import 'package:pay_track/pages/home_page.dart';
-import 'package:pay_track/services/auth.dart';
 import 'package:pay_track/widgets/login_form.dart';
-import 'package:scoped_model/scoped_model.dart';
+import 'package:kiwi/kiwi.dart' as kiwi;
 
 class LoginPage extends StatefulWidget {
-
   static const routeName = '/login';
 
   @override
@@ -17,9 +14,15 @@ class LoginPage extends StatefulWidget {
 class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
   Animation<double> animation;
   AnimationController controller;
+  kiwi.Container container = kiwi.Container();
+  ConfigModel config;
+
+  LoginPageState() {
+    config = container.resolve<ConfigModel>();
+  }
 
   @override
-  BuildContext get context;
+  BuildContext get context => super.context;
 
   @override
   void initState() {
@@ -31,14 +34,10 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
 
   @override
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<ConfigModel>(
-      builder: (context, child, model) {
-        return Scaffold(
-          backgroundColor: Colors.white,
-          appBar: CustomAppBar(title: Text('${model.appName}')),
-          body: LoginFormAnimation(animation: animation,),
-        );
-      },
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CustomAppBar(title: Text('${config.appName}')),
+      body: LoginFormAnimation(animation: animation),
     );
   }
 

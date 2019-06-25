@@ -16,6 +16,9 @@ class LoginFormState extends State<LoginForm> {
 
   bool isLoading = false;
 
+  var usernameFocus = FocusNode();
+  var passwordFocus = FocusNode();
+
   @override
   BuildContext get context;
 
@@ -63,8 +66,9 @@ class LoginFormState extends State<LoginForm> {
                     _username = value;
                   },
                   textInputAction: TextInputAction.next,
-                  onEditingComplete: () {
-                    
+                  focusNode: usernameFocus,
+                  onFieldSubmitted: (value) {
+                    _fieldFocusChange(context, usernameFocus, passwordFocus);
                   },
                 ),
               ),
@@ -86,6 +90,7 @@ class LoginFormState extends State<LoginForm> {
                     }
                     _password = value;
                   },
+                  focusNode: passwordFocus,
                 ),
               ),
               RaisedButton(
@@ -126,4 +131,10 @@ class LoginFormState extends State<LoginForm> {
       });
     }
   }
+
+  void _fieldFocusChange(BuildContext context, FocusNode currentFocus, FocusNode nextFocus) {
+    currentFocus.unfocus();
+    FocusScope.of(context).requestFocus(nextFocus);
+  }
+
 }

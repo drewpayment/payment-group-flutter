@@ -5,23 +5,14 @@ import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/add_contact.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/pages/login_page.dart';
+import 'package:pay_track/pages/manage_contacts.dart';
 import 'package:pay_track/pages/map_page.dart';
 import 'package:pay_track/services/auth.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:kiwi/kiwi.dart' as kiwi;
 
 class HomePage extends StatefulWidget {
   HomePage({Key key }) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  // static const String title = 'Locale.Marketing';
   static const String routeName = '/home';
 
   static const List<BottomNavigationBarItem> bottomNavItems = [BottomNavigationBarItem(
@@ -40,15 +31,15 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   BoxDecoration headerStyle;
   List<Widget> drawerOptions;
-  int _selectedNavigationItem = 0;
+  kiwi.Container container = kiwi.Container();
+  ConfigModel config;
 
-  @override
-  BuildContext get context;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  _HomePageState() {
+    config = container.resolve<ConfigModel>();
   }
+
+  @override
+  BuildContext get context => super.context;
 
   @override
   void initState() {
@@ -68,64 +59,26 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       color: Colors.cyan[400],
     );
 
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return ScopedModelDescendant<ConfigModel>(
-      builder: (context, child, model) {
-        return Scaffold(
-          backgroundColor: Colors.white,
-          appBar: CustomAppBar(
-            title: Text('${model.appName}'),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.exit_to_app),
-                onPressed: () {
-                  Auth.signOut().then((isSignedOut) {
-                    if (isSignedOut) {
-                      Navigator.pushNamedAndRemoveUntil(context, LoginPage.routeName, ModalRoute.withName('/'));
-                    }
-                  });
-                },
-              ),
-            ],
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: CustomAppBar(
+        title: Text('${config.appName}'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () {
+              Auth.signOut().then((isSignedOut) {
+                if (isSignedOut) {
+                  Navigator.pushNamedAndRemoveUntil(context, LoginPage.routeName, ModalRoute.withName('/'));
+                }
+              });
+            },
           ),
-          body: _getSignedInBody(),
-          // bottomNavigationBar: Auth.isSignedIn() 
-          //   ? StreamBuilder(
-          //     initialData: null,
-          //     stream: routeBloc.selectedRoute,
-          //     builder: (context, AsyncSnapshot<int> snap) {
-          //       if (snap.hasData) {
-          //         return CustomBottomNav(
-          //           items: HomePage.bottomNavItems,
-          //           currentIndex: snap.data,
-          //           onTap: _onNavigationBarTap,
-          //         );
-          //       } else {
-          //         return Container();
-          //       }
-          //     }
-          //   )  
-          //   : null,
-        );
-      },
+        ],
+      ),
+      body: _getSignedInBody(),
     );
   }
-
-  // _onNavigationBarTap(int index) {
-  //   print('Tapped number $index');
-  //   setState(() {
-  //     _selectedNavigationItem = index;
-  //   });
-
-  //   if (_selectedNavigationItem == 1) {
-  //     Navigator.pushNamed(context, MapPage.routeName);
-  //   }
-  // }
 
   Widget _getSignedInBody() {
     return SingleChildScrollView(
@@ -195,7 +148,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
               textColor: Colors.white,
               onPressed: () {
-                print('We are going to navigate to the create a contact page');
                 Navigator.pushNamed(context, AddContactPage.routeName);
               },
             ),
@@ -212,7 +164,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
               textColor: Colors.white,
               onPressed: () {
-                print('Navigate to page to manage existing contacts');
+                Navigator.pushNamed(context, ManageContacts.routeName);
               },
             ),
           ],

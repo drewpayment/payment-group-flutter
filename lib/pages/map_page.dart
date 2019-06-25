@@ -8,6 +8,7 @@ import 'package:pay_track/pages/home_page.dart';
 import 'package:pay_track/widgets/google_map.dart';
 import 'package:pay_track/widgets/map_list.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:kiwi/kiwi.dart' as kiwi;
 
 class MapPage extends StatefulWidget {
   const MapPage({Key key}) : super(key: key);
@@ -19,7 +20,12 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  var _selectedNavigationItem = 1;
+  kiwi.Container container = kiwi.Container();
+  ConfigModel config;
+
+  _MapPageState() {
+    config = container.resolve<ConfigModel>();
+  }
 
   @override
   void initState() {
@@ -34,13 +40,15 @@ class _MapPageState extends State<MapPage> {
       stream: bloc.knocksStream,
       builder: (context, AsyncSnapshot<List<Knock>> snapshot) {
         if (snapshot.connectionState != ConnectionState.waiting && snapshot.hasData) {
-          return _compileWidgets(Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              GoogleMapWidget(),
-              // MapListWidget(),
-            ],
-          ));
+          return Scaffold(
+            appBar: CustomAppBar(title: Text('${config.appName}')),
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                GoogleMapWidget(),
+              ],
+            ),
+          );
         } else {
           return Center(
             child: CircularProgressIndicator(),
@@ -48,33 +56,6 @@ class _MapPageState extends State<MapPage> {
         }
       },
     );
-  }
-
-  Widget _compileWidgets(Widget body) {
-    return ScopedModelDescendant<ConfigModel>(
-      builder: (context, child, model) {
-        return Scaffold(
-          appBar: CustomAppBar(title: Text('${model.appName}')),
-          body: body,
-          // bottomNavigationBar: CustomBottomNav(
-          //   items: HomePage.bottomNavItems,
-          //   currentIndex: _selectedNavigationItem,
-          //   onTap: _onNavigationBarTap,
-          // ),
-        );
-      },
-    );
-  }
-
-  _onNavigationBarTap(int index) {
-    print('Tapped number $index');
-    setState(() {
-      _selectedNavigationItem = index;
-    });
-
-    if (_selectedNavigationItem == 0) {
-      Navigator.pushReplacementNamed(context, HomePage.routeName);
-    }
   }
 
 }
