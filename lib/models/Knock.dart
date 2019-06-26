@@ -15,6 +15,7 @@ class Knock {
   static final dbZip = "zip";
   static final dbLat = "lat";
   static final dbLong = "long";
+  static final dbNote = 'note';
 
   int dncContactId;
   int clientId;
@@ -28,6 +29,7 @@ class Knock {
   String zip;
   double lat;
   double long;
+  String note;
 
   Knock({
     @required this.clientId,
@@ -42,7 +44,8 @@ class Knock {
     this.lastName,
     this.description,
     this.addressCont,
-    this.dncContactId
+    this.dncContactId,
+    this.note
   });
 
   factory Knock.fromJson(Map<String, dynamic> jsonKnock) {
@@ -65,7 +68,8 @@ class Knock {
       state: jsonKnock['state'],
       zip: jsonKnock['zip'],
       lat: latitude,
-      long: longitude
+      long: longitude,
+      note: jsonKnock['note'],
     );
   }
 
@@ -81,7 +85,8 @@ class Knock {
     state: map[dbState],
     zip: map[dbZip],
     lat: map[dbLat],
-    long: map[dbLong]
+    long: map[dbLong],
+    note: map[dbNote],
   );
 
   Map<String, dynamic> toMap() {
@@ -97,7 +102,8 @@ class Knock {
       dbState: state,
       dbZip: zip,
       dbLat: lat,
-      dbLong: long
+      dbLong: long,
+      dbNote: note,
     };
   }
 }

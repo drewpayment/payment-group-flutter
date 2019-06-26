@@ -4,6 +4,7 @@ import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/models/Knock.dart';
 import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
+import 'package:pay_track/widgets/add_contact_form.dart';
 
 class ManageContacts extends StatefulWidget {
   static const routeName = '/manage-contacts';
@@ -12,7 +13,7 @@ class ManageContacts extends StatefulWidget {
   ManageContactsState createState() => ManageContactsState();
 }
 
-class ManageContactsState extends State<ManageContacts> with SingleTickerProviderStateMixin {
+class ManageContactsState extends State<ManageContacts> with TickerProviderStateMixin {
   static final Animatable<double> _easeInTween = CurveTween(curve: Curves.easeIn);
   static final Animatable<double> _halfTween = Tween<double>(begin: 0.0, end: 0.5);
   AnimationController _controller;
@@ -82,7 +83,26 @@ class ManageContactsState extends State<ManageContacts> with SingleTickerProvide
                                       ],
                                     ),
                                     onPressed: () {
-                                      print('Pressed Edit!');
+                                      showModalBottomSheet(
+                                        isScrollControlled: true,
+                                        context: context,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10.0),
+                                        ),
+                                        builder: (context) {
+                                          return Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(10.0),
+                                            ),
+                                            height: MediaQuery.of(context).size.height * 0.90,
+                                            // width: MediaQuery.of(context).size.width * 0.95,
+                                            child: SingleChildScrollView(
+                                              primary: true,
+                                              child: AddContactForm(contact: contacts[index]),
+                                            ),
+                                          );
+                                        }
+                                      );
                                     },
                                   ),
                                 ),

@@ -1,14 +1,10 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/widgets/add_contact_form.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:kiwi/kiwi.dart' as kiwi;
 
 class AddContactPage extends StatefulWidget {
-
   static const routeName = '/add-contact';
 
   @override

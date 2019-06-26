@@ -16,6 +16,7 @@ class ContactFormField extends StatelessWidget {
   final FocusNode focus;
   final void Function(String) onFieldSubmitted;
   final TextEditingController controller;
+  final String initialValue;
 
   ContactFormField({
     @required this.label, 
@@ -25,7 +26,8 @@ class ContactFormField extends StatelessWidget {
     this.focus,
     this.onFieldSubmitted,
     this.validationMessage, 
-    this.validator
+    this.validator,
+    this.initialValue,
   });
 
   @override
@@ -48,6 +50,7 @@ class ContactFormField extends StatelessWidget {
         textInputAction: textInputAction,
         focusNode: focus,
         onFieldSubmitted: onFieldSubmitted,
+        initialValue: initialValue,
       ),
     );
   }
