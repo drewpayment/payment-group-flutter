@@ -9,7 +9,7 @@ import 'package:kiwi/kiwi.dart' as kiwi;
 
 void main() {
   final config = ConfigModel(
-    appName: 'Locale.Marketing',
+    appName: 'POSITS',
     flavor: 'Production',
     api: 'https://verostack.dev/api',
   );

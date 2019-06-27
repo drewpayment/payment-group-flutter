@@ -60,28 +60,28 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.45),
       appBar: CustomAppBar(
         title: Text('${config.appName}'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.exit_to_app),
-            onPressed: () {
-              Auth.signOut().then((isSignedOut) {
-                if (isSignedOut) {
-                  Navigator.pushNamedAndRemoveUntil(context, LoginPage.routeName, ModalRoute.withName('/'));
-                }
-              });
-            },
-          ),
-        ],
       ),
       body: _getSignedInBody(),
+      floatingActionButton: FloatingActionButton.extended(
+        icon: Icon(Icons.exit_to_app),
+        label: Text('Sign Out'),
+        onPressed: () {
+          Auth.signOut().then((isSignedOut) {
+            if (isSignedOut) {
+              Navigator.pushNamedAndRemoveUntil(context, LoginPage.routeName, ModalRoute.withName('/'));
+            }
+          });
+        },
+      ),
     );
   }
 
   Widget _getSignedInBody() {
-    return SingleChildScrollView(
+    return Center(
+      heightFactor: 1.3,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   title: Text('${Auth.user.firstName} ${Auth.user.lastName}'),
                   subtitle: Text('${Auth.user.email}'),
                 ),
-              ]..addAll(_getButtonBarButtons()),
+              ]..add(_getButtonBarButtons()),
             ),
           ),
         ],
@@ -126,78 +126,52 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 
-  List<Widget> _getButtonBarButtons() {
+  Widget _getButtonBarButtons() {
     var buttons = <Widget>[];
 
     if (Auth.user.userRole.role > 5) {
-      buttons.add(ButtonTheme.bar(
-        child: ButtonBar(
-          alignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
+      buttons.add(RaisedButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        padding: EdgeInsets.all(12.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            RaisedButton(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-              padding: EdgeInsets.all(12.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text('Add Restricts'),
-                  Icon(Icons.add_circle)
-                ],
-              ),
-              textColor: Colors.white,
-              onPressed: () {
-                Navigator.pushNamed(context, AddContactPage.routeName);
-              },
-            ),
-            RaisedButton(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-              padding: EdgeInsets.all(12.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text('Manage Restricts'),
-                  Icon(Icons.code)
-                ],
-              ),
-              textColor: Colors.white,
-              onPressed: () {
-                Navigator.pushNamed(context, ManageContacts.routeName);
-              },
-            ),
+            Text('Manage Restricts'),
+            Icon(Icons.code)
           ],
         ),
+        textColor: Colors.white,
+        onPressed: () {
+          Navigator.pushNamed(context, ManageContacts.routeName);
+        },
       ));
     }
 
-    buttons.add(ButtonTheme.bar(
+    buttons.add(RaisedButton(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+      padding: EdgeInsets.all(12.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Text('Go to Map'),
+          Icon(Icons.map),
+        ],
+      ),
+      textColor: Colors.white,
+      onPressed: () {
+        Navigator.pushNamed(context, MapPage.routeName);
+      },
+    ));
+
+    return ButtonTheme.bar(
       child: ButtonBar(
         alignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          RaisedButton(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-            padding: EdgeInsets.all(12.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Text('Go to Map'),
-                Icon(Icons.map),
-              ],
-            ),
-            textColor: Colors.white,
-            onPressed: () {
-              Navigator.pushNamed(context, MapPage.routeName);
-            },
-          )
-        ],
+        children: buttons,
       ),
-    ));
-
-    return buttons;
+    );
   }
 
   @override

@@ -4,6 +4,16 @@ import 'package:flutter/material.dart';
 ThemeData buildTheme() {
     return ThemeData(
       primarySwatch: Colors.deepPurple,
+      appBarTheme: AppBarTheme(
+        textTheme: TextTheme(
+          title: TextStyle(
+            fontFamily: 'Raleway',
+            fontSize: 25.0,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 4.0,
+          ),
+        ),
+      ),
         // brightness: Brightness.light,
         // primaryColor: Colors.white,
         // accentColor: Colors.white,

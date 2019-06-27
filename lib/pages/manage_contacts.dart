@@ -3,6 +3,7 @@ import 'package:kiwi/kiwi.dart' as kiwi;
 import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/models/Knock.dart';
 import 'package:pay_track/models/config.dart';
+import 'package:pay_track/pages/add_contact.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/widgets/add_contact_form.dart';
 
@@ -17,120 +18,31 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
   static final Animatable<double> _easeInTween = CurveTween(curve: Curves.easeIn);
   static final Animatable<double> _halfTween = Tween<double>(begin: 0.0, end: 0.5);
   AnimationController _controller;
+  Animation<double> _iconTurns;
+
+  static var container = kiwi.Container();
+  ConfigModel config = container.resolve<ConfigModel>();
+
+  @override
+  BuildContext get context => super.context;
+
+  @override
+  void initState() {
+    const Duration _kExpand = Duration(milliseconds: 200);
+    _controller = AnimationController(duration: _kExpand, vsync: this);
+    _iconTurns = _controller.drive(_halfTween.chain(_easeInTween));
+    super.initState();
+  }
   
   @override
   Widget build(BuildContext context) {
-    const Duration _kExpand = Duration(milliseconds: 200);
-    var config = kiwi.Container().resolve<ConfigModel>();
-    _controller = AnimationController(duration: _kExpand, vsync: this);
-    var _iconTurns = _controller.drive(_halfTween.chain(_easeInTween));
-
     return Scaffold(
-      appBar: CustomAppBar(title: Text('${config.appName}')),
+      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.45),
+      appBar: CustomAppBar(title: Text('Restricted Locations')),
       body: StreamBuilder(
         builder: (context, AsyncSnapshot<List<Knock>> snap) {
           if (snap.hasData) {
-            var contacts = snap.data;
-            return ListView.builder(
-              itemCount: snap.data.length,
-              itemBuilder: (context, index) {
-                var isExpanded = (index == 0);
-                return Card(
-                  child: ListTileTheme(
-                    iconColor: Colors.white,
-                    selectedColor: Colors.white60,
-                    child: ExpansionTile(
-                      key: PageStorageKey(index),
-                      initiallyExpanded: isExpanded,
-                      leading: CircleAvatar(
-                        child: Icon(Icons.home),
-                        backgroundColor: Colors.white,
-                        foregroundColor: Theme.of(context).primaryColor,
-                      ),
-                      title: contacts[index].description != null 
-                        ? Text(contacts[index].description, style: _cardTitleTextStyle())
-                        : Text('${contacts[index].firstName} ${contacts[index].lastName}', style: _cardTitleTextStyle()),
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.all(10.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                'Address: ',
-                                style: _cardSubtitleTextStyle(),
-                              ),
-                              Text(
-                                '${contacts[index].address} ${contacts[index].addressCont}\n${contacts[index].city} ${contacts[index].state} ${contacts[index].zip}',
-                                style: _cardSubtitleTextStyle(),
-                              ),
-                              Expanded(
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: FlatButton(
-                                    materialTapTargetSize: MaterialTapTargetSize.padded,
-                                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                                    textColor: Colors.white,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        Text('Edit',
-                                          style: _cardSubtitleTextStyle(),
-                                        ),
-                                        Icon(Icons.edit,
-                                          size: 16.0,
-                                        ),
-                                      ],
-                                    ),
-                                    onPressed: () {
-                                      showModalBottomSheet(
-                                        isScrollControlled: true,
-                                        context: context,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10.0),
-                                        ),
-                                        builder: (context) {
-                                          return Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(10.0),
-                                            ),
-                                            height: MediaQuery.of(context).size.height * 0.90,
-                                            // width: MediaQuery.of(context).size.width * 0.95,
-                                            child: SingleChildScrollView(
-                                              primary: true,
-                                              child: AddContactForm(contact: contacts[index]),
-                                            ),
-                                          );
-                                        }
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                      trailing: isExpanded ? const Icon(Icons.expand_less, color: Colors.white) 
-                        : RotationTransition(
-                          turns: _iconTurns,
-                          child: const Icon(Icons.expand_more,
-                            color: Colors.white,
-                          ),
-                        ),
-                      onExpansionChanged: (value) {
-                        isExpanded = !isExpanded;
-                      },
-                    ),
-                  ),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-                  color: Theme.of(context).primaryColor,
-                  elevation: 7,
-                  margin: EdgeInsets.symmetric(vertical: 10.0),
-                );
-              },
-              padding: EdgeInsets.all(16.0),
-            );
+            return _getListView(snap);
           }
           return Center(
             child: CircularProgressIndicator(),
@@ -138,6 +50,13 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
         },
         initialData: null,
         stream: bloc.knocksStream,
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        icon: Icon(Icons.add_circle),
+        label: Text('Restriction'),
+        onPressed: () {
+          Navigator.pushNamed(context, AddContactPage.routeName);
+        },
       ),
     );
   }
@@ -154,10 +73,118 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
 
   TextStyle _cardSubtitleTextStyle() {
     return _cardTitleTextStyle().copyWith(
+      color: Colors.white,
       fontFamily: 'Helvectica',
       fontWeight: FontWeight.normal,
       fontSize: 16.0,
       letterSpacing: 1.0,
+    );
+  }
+
+  Widget _getListView(AsyncSnapshot<List<Knock>> snap) {
+    var contacts = snap.data;
+    return ListView.builder(
+      itemCount: snap.data.length,
+      itemBuilder: (context, index) {
+        var controller = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
+        var animation = controller.drive(_halfTween.chain(_easeInTween));
+        return Card(
+          child: ListTileTheme(
+            iconColor: Colors.white,
+            selectedColor: Colors.white60,
+            child: ExpansionTile(
+              key: PageStorageKey(index),
+              leading: CircleAvatar(
+                child: Icon(Icons.home),
+                backgroundColor: Colors.white,
+                foregroundColor: Theme.of(context).primaryColor,
+              ),
+              title: contacts[index].description != null 
+                ? Text(contacts[index].description, style: _cardTitleTextStyle())
+                : Text('${contacts[index].firstName} ${contacts[index].lastName}', style: _cardTitleTextStyle()),
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Container(width: 60.0),
+                      Text(
+                        '${contacts[index].address} ${contacts[index].addressCont ?? ''}\n${contacts[index].city} ${contacts[index].state} ${contacts[index].zip}',
+                        style: _cardSubtitleTextStyle(),
+                      ),
+                      Spacer(),
+                      _getEditButton(contacts[index]),
+                    ],
+                  ),
+                ),
+              ],
+              trailing: RotationTransition(
+                turns: animation,
+                child: const Icon(Icons.expand_more,
+                  color: Colors.white,
+                ),
+              ),
+              onExpansionChanged: (value) {
+                if (value) {
+                  controller.forward(from: 0.0);
+                } else {
+                  controller.reverse(from: 0.5);
+                }
+              },
+            ),
+          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+          color: Theme.of(context).primaryColor,
+          elevation: 7,
+          margin: EdgeInsets.symmetric(vertical: 10.0),
+        );
+      },
+      padding: EdgeInsets.all(16.0),
+    );
+  }
+
+  Widget _getEditButton(Knock contact) {
+    return RaisedButton(
+      // materialTapTargetSize: MaterialTapTargetSize.padded,
+      // padding: EdgeInsets.symmetric(horizontal: 16.0),
+      // textColor: Colors.white,
+      color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Text('Edit',
+            style: _cardSubtitleTextStyle().copyWith(
+              color: Colors.black87,
+            ),
+          ),
+          Icon(Icons.edit,
+            size: 16.0,
+          ),
+        ],
+      ),
+      onPressed: () {
+        showModalBottomSheet(
+          isScrollControlled: true,
+          context: context,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          builder: (context) {
+            return Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              height: MediaQuery.of(context).size.height * 0.90,
+              // width: MediaQuery.of(context).size.width * 0.95,
+              child: SingleChildScrollView(
+                primary: true,
+                child: AddContactForm(contact: contact),
+              ),
+            );
+          }
+        );
+      },
     );
   }
 

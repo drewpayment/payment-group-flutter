@@ -34,10 +34,17 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: CustomAppBar(title: Text('${config.appName}')),
-      body: LoginFormAnimation(animation: animation),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        appBarTheme: Theme.of(context).appBarTheme.copyWith(
+          color: Theme.of(context).primaryColor.withOpacity(0.30),
+        )
+      ),
+      child: Scaffold(
+        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.45),
+        appBar: CustomAppBar(title: Text('${config.appName}')),
+        body: LoginFormAnimation(animation: animation),
+      ),
     );
   }
 

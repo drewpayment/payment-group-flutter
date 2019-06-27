@@ -20,7 +20,7 @@ class LoginFormState extends State<LoginForm> {
   var passwordFocus = FocusNode();
 
   @override
-  BuildContext get context;
+  BuildContext get context => super.context;
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +32,50 @@ class LoginFormState extends State<LoginForm> {
       );
     }
 
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textTheme: TextTheme(
+          body1: TextStyle(
+            color: Colors.white,
+          ),
+          body2: TextStyle(
+            color: Colors.white,
+          )
+        ),
+        cursorColor: Colors.white,
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.white,
+            ),
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.white,
+            ),
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+          hintStyle: TextStyle(
+            color: Colors.white,
+            decorationColor: Colors.white,
+          ),
+          labelStyle: TextStyle(
+            color: Colors.white,
+            decorationColor: Colors.white,
+          ),
+        ),
+      ),
+      child: _getForm(),
+    );
+  }
+
+  Widget _getForm() {
     return Form(
       key: _formKey,
       child: Container(
         padding: EdgeInsets.all(16.0),
-        color: Colors.white,
+        color: Colors.transparent,
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
@@ -47,6 +86,8 @@ class LoginFormState extends State<LoginForm> {
                 child: Image.asset(
                   'assets/undraw_walking_around_25f5.png',
                   fit: BoxFit.scaleDown,
+                  colorBlendMode: BlendMode.darken,
+                  color: Theme.of(context).primaryColor.withOpacity(0.45),
                 ),
               ),
               Padding(
@@ -54,9 +95,6 @@ class LoginFormState extends State<LoginForm> {
                 child: TextFormField(
                   autocorrect: false,
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
                     labelText: 'Username',
                   ),
                   validator: (value) {
@@ -79,9 +117,6 @@ class LoginFormState extends State<LoginForm> {
                   autocorrect: false,
                   obscureText: true,
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                    ),
                     labelText: 'Password',
                   ),
                   validator: (value) {
