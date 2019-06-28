@@ -12,6 +12,7 @@ void main() {
     appName: 'POSITS',
     flavor: 'Production',
     api: 'https://verostack.dev/api',
+    website: 'https://verostack.dev/',
   );
   var container = kiwi.Container();
   container.registerInstance(config);

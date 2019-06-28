@@ -1,7 +1,9 @@
-
 import 'package:flutter/material.dart';
+import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/home_page.dart';
 import 'package:pay_track/services/auth.dart';
+import 'package:kiwi/kiwi.dart' as kiwi;
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginForm extends StatefulWidget {
 
@@ -10,6 +12,8 @@ class LoginForm extends StatefulWidget {
 }
 
 class LoginFormState extends State<LoginForm> {
+  static final container = kiwi.Container();
+  ConfigModel config = container.resolve<ConfigModel>();
   final _formKey = GlobalKey<FormState>();
   String _username;
   String _password;
@@ -74,7 +78,7 @@ class LoginFormState extends State<LoginForm> {
     return Form(
       key: _formKey,
       child: Container(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
         color: Colors.transparent,
         child: Padding(
           padding: EdgeInsets.all(16.0),
@@ -82,16 +86,16 @@ class LoginFormState extends State<LoginForm> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.0),
+                padding: EdgeInsets.only(top: 20.0, left: 16.0, right: 16.0),
                 child: Image.asset(
-                  'assets/undraw_walking_around_25f5.png',
+                  'assets/woman_headset.png',
                   fit: BoxFit.scaleDown,
-                  colorBlendMode: BlendMode.darken,
-                  color: Theme.of(context).primaryColor.withOpacity(0.45),
+                  // colorBlendMode: BlendMode.darken,
+                  // color: Theme.of(context).primaryColor.withOpacity(0.45),
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
+                padding: EdgeInsets.only(bottom: 8.0),
                 child: TextFormField(
                   autocorrect: false,
                   decoration: InputDecoration(
@@ -111,7 +115,7 @@ class LoginFormState extends State<LoginForm> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
+                padding: EdgeInsets.only(bottom: 8.0),
                 child: TextFormField(
                   key: ValueKey('passwordField'),
                   autocorrect: false,
@@ -144,11 +148,40 @@ class LoginFormState extends State<LoginForm> {
                 color: Theme.of(context).primaryColor,
                 elevation: 2.0,
               ),
+              FlatButton(
+                padding: EdgeInsets.only(top: 10.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text('Get Help', 
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 5.0),
+                      child: Icon(Icons.screen_share, color: Colors.white),
+                    ),
+                  ],
+                ),
+                onPressed: _goToWebsite,
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _goToWebsite() async {
+    var url = '${config.website}';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text('Unable to launch browser. Please try again later.'),
+      ));
+    }
   }
 
   void _signIn() async {

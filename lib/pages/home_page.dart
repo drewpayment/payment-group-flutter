@@ -106,17 +106,35 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   ),
                 ),
                 Container(
-                  width: MediaQuery.of(context).size.width,
-                  child: Image.asset(
-                    'assets/undraw_settings_ii2j.png',
-                    height: 200,
+                  // width: MediaQuery.of(context).size.width,
+                  // child: Image.asset(
+                  //   'assets/undraw_settings_ii2j.png',
+                  //   height: 200,
+                  // ),
+                  padding: EdgeInsets.only(bottom: 10.0),
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage('https://api.adorable.io/avatars/140/abott@adorable.png'),
+                    radius: 70,
                   ),
                 ),
-                ListTile(
-                  leading: Icon(Icons.person_outline),
-                  dense: false,
-                  title: Text('${Auth.user.firstName} ${Auth.user.lastName}'),
-                  subtitle: Text('${Auth.user.email}'),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 15.0),
+                  child: Text('Hello ${Auth.user.firstName}!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Raleway',
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 20.0),
+                  child: Text('Thanks for participating in our open beta. Please don\'t hesitate to share your feedback.\nOh yeah, ' +
+                   '"posit" means to put in position; place.',
+                    softWrap: true,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ]..add(_getButtonBarButtons()),
             ),

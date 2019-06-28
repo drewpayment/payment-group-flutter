@@ -9,6 +9,7 @@ void main() {
     appName: 'POSITS',
     flavor: 'Development',
     api: 'http://verostack/api',
+    website: 'http://verostack/',
   );
   var container = kiwi.Container();
   container.registerInstance(config);
@@ -19,7 +20,7 @@ void main() {
       child: MyApp(),
     ),
     debugConfig: CatcherOptions(
-      DialogReportMode(), 
+      SilentReportMode(), 
       [ConsoleHandler()],
     ),
   );

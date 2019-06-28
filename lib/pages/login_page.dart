@@ -63,17 +63,13 @@ class LoginFormAnimation extends AnimatedWidget {
     final Animation<double> animation = listenable;
     return FadeTransition(
       opacity: animation,
-      child: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              LoginForm(),
-            ],
-          ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            LoginForm(),
+          ],
         ),
       ),
     );

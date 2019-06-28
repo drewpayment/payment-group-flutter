@@ -5,7 +5,10 @@ import 'package:pay_track/models/Knock.dart';
 import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/add_contact.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
+import 'package:pay_track/router.dart';
 import 'package:pay_track/widgets/add_contact_form.dart';
+
+import 'map_page.dart';
 
 class ManageContacts extends StatefulWidget {
   static const routeName = '/manage-contacts';
@@ -38,7 +41,7 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor.withOpacity(0.45),
-      appBar: CustomAppBar(title: Text('Restricted Locations')),
+      appBar: CustomAppBar(title: Text('POSITS')),
       body: StreamBuilder(
         builder: (context, AsyncSnapshot<List<Knock>> snap) {
           if (snap.hasData) {
@@ -108,7 +111,7 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      Container(width: 60.0),
+                      Container(width: 45.0),
                       Text(
                         '${contacts[index].address} ${contacts[index].addressCont ?? ''}\n${contacts[index].city} ${contacts[index].state} ${contacts[index].zip}',
                         style: _cardSubtitleTextStyle(),
@@ -145,46 +148,50 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
   }
 
   Widget _getEditButton(Knock contact) {
-    return RaisedButton(
-      // materialTapTargetSize: MaterialTapTargetSize.padded,
-      // padding: EdgeInsets.symmetric(horizontal: 16.0),
-      // textColor: Colors.white,
-      color: Colors.white,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          Text('Edit',
-            style: _cardSubtitleTextStyle().copyWith(
-              color: Colors.black87,
-            ),
-          ),
-          Icon(Icons.edit,
-            size: 16.0,
-          ),
-        ],
-      ),
-      onPressed: () {
-        showModalBottomSheet(
-          isScrollControlled: true,
-          context: context,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          builder: (context) {
-            return Container(
-              decoration: BoxDecoration(
+    return ButtonBar(
+      alignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        IconButton(
+          color: Colors.white,
+          icon: Icon(Icons.edit),
+          onPressed: () {
+            showModalBottomSheet(
+              isScrollControlled: true,
+              context: context,
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              height: MediaQuery.of(context).size.height * 0.90,
-              // width: MediaQuery.of(context).size.width * 0.95,
-              child: SingleChildScrollView(
-                primary: true,
-                child: AddContactForm(contact: contact),
+              builder: (context) {
+                return Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  height: MediaQuery.of(context).size.height * 0.90,
+                  // width: MediaQuery.of(context).size.width * 0.95,
+                  child: SingleChildScrollView(
+                    primary: true,
+                    child: AddContactForm(contact: contact),
+                  ),
+                );
+              }
+            );
+          },
+        ),
+        IconButton(
+          color: Colors.white,
+          icon: Icon(Icons.map),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, MapPage.routeName,
+              arguments: MapPageRouterParams(
+                contact.dncContactId,
+                contact.lat,
+                contact.long,
               ),
             );
-          }
-        );
-      },
+          },
+        ),
+      ],
     );
   }
 

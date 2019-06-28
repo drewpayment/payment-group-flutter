@@ -8,17 +8,23 @@ import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/models/Knock.dart';
 
 class GoogleMapWidget extends StatefulWidget {
+  final Knock navigateToContact;
+
+  GoogleMapWidget([this.navigateToContact]);
 
   @override
-  GoogleMapState createState() => GoogleMapState();
+  GoogleMapState createState() => GoogleMapState(navigateToContact);
 }
 
 class GoogleMapState extends State<GoogleMapWidget> {
+  final Knock navigateToContact;
   Completer<GoogleMapController> _controller = Completer();
 
   Location _location;
   LatLng _mapCenter;
   LatLngBounds bounds;
+
+  GoogleMapState(this.navigateToContact);
 
   @override
   Widget build(BuildContext context) {
@@ -36,17 +42,13 @@ class GoogleMapState extends State<GoogleMapWidget> {
             builder: (context, AsyncSnapshot<List<Knock>> snapshot) {
               if (snapshot.hasData) {
                 var knocks = snapshot.data;
-
                 var sizedBoxChildren = <Widget>[];
 
                 sizedBoxChildren.add(GoogleMap(
                   zoomGesturesEnabled: true,
                   myLocationEnabled: true,
                   onMapCreated: _onMapCreated,
-                  initialCameraPosition: CameraPosition(
-                    target: _mapCenter,
-                    zoom: 18.0,
-                  ),
+                  initialCameraPosition: _getInitialCameraPosition(),
                   markers: bloc.markers,
                   compassEnabled: true,
                   tiltGesturesEnabled: false,
@@ -97,6 +99,19 @@ class GoogleMapState extends State<GoogleMapWidget> {
     );
   }
 
+  CameraPosition _getInitialCameraPosition() {
+    LatLng target;
+    if (navigateToContact != null) {
+      target = LatLng(navigateToContact.lat, navigateToContact.long);
+    } else {
+      target = _mapCenter;
+    }
+    return CameraPosition(
+      target: target,
+      zoom: 19.0,
+    );
+  }
+
   void _onMapCreated(GoogleMapController controller) async {
     // _controller.complete();
     // do things after the map has shown up... might be a good place to wire up events showing/hiding markers
@@ -132,13 +147,14 @@ class GoogleMapState extends State<GoogleMapWidget> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         mainAxisSize: MainAxisSize.max,
                         children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(left: 10.0),
-                            child: Text('Restricted Addresses',
+                          Container(
+                            padding: EdgeInsets.only(left: 16.0),
+                            child: Text('POSITS (Locations)',
                               style: TextStyle(
+                                fontFamily: 'Raleway',
                                 fontSize: 18.0,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 1.0,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.5,
                               ),
                             ),
                           ),
@@ -151,32 +167,40 @@ class GoogleMapState extends State<GoogleMapWidget> {
                           ),
                         ],
                       ),
-                    ]..addAll(knocks.map((k) {
-                      return ListTile(
-                        leading: Icon(Icons.account_box),
-                        title: Text('${k.firstName} ${k.lastName}'),
-                        subtitle: Text('${k.address}'),
-                        onTap: () {
-                          // close bottom sheet & reposition camera on this knock
-                          Navigator.pop(context);
-                          bloc.mapController.moveCamera(
-                            CameraUpdate.newCameraPosition(
-                              CameraPosition(
-                                target: LatLng(k.lat, k.long),
-                                zoom: 19.0,
-                              ),
-                            ),
-                          );
-                          // print('need to move camera position still...');
-                        }
-                      );
-                    })),
+                    ]..addAll(ListTile.divideTiles(
+                      context: context,
+                      tiles: knocks.map((k) {
+                        return ListTile(
+                          leading: Icon(Icons.map),
+                          title: Text('${k.firstName} ${k.lastName}'),
+                          subtitle: Text('${k.address}'),
+                          onTap: () {
+                            // close bottom sheet & reposition camera on this knock
+                            Navigator.pop(context);
+                            _moveMapPosition(LatLng(k.lat, k.long));
+                            // print('need to move camera position still...');
+                          }
+                        );
+                      }).toList(),
+                      color: Colors.black87,
+                    )),
                   ),
                 );
               }
             );
           },
           child: Icon(Icons.view_list),
+        ),
+      ),
+    );
+  }
+
+  void _moveMapPosition(LatLng g) {
+    bloc.mapController.moveCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: g,
+          zoom: 19.0,
         ),
       ),
     );
