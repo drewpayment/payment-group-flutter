@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/bloc/route_bloc.dart';
 import 'package:pay_track/models/config.dart';
-import 'package:pay_track/pages/add_contact.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/pages/login_page.dart';
 import 'package:pay_track/pages/manage_contacts.dart';
 import 'package:pay_track/pages/map_page.dart';
 import 'package:pay_track/services/auth.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:kiwi/kiwi.dart' as kiwi;
 
 class HomePage extends StatefulWidget {

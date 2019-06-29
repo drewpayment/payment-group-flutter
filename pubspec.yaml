@@ -75,6 +75,8 @@ flutter:
     - assets/undraw_walking_around_25f5.png
     - assets/undraw_settings_ii2j.png
     - assets/woman_headset.png
+    - secrets.json # env file
+    
   #  - images/a_dot_burr.jpeg
   #  - images/a_dot_ham.jpeg
 
