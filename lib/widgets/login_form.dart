@@ -195,6 +195,13 @@ class LoginFormState extends State<LoginForm> {
           _formKey.currentState?.reset();
           isLoading = false;
           Navigator.pushReplacementNamed(context, HomePage.routeName);
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+          Scaffold.of(context).showSnackBar(SnackBar(
+            content: Text('${result.message}'),
+          ));
         }
       });
     }

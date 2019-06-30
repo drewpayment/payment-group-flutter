@@ -48,18 +48,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
 
-    if (Platform.isAndroid) {
-      _androidAppRetain.invokeMethod("wasActivityKilled").then((result) {
-        // if (result) {
-        //   showDialog(
-        //     context: context,
-        //     builder: (context) {
-        //       return ActivityGotKilledDialog();
-        //     },
-        //   );
-        // }
-      });
-    }
+    // if (Platform.isAndroid) {
+    //   _androidAppRetain.invokeMethod("wasActivityKilled").then((result) {
+    //     if (result) {
+    //       showDialog(
+    //         context: context,
+    //         builder: (context) {
+    //           return AlertDialog(
+
+    //           );
+    //         },
+    //       );
+    //     }
+    //   });
+    // }
 
     /// listen for changed to authenticated state in auth service
     Auth.isAuthenticated.listen((signedIn) {
