@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/bloc/route_bloc.dart';
 import 'package:pay_track/models/config.dart';
@@ -10,6 +13,7 @@ import 'package:pay_track/services/auth.dart';
 import 'package:kiwi/kiwi.dart' as kiwi;
 
 class HomePage extends StatefulWidget {
+  
   HomePage({Key key }) : super(key: key);
   static const String routeName = '/home';
 
@@ -27,6 +31,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+  final _androidAppRetain = MethodChannel('android_app_retain');
   BoxDecoration headerStyle;
   List<Widget> drawerOptions;
   kiwi.Container container = kiwi.Container();
@@ -43,6 +48,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
 
+    if (Platform.isAndroid) {
+      _androidAppRetain.invokeMethod("wasActivityKilled").then((result) {
+        // if (result) {
+        //   showDialog(
+        //     context: context,
+        //     builder: (context) {
+        //       return ActivityGotKilledDialog();
+        //     },
+        //   );
+        // }
+      });
+    }
+
     /// listen for changed to authenticated state in auth service
     Auth.isAuthenticated.listen((signedIn) {
       if (signedIn) {
@@ -57,22 +75,36 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       color: Colors.cyan[400],
     );
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.45),
-      appBar: CustomAppBar(
-        title: Text('${config.appName}'),
-      ),
-      body: _getSignedInBody(),
-      floatingActionButton: FloatingActionButton.extended(
-        icon: Icon(Icons.exit_to_app),
-        label: Text('Sign Out'),
-        onPressed: () {
-          Auth.signOut().then((isSignedOut) {
-            if (isSignedOut) {
-              Navigator.pushNamedAndRemoveUntil(context, LoginPage.routeName, ModalRoute.withName('/'));
-            }
-          });
-        },
+    return WillPopScope(
+      onWillPop: () {
+        if (Platform.isAndroid) {
+          if (Navigator.of(context).canPop()) {
+            return Future.value(true);
+          } else {
+            _androidAppRetain.invokeMethod("sendToBackground");
+            return Future.value(false);
+          }
+        } else {
+          return Future.value(true);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.45),
+        appBar: CustomAppBar(
+          title: Text('${config.appName}'),
+        ),
+        body: _getSignedInBody(),
+        floatingActionButton: FloatingActionButton.extended(
+          icon: Icon(Icons.exit_to_app),
+          label: Text('Sign Out'),
+          onPressed: () {
+            Auth.signOut().then((isSignedOut) {
+              if (isSignedOut) {
+                Navigator.pushNamedAndRemoveUntil(context, LoginPage.routeName, ModalRoute.withName('/'));
+              }
+            });
+          },
+        ),
       ),
     );
   }

@@ -43,7 +43,7 @@ class GeocodeResult {
   }
 
   static List<String> _parseTypes(List list) {
-    return list.map((l) => l).toList();
+    return list.map((l) => '$l').toList();
   }
 }
 
@@ -67,7 +67,7 @@ class AddressComponent {
   }
 
   static List<String> _parseTypes(List list) {
-    return list.map((l) => l).toList();
+    return list.map((l) => '$l').toList();
   }
 }
 

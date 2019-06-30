@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -125,7 +126,7 @@ class GoogleMapState extends State<GoogleMapWidget> {
     return Padding(
       padding: EdgeInsets.all(8.0),
       child: Align(
-        alignment: Alignment.topRight,
+        alignment: Platform.isIOS ? Alignment.topRight : Alignment.bottomLeft,
         child: FloatingActionButton(
           materialTapTargetSize: MaterialTapTargetSize.padded,
           onPressed: () {

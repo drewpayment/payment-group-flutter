@@ -67,11 +67,29 @@ class Repository {
       return ParsedResponse(gres.statusCode, null);
     }
 
-    gres = ParsedResponse<GeocodeResponse>(gresp.statusCode, gresp.data);
+    gres = ParsedResponse<GeocodeResponse>(gresp.statusCode, GeocodeResponse.fromJson(gresp.data));
+
+    String zipCode;
+    var addressComponents = gres.body.results.first.addressComponents;
+    if (addressComponents == null || addressComponents.length < 1) {
+      return ParsedResponse(400, null);
+    }
+    
+    for(var i = 0; i < addressComponents.length; i++) {
+      if (zipCode != null) break;
+      var comp = addressComponents[i];
+      if (comp.types.contains('postal_code')) {
+        for(var j = 0; j < comp.types.length; j++) {
+          if (comp.types[j] == 'postal_code') {
+            zipCode = comp.longName;
+          }
+        }
+      }
+    }
 
     return ParsedResponse(
       200,
-      gres.body.results.first.addressComponents.firstWhere((c) => c.types.contains('postal_code')).longName
+      zipCode,
     );
   }
 

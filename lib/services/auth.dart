@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pay_track/data/http.dart';
 import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/auth_response.dart';
 import 'package:pay_track/models/parsed_response.dart';
 import 'package:pay_track/models/user.dart';
+import 'package:pay_track/utils/storage_keys.dart';
 import 'package:rxdart/rxdart.dart';
 
 class Auth {
@@ -39,6 +42,14 @@ class Auth {
       _token = result.body.token;
 
       _isAuthenticated$.sink.add(true);
+
+      final storage = FlutterSecureStorage();
+
+      try {
+        await storage.write(key: StorageKeys.TOKEN, value: _token);
+      } on PlatformException catch(e) {
+        print(e.message);
+      }
 
       await _setInterceptorToken();
     }
