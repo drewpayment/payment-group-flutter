@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:google_maps_webservice/places.dart' as places;
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/models/Knock.dart';
 import 'package:pay_track/models/config.dart';
+import 'package:pay_track/models/secret.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
-import 'package:pay_track/pages/custom_bottom_nav.dart';
-import 'package:pay_track/pages/home_page.dart';
 import 'package:pay_track/router.dart';
 import 'package:pay_track/widgets/google_map.dart';
-import 'package:pay_track/widgets/map_list.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:kiwi/kiwi.dart' as kiwi;
 
 class MapPage extends StatefulWidget {
@@ -60,11 +62,35 @@ class _MapPageState extends State<MapPage> {
           }
           
           return Scaffold(
-            appBar: CustomAppBar(title: Text('${config.appName}')),
+            appBar: CustomAppBar(
+              title: Text('${config.appName}'),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () async {
+                    var secrets = await SecretLoader.load('secrets.json');
+                    print('API KEY: ${secrets.googleMapsAPI}');
+                    final center = await getUserLocation();
+                    var p = await PlacesAutocomplete.show(
+                      context: context,
+                      strictbounds: center != null,
+                      apiKey: secrets.googleMapsAPI,
+                      onError: _onError,
+                      mode: Mode.fullscreen,
+                      language: 'en',
+                      location: center != null 
+                        ? places.Location(center.latitude, center.longitude)
+                        : null,
+                      radius: center != null ? 10000 : null,
+                    );
+                  },
+                ),
+              ],
+            ),
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                GoogleMapWidget(navigateToContact),
+                GoogleMapWidget(navigateToContact),  
               ],
             ),
           );
@@ -75,6 +101,26 @@ class _MapPageState extends State<MapPage> {
         }
       },
     );
+  }
+
+  void _onError(places.PlacesAutocompleteResponse e) {
+    print(e.errorMessage);
+  }
+
+  Future<LatLng> getUserLocation() async {
+    var location = Location();
+    LocationData currentLocation;
+    try {
+      currentLocation = await location.getLocation();
+    } catch (e) {
+      // blackbox this error for now, dang it. 
+    }
+
+    if (currentLocation == null) {
+      return null;
+    }
+
+    return LatLng(currentLocation.latitude, currentLocation.longitude);
   }
 
 }

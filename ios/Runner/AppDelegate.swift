@@ -11,7 +11,6 @@ import GoogleMaps
     let json = readJSONFromFile(fileName: "secrets")
     if let jsonResult = json as? Dictionary<String, AnyObject>, let key = jsonResult["google_maps_sdk_api"] as? String {
         GMSServices.provideAPIKey(key)
-        print(key)
     }
     
     GeneratedPluginRegistrant.register(with: self)
