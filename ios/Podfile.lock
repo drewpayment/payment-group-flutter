@@ -98,7 +98,7 @@ SPEC CHECKSUMS:
   flutter_webview_plugin: ed9e8a6a96baf0c867e90e1bce2673913eeac694
   fluttertoast: b644586ef3b16f67fae9a1f8754cef6b2d6b634b
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
-  google_maps_flutter: 924970f41ec509a201b593548db005efb2a09ee9
+  google_maps_flutter: 78a52114c898b42ea647919679a4c58b70abe876
   GoogleMaps: 5c13302e6fe6bb6e686b267196586b91cd594225
   location: 3a2eed4dd2fab25e7b7baf2a9efefe82b512d740
   package_info: 78cabb3c322943c55d39676f4a5bfc748c01d055
