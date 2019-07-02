@@ -16,8 +16,8 @@ class Auth {
   static DateTime _tokenExpires;
   static Stream _authTimerSub;
 
-  static BehaviorSubject<bool> _isAuthenticated$ = BehaviorSubject<bool>()..add(false);
-  static Stream<bool> get isAuthenticated => _isAuthenticated$.stream;
+  static PublishSubject<bool> _isAuthenticated$ = PublishSubject<bool>()..add(false);
+  static Stream<bool> get isAuthenticated => _isAuthenticated$;
 
   static User get user => _user;
   static bool get hasActiveToken => _token != null && _tokenExpires != null;
@@ -101,7 +101,7 @@ class Auth {
     if (_authTimerSub == null) {
       var future = Future.delayed(const Duration(seconds: 30));
       _authTimerSub = future.asStream();
-      _authTimerSub.listen((Null) => _authenticationTimerHandler(_authTimerSub));
+      _authTimerSub.asBroadcastStream().listen((Null) => _authenticationTimerHandler(_authTimerSub));
     }
   }
 
@@ -145,7 +145,7 @@ class Auth {
   }
 
   static void dispose() {
-    _isAuthenticated$.sink.close();
+    _isAuthenticated$.close();
   }
 
 }

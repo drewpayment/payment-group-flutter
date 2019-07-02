@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pay_track/pages/map_search.dart';
 
 import 'pages/add_contact.dart';
 import 'pages/home_page.dart';
@@ -10,11 +11,12 @@ class Router {
 
 
   static Map<String, Widget Function(BuildContext)> get routes => <String, WidgetBuilder>{
-    HomePage.routeName: (BuildContext context) => HomePage(),
-    MapPage.routeName: (BuildContext context) => MapPage(),
-    LoginPage.routeName: (BuildContext context) => LoginPage(),
-    AddContactPage.routeName: (BuildContext context) => AddContactPage(),
-    ManageContacts.routeName: (BuildContext context) => ManageContacts(),
+    HomePage.routeName: (_) => HomePage(),
+    MapPage.routeName: (_) => MapPage(),
+    LoginPage.routeName: (_) => LoginPage(),
+    AddContactPage.routeName: (_) => AddContactPage(),
+    ManageContacts.routeName: (_) => ManageContacts(),
+    MapSearch.routeName: (_) => MapSearch(),
   };
 
 }

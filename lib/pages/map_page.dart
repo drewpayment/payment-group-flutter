@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_maps_webservice/places.dart' as places;
-import 'package:flutter_google_places/flutter_google_places.dart';
+// import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
@@ -12,6 +12,8 @@ import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/router.dart';
 import 'package:pay_track/widgets/google_map.dart';
 import 'package:kiwi/kiwi.dart' as kiwi;
+
+import 'map_search.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key key}) : super(key: key);
@@ -68,21 +70,25 @@ class _MapPageState extends State<MapPage> {
                 IconButton(
                   icon: Icon(Icons.search),
                   onPressed: () async {
-                    var secrets = await SecretLoader.load('secrets.json');
-                    print('API KEY: ${secrets.googleMapsAPI}');
-                    final center = await getUserLocation();
-                    var p = await PlacesAutocomplete.show(
-                      context: context,
-                      strictbounds: center != null,
-                      apiKey: secrets.googleMapsAPI,
-                      onError: _onError,
-                      mode: Mode.fullscreen,
-                      language: 'en',
-                      location: center != null 
-                        ? places.Location(center.latitude, center.longitude)
-                        : null,
-                      radius: center != null ? 10000 : null,
-                    );
+
+                    Navigator.pushNamed(context, MapSearch.routeName);
+
+                    // var secrets = await SecretLoader.load('secrets.json');
+                    // print('API KEY: ${secrets.googleMapsAPI}');
+                    // final center = await getUserLocation();
+
+                    // var p = await PlacesAutocomplete.show(
+                    //   context: context,
+                    //   strictbounds: center != null,
+                    //   apiKey: secrets.googleMapsAPI,
+                    //   onError: _onError,
+                    //   mode: Mode.fullscreen,
+                    //   language: 'en',
+                    //   location: center != null 
+                    //     ? places.Location(center.latitude, center.longitude)
+                    //     : null,
+                    //   radius: center != null ? 10000 : null,
+                    // );
                   },
                 ),
               ],
