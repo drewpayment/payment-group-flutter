@@ -63,14 +63,13 @@ class GoogleMapState extends State<GoogleMapWidget> {
                   sizedBoxChildren.add(_getBottomSheetTrigger(knocks));
                 }
 
-                return SizedBox(
+                return Container(
                   child: Stack(
                     children: sizedBoxChildren,
                   ),
-                  // height: MediaQuery.of(context).size.height - (Scaffold.of(context).appBarMaxHeight + 83),
-                  height: MediaQuery.of(context).size.height - Scaffold.of(context).appBarMaxHeight,
+                  height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width,
-                ); 
+                );
               } else {
                 return Center(
                   child: CircularProgressIndicator(),
@@ -127,71 +126,67 @@ class GoogleMapState extends State<GoogleMapWidget> {
       padding: EdgeInsets.all(8.0),
       child: Align(
         alignment: Platform.isIOS ? Alignment.topRight : Alignment.bottomLeft,
-        child: FloatingActionButton(
-          materialTapTargetSize: MaterialTapTargetSize.padded,
-          onPressed: () {
-            showModalBottomSheet<void>(
-              isScrollControlled: true,
-              context: context, 
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-              ),
-              builder: (context) {
-                return Container(
-                  height: MediaQuery.of(context).size.height * 0.9,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Flex(
-                        direction: Axis.horizontal,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        mainAxisSize: MainAxisSize.max,
-                        children: <Widget>[
-                          Container(
-                            padding: EdgeInsets.only(left: 16.0),
-                            child: Text('POSITS (Locations)',
-                              style: TextStyle(
-                                fontFamily: 'Raleway',
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1.5,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.clear),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            color: Colors.black45,
-                          ),
-                        ],
-                      ),
-                    ]..addAll(ListTile.divideTiles(
-                      context: context,
-                      tiles: knocks.map((k) {
-                        return ListTile(
-                          leading: Icon(Icons.map),
-                          title: Text('${k.firstName} ${k.lastName}'),
-                          subtitle: Text('${k.address}'),
-                          onTap: () {
-                            // close bottom sheet & reposition camera on this knock
-                            Navigator.pop(context);
-                            _moveMapPosition(LatLng(k.lat, k.long));
-                            // print('need to move camera position still...');
-                          }
-                        );
-                      }).toList(),
-                      color: Colors.black87,
-                    )),
-                  ),
-                );
-              }
-            );
-          },
-          child: Icon(Icons.view_list),
-        ),
+        // child: FloatingActionButton(
+        //   materialTapTargetSize: MaterialTapTargetSize.padded,
+        //   onPressed: () {
+        //     showModalBottomSheet<void>(
+        //       context: context, 
+        //       builder: (context) {
+        //         return Container(
+        //           // height: MediaQuery.of(context).size.height * 0.9,
+        //           child: Column(
+        //             crossAxisAlignment: CrossAxisAlignment.stretch,
+        //             mainAxisSize: MainAxisSize.min,
+        //             children: <Widget>[
+        //               Flex(
+        //                 direction: Axis.horizontal,
+        //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //                 mainAxisSize: MainAxisSize.max,
+        //                 children: <Widget>[
+        //                   Container(
+        //                     padding: EdgeInsets.only(left: 16.0),
+        //                     child: Text('POSITS (Locations)',
+        //                       style: TextStyle(
+        //                         fontFamily: 'Raleway',
+        //                         fontSize: 18.0,
+        //                         fontWeight: FontWeight.w600,
+        //                         letterSpacing: 1.5,
+        //                       ),
+        //                     ),
+        //                   ),
+        //                   IconButton(
+        //                     icon: Icon(Icons.clear),
+        //                     onPressed: () {
+        //                       Navigator.pop(context);
+        //                     },
+        //                     color: Colors.black45,
+        //                   ),
+        //                 ],
+        //               ),
+        //             ]..addAll(ListTile.divideTiles(
+        //               context: context,
+        //               tiles: knocks.map((k) {
+        //                 return ListTile(
+        //                   leading: Icon(Icons.map),
+        //                   title: Text('${k.firstName} ${k.lastName}'),
+        //                   subtitle: Text('${k.address}'),
+        //                   onTap: () {
+        //                     // close bottom sheet & reposition camera on this knock
+        //                     Navigator.pop(context);
+        //                     _moveMapPosition(LatLng(k.lat, k.long));
+        //                     // print('need to move camera position still...');
+        //                   }
+        //                 );
+        //               }).toList(),
+        //               color: Colors.black87,
+        //             )),
+        //           ),
+        //         );
+        //       }
+        //     );
+        //   },
+        //   child: Icon(Icons.view_list),
+        // ),
       ),
     );
   }

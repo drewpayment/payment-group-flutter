@@ -53,7 +53,7 @@ class AddContactPageState extends State<AddContactPage> {
           Divider(
             color: Colors.black45,
             indent: 8.0,
-            endIndent: 8.0,
+            // endIndent: 8.0,
           ),
           AddContactForm()
         ],

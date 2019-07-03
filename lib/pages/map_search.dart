@@ -65,7 +65,7 @@ class MapSearchState extends State<MapSearch> {
                     // labelText: 'Search',
                     // labelStyle: themeData.,
                   ),
-                  showCursor: true,
+                  // showCursor: true,
                   cursorColor: Colors.white,
                 ),
               ),

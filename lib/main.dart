@@ -7,7 +7,6 @@ import 'package:pay_track/pages/login_page.dart';
 import 'package:pay_track/services/auth.dart';
 import 'package:pay_track/theme.dart';
 import 'package:kiwi/kiwi.dart' as kiwi;
-
 import 'router.dart';
 
 class MyApp extends StatelessWidget {

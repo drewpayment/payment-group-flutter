@@ -59,13 +59,13 @@ class Auth {
         data: {
           'username': username,
           'password': password
-        }
+        },
       );
     } on DioError catch(e) {
-      if (e.response.statusCode == 401) {
+      if (e?.response?.statusCode == 401) {
         result = ParsedResponse(401, null, message: 'Unauthorized. Please try again.');
       } else {
-        result = ParsedResponse(e.response.statusCode, null, message: e.message); 
+        result = ParsedResponse(e?.response?.statusCode ?? 400, null, message: e?.message); 
       }
       return result;
     }

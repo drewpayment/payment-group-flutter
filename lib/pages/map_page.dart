@@ -12,6 +12,7 @@ import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/router.dart';
 import 'package:pay_track/widgets/google_map.dart';
 import 'package:kiwi/kiwi.dart' as kiwi;
+import 'package:pay_track/widgets/map_contact_card.dart';
 
 import 'map_search.dart';
 
@@ -93,11 +94,13 @@ class _MapPageState extends State<MapPage> {
                 ),
               ],
             ),
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                GoogleMapWidget(navigateToContact),  
-              ],
+            body: SafeArea(
+              child: Stack(
+                children: <Widget>[
+                  GoogleMapWidget(navigateToContact),
+                  locationCardContainer(snapshot.data),
+                ],
+              ),
             ),
           );
         } else {
@@ -106,6 +109,27 @@ class _MapPageState extends State<MapPage> {
           );
         }
       },
+    );
+  }
+
+  Widget locationCardContainer(List<Knock> contacts) {
+    return Align(
+      alignment: Alignment.bottomLeft,
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 20.0),
+        height: 170,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: contacts.length,
+          itemBuilder: (context, index) {
+            var contact = contacts[index];
+            return Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: MapContactCard(contact),
+                  );
+          },
+        ),
+      ),
     );
   }
 

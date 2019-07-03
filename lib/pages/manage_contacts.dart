@@ -94,7 +94,7 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
         return Card(
           child: ListTileTheme(
             iconColor: Colors.white,
-            selectedColor: Colors.white60,
+            selectedColor: Colors.grey,
             child: ExpansionTile(
               key: PageStorageKey(index),
               leading: CircleAvatar(
@@ -157,11 +157,11 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
           icon: Icon(Icons.edit),
           onPressed: () {
             showModalBottomSheet(
-              isScrollControlled: true,
+              // isScrollControlled: true,
               context: context,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
+              // shape: RoundedRectangleBorder(
+              //   borderRadius: BorderRadius.circular(10.0),
+              // ),
               builder: (context) {
                 return Container(
                   decoration: BoxDecoration(

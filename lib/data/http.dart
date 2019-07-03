@@ -149,7 +149,7 @@ class HttpClient {
     );
   }
 
-  static Future<Response<T>> post<T>(String path, {data, Map<String, dynamic> queryParameters, Options options, CancelToken cancelToken, onSendProgress, onReceiveProgress}) {
+  static Future<Response<T>> post<T>(String path, {data, Map<dynamic, dynamic> queryParameters, Options options, CancelToken cancelToken, onSendProgress, onReceiveProgress}) {
     return _dio.post<T>(path,
       data: data,
       queryParameters: queryParameters,
