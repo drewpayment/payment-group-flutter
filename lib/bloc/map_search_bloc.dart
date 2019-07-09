@@ -11,7 +11,7 @@ class MapSearchBloc {
 
   final _controller = BehaviorSubject<List<g.GeocodingResult>>();
   void Function(List<g.GeocodingResult>) get push => _controller.add;
-  Stream<List<g.GeocodingResult>> get stream => _controller;
+  Stream<List<g.GeocodingResult>> get stream => _controller.asBroadcastStream();
 
   void searchPlaces(String searchText) async {
     var response = await _places.searchByAddress(

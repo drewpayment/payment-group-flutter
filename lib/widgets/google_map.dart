@@ -48,6 +48,7 @@ class GoogleMapState extends State<GoogleMapWidget> {
                 sizedBoxChildren.add(GoogleMap(
                   zoomGesturesEnabled: true,
                   myLocationEnabled: true,
+                  myLocationButtonEnabled: false,
                   onMapCreated: _onMapCreated,
                   initialCameraPosition: _getInitialCameraPosition(),
                   markers: bloc.markers,

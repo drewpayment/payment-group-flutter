@@ -1,17 +1,38 @@
 
 import 'package:flutter/material.dart';
 import 'package:pay_track/models/Knock.dart';
+import 'package:pay_track/models/secret.dart';
 
 class MapContactCard extends StatelessWidget {
   final Knock contact;
+  final String api = 'https://maps.googleapis.com/maps/api/streetview';
 
   MapContactCard(this.contact);
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder(
+      initialData: null,
+      future: _getStreetViewImage(),
+      builder: (context, AsyncSnapshot<String> snap) {
+        if (snap.hasData) {
+          return _cardBody(snap.data);
+        }
+        return Container();
+      },
+    );
+  }
+
+  Future<String> _getStreetViewImage() async {
+    var secret = await SecretLoader.load('secrets.json');
+    return '$api?location=${contact.lat},${contact.long}&key=${secret.googleMapsAPI}&signature=${secret.streetViewSecret}';
+  }
+
+  Widget _cardBody(String imageUrl) {
     return GestureDetector(
       onTap: () {
         // go to location... 
+        print('clicked');
       }, 
       child: Container(
         child: FittedBox(
@@ -30,7 +51,7 @@ class MapContactCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15),
                     child: Image(
                       fit: BoxFit.fill,
-                      image: NetworkImage('https://via.placeholder.com/150'),
+                      image: NetworkImage('$imageUrl'),
                     ),
                   ),
                 ),

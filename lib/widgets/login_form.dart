@@ -29,11 +29,7 @@ class LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return Center(
-        widthFactor: 1.0,
-        heightFactor: 1.0,
-        child: CircularProgressIndicator(),
-      );
+      return Center(child: CircularProgressIndicator());
     }
 
     return Theme(

@@ -15,9 +15,10 @@ class Auth {
   static User _user;
   static DateTime _tokenExpires;
   static Stream _authTimerSub;
+  static Timer _timer;
 
   static PublishSubject<bool> _isAuthenticated$ = PublishSubject<bool>()..add(false);
-  static Stream<bool> get isAuthenticated => _isAuthenticated$;
+  static Stream<bool> get isAuthenticated => _isAuthenticated$.asBroadcastStream();
 
   static User get user => _user;
   static bool get hasActiveToken => _token != null && _tokenExpires != null;
@@ -98,11 +99,17 @@ class Auth {
   }
 
   static void _authenticationTimer() {
-    if (_authTimerSub == null) {
-      var future = Future.delayed(const Duration(seconds: 30));
-      _authTimerSub = future.asStream();
-      _authTimerSub.asBroadcastStream().listen((Null) => _authenticationTimerHandler(_authTimerSub));
-    }
+    _timer = Timer(const Duration(seconds: 30), () async {
+      final storage = FlutterSecureStorage();
+      var expMSSinceEpoch = await storage.read(key: StorageKeys.TOKEN_EXP);
+      _tokenExpires = DateTime.tryParse('$expMSSinceEpoch');
+    });
+
+    // if (_authTimerSub == null) {
+    //   var future = Future.delayed(const Duration(seconds: 30));
+    //   _authTimerSub = future.asStream();
+    //   _authTimerSub.asBroadcastStream().listen((Null) => _authenticationTimerHandler(_authTimerSub));
+    // }
   }
 
   static void _authenticationTimerHandler(Stream sub) {
@@ -139,6 +146,7 @@ class Auth {
     _user = null;
     _token = null;
     _isAuthenticated$.sink.add(false);
+    _timer.cancel();
 
     comp.complete(true);
     return comp.future;
