@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:pay_track/models/Knock.dart';
 import 'package:pay_track/models/secret.dart';
+import 'package:pay_track/widgets/network_image_loader.dart';
 
 class MapContactCard extends StatelessWidget {
   final Knock contact;
@@ -14,7 +15,7 @@ class MapContactCard extends StatelessWidget {
     return FutureBuilder(
       initialData: null,
       future: _getStreetViewImage(),
-      builder: (context, AsyncSnapshot<String> snap) {
+      builder: (context, AsyncSnapshot<Widget> snap) {
         if (snap.hasData) {
           return _cardBody(snap.data);
         }
@@ -23,12 +24,26 @@ class MapContactCard extends StatelessWidget {
     );
   }
 
-  Future<String> _getStreetViewImage() async {
+  Future<Widget> _getStreetViewImage() async {
     var secret = await SecretLoader.load('secrets.json');
-    return '$api?location=${contact.lat},${contact.long}&key=${secret.googleMapsAPI}&signature=${secret.streetViewSecret}';
+    var uri = '$api?location=${contact.lat},${contact.long}&key=${secret.googleMapsAPI}&signature=${secret.streetViewSecret}';
+
+    try {
+      var netImage = new NetworkImageLoader(uri);
+      var res = await netImage.load();
+      return Image(
+        fit: BoxFit.scaleDown,
+        image: MemoryImage(res),
+      );
+    } on Exception {
+      return Image(
+        fit: BoxFit.none,
+        image: AssetImage('assets/icons_map_pin_point.png'),
+      );
+    }
   }
 
-  Widget _cardBody(String imageUrl) {
+  Widget _cardBody(Widget image) {
     return GestureDetector(
       onTap: () {
         // go to location... 
@@ -49,10 +64,7 @@ class MapContactCard extends StatelessWidget {
                   height: 200,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
-                    child: Image(
-                      fit: BoxFit.fill,
-                      image: NetworkImage('$imageUrl'),
-                    ),
+                    child: image,
                   ),
                 ),
                 Container(
@@ -71,8 +83,12 @@ class MapContactCard extends StatelessWidget {
   }
 
   Widget _contactInformationContainer() {
+    var desc = contact.firstName != null 
+      ? '${contact.firstName} ${contact.lastName}'
+      : '${contact.description}';
+
     var widgets = List<Widget>()..addAll([
-      Text('${contact.firstName} ${contact.lastName}',
+      Text('$desc',
         style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,

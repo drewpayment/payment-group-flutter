@@ -112,6 +112,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _getSignedInBody() {
+    var welcomeMsg = Auth.user != null ? 'Hello ${Auth.user?.firstName}!' : 'Hello!';
     return Center(
       heightFactor: 1.3,
       child: Column(
@@ -151,7 +152,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(vertical: 15.0),
-                  child: Text('Hello ${Auth.user.firstName}!',
+                  child: Text('$welcomeMsg',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Raleway',
@@ -160,14 +161,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(bottom: 20.0),
-                  child: Text('Thanks for participating in our open beta. Please don\'t hesitate to share your feedback.\nOh yeah, ' +
-                   '"posit" means to put in position; place.',
-                    softWrap: true,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+                // Padding(
+                //   padding: EdgeInsets.only(bottom: 20.0),
+                //   child: Text('',
+                //     softWrap: true,
+                //     textAlign: TextAlign.center,
+                //   ),
+                // ),
               ]..add(_getButtonBarButtons()),
             ),
           ),
@@ -179,7 +179,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   Widget _getButtonBarButtons() {
     var buttons = <Widget>[];
 
-    if (Auth.user.userRole.role > 5) {
+    if ((Auth.user?.userRole?.role ?? 0) > 5) {
       buttons.add(RaisedButton(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
         padding: EdgeInsets.all(12.0),

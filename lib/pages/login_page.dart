@@ -64,12 +64,8 @@ class LoginFormAnimation extends AnimatedWidget {
     return FadeTransition(
       opacity: animation,
       child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            LoginForm(),
-          ],
+        child: Center(
+          child: LoginForm(),
         ),
       ),
     );

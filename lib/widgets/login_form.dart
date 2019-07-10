@@ -66,7 +66,10 @@ class LoginFormState extends State<LoginForm> {
           ),
         ),
       ),
-      child: _getForm(),
+      child: Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        child: _getForm(),
+      ),
     );
   }
 
@@ -79,12 +82,13 @@ class LoginFormState extends State<LoginForm> {
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.only(top: 20.0, left: 16.0, right: 16.0),
                 child: Image.asset(
-                  'assets/woman_headset.png',
+                  'assets/icons_satellite.png',
                   fit: BoxFit.scaleDown,
                   // colorBlendMode: BlendMode.darken,
                   // color: Theme.of(context).primaryColor.withOpacity(0.45),
