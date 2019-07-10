@@ -161,13 +161,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ),
                   ),
                 ),
-                // Padding(
-                //   padding: EdgeInsets.only(bottom: 20.0),
-                //   child: Text('',
-                //     softWrap: true,
-                //     textAlign: TextAlign.center,
-                //   ),
-                // ),
               ]..add(_getButtonBarButtons()),
             ),
           ),
