@@ -11,6 +11,7 @@ import 'package:pay_track/pages/manage_contacts.dart';
 import 'package:pay_track/pages/map_page.dart';
 import 'package:pay_track/services/auth.dart';
 import 'package:kiwi/kiwi.dart' as kiwi;
+import 'package:pay_track/widgets/static_map_provider.dart';
 
 class HomePage extends StatefulWidget {
   
@@ -161,6 +162,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ),
                   ),
                 ),
+                Hero(
+                  tag: 'expandmap',
+                  child: _getMapButton(),
+                  // createRectTween: ,
+                ),
               ]..add(_getButtonBarButtons()),
             ),
           ),
@@ -191,28 +197,72 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       ));
     }
 
-    buttons.add(RaisedButton(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-      padding: EdgeInsets.all(12.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Text('Go to Map'),
-          Icon(Icons.map),
-        ],
-      ),
-      textColor: Colors.white,
-      onPressed: () {
-        Navigator.pushNamed(context, MapPage.routeName);
-      },
-    ));
+    // buttons.add(RaisedButton(
+    //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+    //   padding: EdgeInsets.all(12.0),
+    //   child: Row(
+    //     mainAxisSize: MainAxisSize.min,
+    //     crossAxisAlignment: CrossAxisAlignment.center,
+    //     children: <Widget>[
+    //       Text('Go to Map'),
+    //       Icon(Icons.map),
+    //     ],
+    //   ),
+    //   textColor: Colors.white,
+    //   onPressed: () {
+    //     Navigator.pushNamed(context, MapPage.routeName);
+    //   },
+    // ));
 
     return ButtonTheme.bar(
       child: ButtonBar(
         alignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.max,
         children: buttons,
+      ),
+    );
+  }
+
+  Widget _getMapButton() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, MapPage.routeName);
+      },
+      child: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Stack(
+          alignment: Alignment.bottomRight,
+          children: <Widget>[
+            Card(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              borderOnForeground: true,
+              child: Opacity(
+                opacity: 0.5,
+                child: StaticMapProvider(height: 48, width: 125),
+              ),
+              clipBehavior: Clip.hardEdge,
+            ),
+            Padding(
+              padding: EdgeInsets.only(bottom: 5, right: 10),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  // Text('GO TO MAP',
+                  //   style: TextStyle(
+                  //     fontWeight: FontWeight.bold,
+                  //     fontSize: 18,
+                  //     color: Colors.black54,
+                  //   )
+                  // ),
+                  Icon(Icons.arrow_forward,
+                    color: Colors.black54,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
