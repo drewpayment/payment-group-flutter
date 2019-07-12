@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -29,12 +30,12 @@ class Auth {
   }
 
   static Future<bool> hasTokenAuthentication() async {
+    final storage = FlutterSecureStorage();
+    var store = await storage.readAll();
+
     if (hasActiveToken) {
       return true;
     }
-
-    final storage = FlutterSecureStorage();
-    var store = await storage.readAll();
 
     _token = store[StorageKeys.TOKEN];
     _tokenExpires = DateTime.tryParse(store[StorageKeys.TOKEN_EXP]);
@@ -48,6 +49,8 @@ class Auth {
     if (signedOut) {
       return false;
     }
+
+    return false;
   }
 
   static Future<ParsedResponse<AuthResponse>> signIn(String username, String password) async {
@@ -84,6 +87,7 @@ class Auth {
       final storage = FlutterSecureStorage();
 
       try {
+        await storage.write(key: StorageKeys.USER, value: jsonEncode(resp.data['user']));
         await storage.write(key: StorageKeys.TOKEN, value: _token);
         await storage.write(key: StorageKeys.TOKEN_EXP, value: _tokenExpires.millisecondsSinceEpoch.toString());
       } on PlatformException catch(e) {
@@ -124,6 +128,27 @@ class Auth {
         Auth.signOut();
       }
     });
+  }
+
+  static void restoreStorage() async {
+    final storage = FlutterSecureStorage();
+    var store = await storage.readAll();
+
+    var token = store[StorageKeys.TOKEN];
+    var tokenExpiration = store[StorageKeys.TOKEN_EXP];
+    var user = store[StorageKeys.USER];
+
+    if (token != null) {
+      _token = token;
+    }
+
+    if (tokenExpiration != null) {
+      _tokenExpires = DateTime.tryParse(tokenExpiration);
+    }
+
+    if (user != null) {
+      _user = User.fromJson(jsonDecode(user));
+    }
   }
 
   static bool isSignedIn() {

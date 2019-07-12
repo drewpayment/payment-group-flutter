@@ -19,6 +19,20 @@ class Client {
       phone: j['phone'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'clientId': clientId,
+      'name': name,
+      'street': street,
+      'city': city,
+      'state': state,
+      'zip': zip,
+      'taxid': taxid,
+      'active': active,
+      'phone': phone,
+    };
+  }
 }
 
 class ClientList {

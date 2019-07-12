@@ -1,7 +1,11 @@
 
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/models/Knock.dart';
 import 'package:pay_track/models/secret.dart';
+import 'package:pay_track/pages/map_page.dart';
+import 'package:pay_track/router.dart';
 import 'package:pay_track/widgets/network_image_loader.dart';
 
 class MapContactCard extends StatelessWidget {
@@ -17,7 +21,7 @@ class MapContactCard extends StatelessWidget {
       future: _getStreetViewImage(),
       builder: (context, AsyncSnapshot<Widget> snap) {
         if (snap.hasData) {
-          return _cardBody(snap.data);
+          return _cardBody(snap.data, context);
         }
         return Container();
       },
@@ -25,29 +29,35 @@ class MapContactCard extends StatelessWidget {
   }
 
   Future<Widget> _getStreetViewImage() async {
-    var secret = await SecretLoader.load('secrets.json');
-    var uri = '$api?location=${contact.lat},${contact.long}&key=${secret.googleMapsAPI}&signature=${secret.streetViewSecret}';
+    // not sure if this is going to be too much to do... could cost quite a bit of $$$ 
+    return Image(
+      fit: BoxFit.none,
+      image: AssetImage('assets/icons_map_pin_point.png'),
+    );
 
-    try {
-      var netImage = new NetworkImageLoader(uri);
-      var res = await netImage.load();
-      return Image(
-        fit: BoxFit.scaleDown,
-        image: MemoryImage(res),
-      );
-    } on Exception {
-      return Image(
-        fit: BoxFit.none,
-        image: AssetImage('assets/icons_map_pin_point.png'),
-      );
-    }
+    // var secret = await SecretLoader.load('secrets.json');
+    // var uri = '$api?location=${contact.lat},${contact.long}&key=${secret.googleMapsAPI}&signature=${secret.streetViewSecret}';
+
+    // try {
+    //   var netImage = new NetworkImageLoader(uri);
+    //   var res = await netImage.load();
+    //   return Image(
+    //     fit: BoxFit.scaleDown,
+    //     image: MemoryImage(res),
+    //   );
+    // } on Exception {
+    //   return Image(
+    //     fit: BoxFit.none,
+    //     image: AssetImage('assets/icons_map_pin_point.png'),
+    //   );
+    // }
   }
 
-  Widget _cardBody(Widget image) {
-    return GestureDetector(
+  Widget _cardBody(Widget image, BuildContext context) {
+    return InkWell(
       onTap: () {
         // go to location... 
-        print('clicked');
+        bloc.mapController.animateCamera(CameraUpdate.newLatLng(LatLng(contact.lat, contact.long)));
       }, 
       child: Container(
         child: FittedBox(

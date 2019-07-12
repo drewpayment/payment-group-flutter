@@ -30,6 +30,21 @@ class User {
       session: j['sessionUser'] != null ? Session.fromJson(j['sessionUser']) : null,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'firstName': firstName,
+      'lastName': lastName,
+      'username': username,
+      'email': email,
+      'active': active,
+      'clients': clients,
+      'detail': detail,
+      'userRole': userRole,
+      'session': session,
+    };
+  }
 }
 
 class UserDetail {
@@ -66,6 +81,22 @@ class UserDetail {
       birthDate: m['birthDate'] != null ? DateTime.tryParse(m['birthDate']) : null,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'userDetailId': userDetailId,
+      'userId': userId,
+      'street': street,
+      'street2': street2,
+      'city': city,
+      'state': state, 
+      'zip': zip,
+      'phone': phone,
+      'bankAccount': bankAccount,
+      'bankRouting': bankRouting,
+      'birthDate': birthDate,
+    };
+  }
 }
 
 /// USER ROLES
@@ -89,6 +120,14 @@ class Role {
       isSalesAdmin: m['isSalesAdmin'] == 'true'
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'role': role,
+      'userId': userId,
+      'isSalesAdmin': isSalesAdmin,
+    };
+  }
 }
 
 class Session {
@@ -103,5 +142,13 @@ class Session {
       userId: m['userId'],
       client: m['client'] != null ? Client.fromJson(m['client']) : null,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'clientId': clientId,
+      'userId': userId,
+      'client': client.toJson(),
+    };
   }
 }

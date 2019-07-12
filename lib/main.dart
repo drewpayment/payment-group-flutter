@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    Auth.restoreStorage();
     return FutureBuilder(
       initialData: null,
       future: Auth.hasTokenAuthentication(),
@@ -28,7 +29,7 @@ class MyApp extends StatelessWidget {
           navigatorKey: Catcher.navigatorKey,
           title: 'Flutter Demo',
           theme: buildTheme(),
-          home: snap.hasData && Auth.isSignedIn() ? HomePage() : LoginPage(),
+          home: snap.hasData && snap.data ? HomePage() : LoginPage(),
           routes: Router.routes,
         );
       },

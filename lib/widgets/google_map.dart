@@ -33,16 +33,16 @@ class GoogleMapState extends State<GoogleMapWidget> {
     return FutureBuilder(
       initialData: null,
       future: _location.getLocation(),
-      builder: (context, AsyncSnapshot<LocationData> snapshot) {
-        if (snapshot.hasData) {
-          var loc = snapshot.data;
+      builder: (context, AsyncSnapshot<LocationData> locSnap) {
+        if (locSnap.hasData) {
+          var loc = locSnap.data;
           _mapCenter = LatLng(loc.latitude, loc.longitude);
           return StreamBuilder(
             initialData: null,
             stream: bloc.knocksStream,
-            builder: (context, AsyncSnapshot<List<Knock>> snapshot) {
-              if (snapshot.hasData) {
-                var knocks = snapshot.data;
+            builder: (context, AsyncSnapshot<List<Knock>> knockSnap) {
+              if (knockSnap.hasData) {
+                var knocks = knockSnap.data;
                 var sizedBoxChildren = <Widget>[];
 
                 sizedBoxChildren.add(GoogleMap(
@@ -71,20 +71,18 @@ class GoogleMapState extends State<GoogleMapWidget> {
                   height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width,
                 );
-              } else {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
+              } 
+
+              return Center(child: CircularProgressIndicator());
             },
           );
-        } else if (snapshot.connectionState == ConnectionState.done && !snapshot.hasData) {
+        } else if (locSnap.connectionState == ConnectionState.done && !locSnap.hasData) {
           return Center(
             child: Text('Please enable Location Services.'),
           );
         } else {
-          if (snapshot.hasError) {
-            var e = snapshot.error as PlatformException;
+          if (locSnap.hasError) {
+            var e = locSnap.error as PlatformException;
             if (e.code == 'PERMISSION_DENIED') {
               print('Permission Denied.');
             } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
@@ -127,78 +125,6 @@ class GoogleMapState extends State<GoogleMapWidget> {
       padding: EdgeInsets.all(8.0),
       child: Align(
         alignment: Platform.isIOS ? Alignment.topRight : Alignment.bottomLeft,
-        // child: FloatingActionButton(
-        //   materialTapTargetSize: MaterialTapTargetSize.padded,
-        //   onPressed: () {
-        //     showModalBottomSheet<void>(
-        //       context: context, 
-        //       builder: (context) {
-        //         return Container(
-        //           // height: MediaQuery.of(context).size.height * 0.9,
-        //           child: Column(
-        //             crossAxisAlignment: CrossAxisAlignment.stretch,
-        //             mainAxisSize: MainAxisSize.min,
-        //             children: <Widget>[
-        //               Flex(
-        //                 direction: Axis.horizontal,
-        //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //                 mainAxisSize: MainAxisSize.max,
-        //                 children: <Widget>[
-        //                   Container(
-        //                     padding: EdgeInsets.only(left: 16.0),
-        //                     child: Text('POSITS (Locations)',
-        //                       style: TextStyle(
-        //                         fontFamily: 'Raleway',
-        //                         fontSize: 18.0,
-        //                         fontWeight: FontWeight.w600,
-        //                         letterSpacing: 1.5,
-        //                       ),
-        //                     ),
-        //                   ),
-        //                   IconButton(
-        //                     icon: Icon(Icons.clear),
-        //                     onPressed: () {
-        //                       Navigator.pop(context);
-        //                     },
-        //                     color: Colors.black45,
-        //                   ),
-        //                 ],
-        //               ),
-        //             ]..addAll(ListTile.divideTiles(
-        //               context: context,
-        //               tiles: knocks.map((k) {
-        //                 return ListTile(
-        //                   leading: Icon(Icons.map),
-        //                   title: Text('${k.firstName} ${k.lastName}'),
-        //                   subtitle: Text('${k.address}'),
-        //                   onTap: () {
-        //                     // close bottom sheet & reposition camera on this knock
-        //                     Navigator.pop(context);
-        //                     _moveMapPosition(LatLng(k.lat, k.long));
-        //                     // print('need to move camera position still...');
-        //                   }
-        //                 );
-        //               }).toList(),
-        //               color: Colors.black87,
-        //             )),
-        //           ),
-        //         );
-        //       }
-        //     );
-        //   },
-        //   child: Icon(Icons.view_list),
-        // ),
-      ),
-    );
-  }
-
-  void _moveMapPosition(LatLng g) {
-    bloc.mapController.moveCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: g,
-          zoom: 19.0,
-        ),
       ),
     );
   }

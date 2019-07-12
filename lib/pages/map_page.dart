@@ -71,25 +71,7 @@ class _MapPageState extends State<MapPage> {
                 IconButton(
                   icon: Icon(Icons.search),
                   onPressed: () async {
-
                     Navigator.pushNamed(context, MapSearch.routeName);
-
-                    // var secrets = await SecretLoader.load('secrets.json');
-                    // print('API KEY: ${secrets.googleMapsAPI}');
-                    // final center = await getUserLocation();
-
-                    // var p = await PlacesAutocomplete.show(
-                    //   context: context,
-                    //   strictbounds: center != null,
-                    //   apiKey: secrets.googleMapsAPI,
-                    //   onError: _onError,
-                    //   mode: Mode.fullscreen,
-                    //   language: 'en',
-                    //   location: center != null 
-                    //     ? places.Location(center.latitude, center.longitude)
-                    //     : null,
-                    //   radius: center != null ? 10000 : null,
-                    // );
                   },
                 ),
               ],
@@ -127,17 +109,13 @@ class _MapPageState extends State<MapPage> {
           itemBuilder: (context, index) {
             var contact = contacts[index];
             return Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: MapContactCard(contact),
-                  );
+              padding: const EdgeInsets.all(8),
+              child: MapContactCard(contact),
+            );
           },
         ),
       ),
     );
-  }
-
-  void _onError(places.PlacesAutocompleteResponse e) {
-    print(e.errorMessage);
   }
 
   Future<LatLng> getUserLocation() async {

@@ -157,11 +157,8 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
           icon: Icon(Icons.edit),
           onPressed: () {
             showModalBottomSheet(
-              // isScrollControlled: true,
+              isScrollControlled: true,
               context: context,
-              // shape: RoundedRectangleBorder(
-              //   borderRadius: BorderRadius.circular(10.0),
-              // ),
               builder: (context) {
                 return Container(
                   decoration: BoxDecoration(

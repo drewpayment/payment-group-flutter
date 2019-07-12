@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/bloc/route_bloc.dart';
+import 'package:pay_track/bloc/weather_bloc.dart';
 import 'package:pay_track/models/config.dart';
+import 'package:pay_track/models/current_weather.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/pages/login_page.dart';
 import 'package:pay_track/pages/manage_contacts.dart';
@@ -37,10 +39,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   List<Widget> drawerOptions;
   kiwi.Container container = kiwi.Container();
   ConfigModel config;
-
-  _HomePageState() {
-    config = container.resolve<ConfigModel>();
-  }
+  Stream<CurrentWeather> weatherStream;
 
   @override
   BuildContext get context => super.context;
@@ -48,26 +47,13 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-
-    // if (Platform.isAndroid) {
-    //   _androidAppRetain.invokeMethod("wasActivityKilled").then((result) {
-    //     if (result) {
-    //       showDialog(
-    //         context: context,
-    //         builder: (context) {
-    //           return AlertDialog(
-
-    //           );
-    //         },
-    //       );
-    //     }
-    //   });
-    // }
+    config = container.resolve<ConfigModel>();
 
     /// listen for changed to authenticated state in auth service
     Auth.isAuthenticated.listen((signedIn) {
       if (signedIn) {
         bloc.fetchAllKnocks();
+        weatherStream = weatherBloc.stream;
       } 
     });
   }
@@ -120,6 +106,27 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
+          StreamBuilder(
+            initialData: null,
+            stream: weatherStream,
+            builder: (context, AsyncSnapshot<CurrentWeather> snap) {
+              if (snap.hasData) {
+                final weather = snap.data;
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Image.network(weather.conditionIcon,
+                      width: 50,
+                      height: 50,
+                    ),
+                  ],
+                );
+              }
+
+              return Container();
+            }
+          ),
           Card(
             margin: EdgeInsets.all(16.0),
             elevation: 8.0,
@@ -162,11 +169,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                     ),
                   ),
                 ),
-                Hero(
-                  tag: 'expandmap',
-                  child: _getMapButton(),
-                  // createRectTween: ,
-                ),
+                _getMapButton(),
               ]..add(_getButtonBarButtons()),
             ),
           ),
@@ -238,7 +241,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               borderOnForeground: true,
               child: Opacity(
                 opacity: 0.5,
-                child: StaticMapProvider(height: 48, width: 125),
+                child: StaticMapProvider(height: 100, width: 125),
               ),
               clipBehavior: Clip.hardEdge,
             ),
