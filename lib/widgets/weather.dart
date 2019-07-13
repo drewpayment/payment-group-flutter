@@ -86,12 +86,12 @@ class WeatherSummary extends StatelessWidget {
       return 'assets/weather/rain.png';
     }
 
-    if (w.windMph > 10) {
-      return 'assets/weather/windy.png';
-    }
-
     if (w.cloud > 25) {
       return 'assets/weather/cloudy.png';
+    }
+
+    if (w.windMph > 10) {
+      return 'assets/weather/windy.png';
     }
 
     var lastDt = DateTime.tryParse(w.lastUpdated);

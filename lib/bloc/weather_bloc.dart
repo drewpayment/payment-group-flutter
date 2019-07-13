@@ -1,5 +1,6 @@
 
 import 'package:location/location.dart';
+import 'package:pay_track/bloc/location_bloc.dart';
 import 'package:pay_track/data/http.dart';
 import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/current_weather.dart';
@@ -19,26 +20,28 @@ class WeatherBloc {
   void fetchWeather() async {
     ParsedResponse<Weather> result = ParsedResponse(NO_INTERNET, null);
     await _loadApiKey();
-    var loc = Location();
-    var location = await loc.getLocation();
-    var uri = Uri(
-      scheme: 'http',
-      host: apiBase,
-      path: '$path/current.json',
-      queryParameters: {
-        'key': '$_key',
-        'q': '${location.latitude},${location.longitude}'
-      },
-    );
 
-    // make api call and store response
-    var resp = await HttpClient.getUri(uri);
-    result = ParsedResponse(resp.statusCode, null);
+    locationBloc.stream.listen((location) async {
+      var uri = Uri(
+        scheme: 'http',
+        host: apiBase,
+        path: '$path/current.json',
+        queryParameters: {
+          'key': '$_key',
+          'q': '${location.latitude},${location.longitude}'
+        },
+      );
 
-    if (result.isOk()) {
-      _weather = Weather.fromJson(resp.data);
-      _weatherFetcher.add(_weather);
-    }
+      // make api call and store response
+      var resp = await HttpClient.getUri(uri);
+      result = ParsedResponse(resp.statusCode, null);
+
+      if (result.isOk()) {
+        _weather = Weather.fromJson(resp.data);
+        _weatherFetcher.add(_weather);
+      }
+    });
+    
   }
 
   _loadApiKey() async {

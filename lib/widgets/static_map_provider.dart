@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
+import 'package:pay_track/bloc/location_bloc.dart';
 import 'package:pay_track/models/secret.dart';
 
 class StaticMapProvider extends StatefulWidget {
@@ -16,8 +18,8 @@ class _StaticMapProviderState extends State<StaticMapProvider> {
   int width;
   String apiKey;
   Uri renderUrl;
-  static const int defaultHeight = 200;
-  static const int defaultWidth = 300;
+  static const int defaultHeight = 300;
+  static const int defaultWidth = 500;
   Map<String, String> defaultLocation = {
     'latitude': '37.4219999',
     'longitude': '-122.0862462'
@@ -34,22 +36,35 @@ class _StaticMapProviderState extends State<StaticMapProvider> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
+    return StreamBuilder(
       initialData: null,
-      future: _buildUrl(),
-      builder: (context, AsyncSnapshot<String> snap) {
-        if (snap.hasData && snap.data.isNotEmpty) {
-          return Image.network(snap.data);
-        }
+      stream: locationBloc.stream,
+      builder: (context, AsyncSnapshot<LocationData> snap) {
+        if (snap.hasData) {
+          var location = snap.data;
+          return FutureBuilder(
+            initialData: null,
+            future: _buildUrl(location),
+            builder: (context, AsyncSnapshot<String> snap) {
+              if (snap.hasData && snap.data.isNotEmpty) {
+                return Image.network(snap.data);
+              }
 
+              return Container();
+            },
+          );
+        }
         return Container();
-      },
+      }
     );
   }
 
-  Future<String> _buildUrl() async {
+  Future<String> _buildUrl(LocationData loc) async {
     var secret = await SecretLoader.load('secrets.json');
     apiKey = secret.geocodeApiKey;
+
+    var latitude = loc.latitude;
+    var longitude = loc.longitude;
 
     return Uri(
       scheme: 'https',
@@ -58,7 +73,7 @@ class _StaticMapProviderState extends State<StaticMapProvider> {
       path: '/maps/api/staticmap',
       queryParameters: {
         'size': '${width}x$height',
-        'center': '${defaultLocation['latitude']},${defaultLocation['longitude']}',
+        'center': '$latitude,$longitude',
         'zoom': '4',
         'key': '$apiKey',
       },

@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:location/location.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
+import 'package:pay_track/bloc/location_bloc.dart';
 import 'package:pay_track/bloc/route_bloc.dart';
 import 'package:pay_track/bloc/weather_bloc.dart';
 import 'package:pay_track/models/config.dart';
@@ -119,9 +121,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           Container(
             margin: EdgeInsets.only(top: 16),
             // elevation: 8.0,
-            child: Row(
+            child: Column(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 _getMapButton(),
               ]..add(_getAdminButton()),
@@ -154,102 +156,34 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return Container();
   }
 
-  Widget _getButtonBarButtons() {
-    var buttons = <Widget>[];
-
-    if ((Auth.user?.userRole?.role ?? 0) > 5) {
-      // buttons.add(RaisedButton(
-      //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-      //   padding: EdgeInsets.all(12.0),
-      //   child: Row(
-      //     mainAxisSize: MainAxisSize.min,
-      //     crossAxisAlignment: CrossAxisAlignment.center,
-      //     children: <Widget>[
-      //       Text('Manage Restricts'),
-      //       Icon(Icons.code)
-      //     ],
-      //   ),
-      //   textColor: Colors.white,
-      //   onPressed: () {
-      //     Navigator.pushNamed(context, ManageContacts.routeName);
-      //   },
-      // ));
-
-      buttons.add(IconButton(
-        icon: Icon(Icons.person_pin, size: 70),
-        onPressed: () {
-          Navigator.pushNamed(context, ManageContacts.routeName);
-        },
-        color: Colors.white,
-      ));
-    }
-
-    // buttons.add(RaisedButton(
-    //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-    //   padding: EdgeInsets.all(12.0),
-    //   child: Row(
-    //     mainAxisSize: MainAxisSize.min,
-    //     crossAxisAlignment: CrossAxisAlignment.center,
-    //     children: <Widget>[
-    //       Text('Go to Map'),
-    //       Icon(Icons.map),
-    //     ],
-    //   ),
-    //   textColor: Colors.white,
-    //   onPressed: () {
-    //     Navigator.pushNamed(context, MapPage.routeName);
-    //   },
-    // ));
-
-    return ButtonTheme.bar(
-      child: ButtonBar(
-        alignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: buttons,
-      ),
-    );
-  }
-
   Widget _getMapButton() {
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, MapPage.routeName);
       },
-      child: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Stack(
-          alignment: Alignment.bottomRight,
-          children: <Widget>[
-            Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              borderOnForeground: true,
-              child: Opacity(
-                opacity: 0.5,
-                child: StaticMapProvider(height: 100, width: 125),
-              ),
-              clipBehavior: Clip.hardEdge,
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 5, right: 10),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  // Text('GO TO MAP',
-                  //   style: TextStyle(
-                  //     fontWeight: FontWeight.bold,
-                  //     fontSize: 18,
-                  //     color: Colors.black54,
-                  //   )
-                  // ),
-                  Icon(Icons.arrow_forward,
-                    color: Colors.black54,
+      child: Stack(
+        alignment: Alignment.bottomRight,
+        children: <Widget>[
+          StaticMapProvider(),
+          Padding(
+            padding: EdgeInsets.only(bottom: 5, right: 10),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                FloatingActionButton(
+                  heroTag: 'dasfdja;sdjfa',
+                  child: Icon(Icons.arrow_forward,
+                    color: Colors.white,
                   ),
-                ],
-              ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, MapPage.routeName);
+                  },
+                )
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

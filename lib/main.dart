@@ -1,5 +1,6 @@
 import 'package:catcher/catcher_plugin.dart';
 import 'package:flutter/material.dart';
+import 'package:pay_track/bloc/location_bloc.dart';
 import 'package:pay_track/data/http.dart';
 import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/home_page.dart';
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Auth.restoreStorage();
+    locationBloc.init();
     return FutureBuilder(
       initialData: null,
       future: Auth.hasTokenAuthentication(),

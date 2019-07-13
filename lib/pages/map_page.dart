@@ -77,15 +77,12 @@ class _MapPageState extends State<MapPage> {
               //   ),
               // ],
             ),
-            body: Hero(
-              tag: 'expandmap',
-              child: SafeArea(
-                child: Stack(
-                  children: <Widget>[
-                    GoogleMapWidget(navigateToContact),
-                    locationCardContainer(snapshot.data),
-                  ],
-                ),
+            body: SafeArea(
+              child: Stack(
+                children: <Widget>[
+                  GoogleMapWidget(navigateToContact),
+                  locationCardContainer(snapshot.data),
+                ],
               ),
             ),
           );
