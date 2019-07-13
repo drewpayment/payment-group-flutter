@@ -99,8 +99,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _getSignedInBody() {
-    var welcomeMsg = Auth.user != null ? 'Hello ${Auth.user?.firstName}!' : 'Hello!';
-
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
