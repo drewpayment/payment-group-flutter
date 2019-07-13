@@ -11,13 +11,13 @@ class WeatherBloc {
   final String apiBase = 'api.apixu.com';
   final String path = 'v1';
   String _key;
-  CurrentWeather _weather;
-  final _weatherFetcher = BehaviorSubject<CurrentWeather>();
+  Weather _weather;
+  final _weatherFetcher = BehaviorSubject<Weather>();
 
-  Stream<CurrentWeather> get stream => _weatherFetcher.stream;
+  Stream<Weather> get stream => _weatherFetcher.stream;
 
   void fetchWeather() async {
-    ParsedResponse<CurrentWeather> result = ParsedResponse(NO_INTERNET, null);
+    ParsedResponse<Weather> result = ParsedResponse(NO_INTERNET, null);
     await _loadApiKey();
     var loc = Location();
     var location = await loc.getLocation();
@@ -36,7 +36,7 @@ class WeatherBloc {
     result = ParsedResponse(resp.statusCode, null);
 
     if (result.isOk()) {
-      _weather = CurrentWeather.fromJson(resp.data);
+      _weather = Weather.fromJson(resp.data);
       _weatherFetcher.add(_weather);
     }
   }

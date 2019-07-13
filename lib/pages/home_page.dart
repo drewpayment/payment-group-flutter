@@ -14,6 +14,7 @@ import 'package:pay_track/pages/map_page.dart';
 import 'package:pay_track/services/auth.dart';
 import 'package:kiwi/kiwi.dart' as kiwi;
 import 'package:pay_track/widgets/static_map_provider.dart';
+import 'package:pay_track/widgets/weather.dart';
 
 class HomePage extends StatefulWidget {
   
@@ -39,7 +40,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   List<Widget> drawerOptions;
   kiwi.Container container = kiwi.Container();
   ConfigModel config;
-  Stream<CurrentWeather> weatherStream;
 
   @override
   BuildContext get context => super.context;
@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     Auth.isAuthenticated.listen((signedIn) {
       if (signedIn) {
         bloc.fetchAllKnocks();
-        weatherStream = weatherBloc.stream;
+        weatherBloc.fetchWeather();
       } 
     });
   }
@@ -100,103 +100,89 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _getSignedInBody() {
     var welcomeMsg = Auth.user != null ? 'Hello ${Auth.user?.firstName}!' : 'Hello!';
-    return Center(
-      heightFactor: 1.3,
+
+    return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           StreamBuilder(
             initialData: null,
-            stream: weatherStream,
-            builder: (context, AsyncSnapshot<CurrentWeather> snap) {
-              if (snap.hasData) {
+            stream: weatherBloc.stream,
+            builder: (context, AsyncSnapshot<Weather> snap) {
+              if (snap.hasData && snap.data != null && snap.data.current?.condition != null) {
                 final weather = snap.data;
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Image.network(weather.conditionIcon,
-                      width: 50,
-                      height: 50,
-                    ),
-                  ],
-                );
+                return WeatherSummary(weather);
               }
 
               return Container();
             }
           ),
-          Card(
-            margin: EdgeInsets.all(16.0),
-            elevation: 8.0,
-            child: Column(
+          Container(
+            margin: EdgeInsets.only(top: 16),
+            // elevation: 8.0,
+            child: Row(
               mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-                  child: Center(
-                    child: Text('WELCOME',
-                      style: TextStyle(
-                        fontFamily: 'Rockwell',
-                        fontSize: 36,
-                        letterSpacing: 2.0,
-                        color: Theme.of(context).accentColor,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  // width: MediaQuery.of(context).size.width,
-                  // child: Image.asset(
-                  //   'assets/undraw_settings_ii2j.png',
-                  //   height: 200,
-                  // ),
-                  padding: EdgeInsets.only(bottom: 10.0),
-                  child: CircleAvatar(
-                    backgroundImage: NetworkImage('https://api.adorable.io/avatars/140/abott@adorable.png'),
-                    radius: 70,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 15.0),
-                  child: Text('$welcomeMsg',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Raleway',
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
                 _getMapButton(),
-              ]..add(_getButtonBarButtons()),
+              ]..add(_getAdminButton()),
             ),
           ),
         ],
-      )
+      ),
     );
+  }
+
+  Widget _getAdminButton() {
+    if ((Auth.user?.userRole?.role ?? 0) > 5) {
+      return InkWell(
+        borderRadius: BorderRadius.circular(10),
+        child: Card(
+          margin: EdgeInsets.all(30),
+          color: Theme.of(context).accentColor,
+          child: Center(
+            child: Icon(Icons.person_pin,
+              size: 70,
+              color: Colors.white,
+            )
+          ),
+        ),
+        onTap: () {
+          Navigator.pushNamed(context, ManageContacts.routeName);
+        }
+      );
+    }
+    return Container();
   }
 
   Widget _getButtonBarButtons() {
     var buttons = <Widget>[];
 
     if ((Auth.user?.userRole?.role ?? 0) > 5) {
-      buttons.add(RaisedButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-        padding: EdgeInsets.all(12.0),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text('Manage Restricts'),
-            Icon(Icons.code)
-          ],
-        ),
-        textColor: Colors.white,
+      // buttons.add(RaisedButton(
+      //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+      //   padding: EdgeInsets.all(12.0),
+      //   child: Row(
+      //     mainAxisSize: MainAxisSize.min,
+      //     crossAxisAlignment: CrossAxisAlignment.center,
+      //     children: <Widget>[
+      //       Text('Manage Restricts'),
+      //       Icon(Icons.code)
+      //     ],
+      //   ),
+      //   textColor: Colors.white,
+      //   onPressed: () {
+      //     Navigator.pushNamed(context, ManageContacts.routeName);
+      //   },
+      // ));
+
+      buttons.add(IconButton(
+        icon: Icon(Icons.person_pin, size: 70),
         onPressed: () {
           Navigator.pushNamed(context, ManageContacts.routeName);
         },
+        color: Colors.white,
       ));
     }
 
@@ -220,7 +206,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return ButtonTheme.bar(
       child: ButtonBar(
         alignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
+        mainAxisSize: MainAxisSize.min,
         children: buttons,
       ),
     );

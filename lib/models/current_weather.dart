@@ -1,5 +1,65 @@
 
 
+class Weather {
+  WeatherLocation location;
+  CurrentWeather current;
+
+  Weather({this.location, this.current});
+
+  factory Weather.fromJson(Map<String, dynamic> m) {
+    return Weather(
+      location: WeatherLocation.fromJson(m['location']),
+      current: CurrentWeather.fromJson(m['current']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'location': location.toJson(),
+      'current': current.toJson(),
+    };
+  }
+}
+
+class WeatherLocation {
+  String name;
+  String region;
+  String country;
+  double lat;
+  double lon;
+  String tzid;
+  int localtimeEpoch;
+  DateTime localtime;
+
+  WeatherLocation({this.name, this.region, this.country, this.lat, this.lon, this.tzid, this.localtime, this.localtimeEpoch});
+
+  factory WeatherLocation.fromJson(Map<String, dynamic> m) {
+    return WeatherLocation(
+      name: m['name'],
+      region: m['region'],
+      country: m['country'],
+      lat: m['lat'],
+      lon: m['lon'],
+      tzid: m['tzid'],
+      localtimeEpoch: m['localtimeEpoch'],
+      localtime: DateTime.tryParse(m['localtime']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'region': region,
+      'country': country,
+      'lat': lat,
+      'lon': lon,
+      'tzid': tzid,
+      'localtimeEpoch': localtimeEpoch,
+      'localtime': localtime,
+    };
+  }
+}
+
 class CurrentWeather {
   String lastUpdated;
   int lastUpdatedEpoch;
@@ -7,9 +67,7 @@ class CurrentWeather {
   double tempF;
   double feelsLikeC;
   double feelsLikeF;
-  String conditionText;
-  String conditionIcon;
-  int conditionCode;
+  WeatherCondition condition;
   double windMph;
   double windKph;
   int windDegree;
@@ -25,8 +83,7 @@ class CurrentWeather {
   double gustMph;
   double gustKph;
 
-  CurrentWeather({this.lastUpdated, this.lastUpdatedEpoch, this.tempC, this.tempF, this.feelsLikeC, this.feelsLikeF, this.conditionIcon,
-    this.conditionText, this.conditionCode, this.windDegree, this.windDir, this.windKph, this.windMph, this.pressureIn, this.pressureMb,
+  CurrentWeather({this.lastUpdated, this.lastUpdatedEpoch, this.tempC, this.tempF, this.feelsLikeC, this.feelsLikeF, this.condition, this.windDegree, this.windDir, this.windKph, this.windMph, this.pressureIn, this.pressureMb,
     this.cloud, this.gustKph, this.gustMph, this.humidity, this.isDay, this.precipIn, this.precipMm, this.uv});
 
   factory CurrentWeather.fromJson(Map<String, dynamic> m) {
@@ -37,9 +94,7 @@ class CurrentWeather {
       tempF: m['temp_f'],
       feelsLikeC: m['feels_like_c'],
       feelsLikeF: m['feels_like_f'],
-      conditionCode: m['condition_code'],
-      conditionIcon: m['condition_icon'],
-      conditionText: m['condition_text'],
+      condition: WeatherCondition.fromJson(m['condition']),
       windDegree: m['wind_degree'],
       windDir: m['wind_dir'],
       windKph: m['wind_kph'],
@@ -65,9 +120,7 @@ class CurrentWeather {
       'temp_f': tempF,
       'feels_like_c': feelsLikeC,
       'feels_like_f': feelsLikeF,
-      'condition_code': conditionCode,
-      'condition_icon': conditionIcon,
-      'condition_text': conditionText,
+      'condition': condition.toJson(),
       'wind_degree': windDegree,
       'wind_dir': windDir,
       'wind_kph': windKph,
@@ -85,4 +138,28 @@ class CurrentWeather {
     };
   }
 
+}
+
+class WeatherCondition {
+  String text;
+  String icon;
+  int code;
+
+  WeatherCondition({this.text, this.icon, this.code});
+
+  factory WeatherCondition.fromJson(Map<String, dynamic> m) {
+    return WeatherCondition(
+      text: m['text'],
+      icon: m['icon'],
+      code: m['code']
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'text': text,
+      'icon': icon,
+      'code': code,
+    };
+  }
 }

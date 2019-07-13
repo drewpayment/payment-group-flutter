@@ -67,14 +67,15 @@ class _MapPageState extends State<MapPage> {
           return Scaffold(
             appBar: CustomAppBar(
               title: Text('${config.appName}'),
-              actions: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () async {
-                    Navigator.pushNamed(context, MapSearch.routeName);
-                  },
-                ),
-              ],
+              /// keep from releasing for now... future feature
+              // actions: <Widget>[
+              //   IconButton(
+              //     icon: Icon(Icons.search),
+              //     onPressed: () async {
+              //       Navigator.pushNamed(context, MapSearch.routeName);
+              //     },
+              //   ),
+              // ],
             ),
             body: Hero(
               tag: 'expandmap',
