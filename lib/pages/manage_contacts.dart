@@ -41,7 +41,7 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor.withOpacity(0.45),
-      appBar: CustomAppBar(title: Text('POSITS')),
+      appBar: CustomAppBar(title: Text('')),
       body: StreamBuilder(
         builder: (context, AsyncSnapshot<List<Knock>> snap) {
           if (snap.hasData) {
