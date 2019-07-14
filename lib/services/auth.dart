@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:pay_track/bloc/user_bloc.dart';
 import 'package:pay_track/data/http.dart';
 import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/auth_response.dart';
@@ -13,7 +14,6 @@ import 'package:rxdart/rxdart.dart';
 
 class Auth {
   static String _token;
-  static User _user;
   static DateTime _tokenExpires;
   static Stream _authTimerSub;
   static Timer _timer;
@@ -21,13 +21,7 @@ class Auth {
   static PublishSubject<bool> _isAuthenticated$ = PublishSubject<bool>()..add(false);
   static Stream<bool> get isAuthenticated => _isAuthenticated$.asBroadcastStream();
 
-  static User get user => _user;
   static bool get hasActiveToken => _token != null && _tokenExpires != null;
-
-  static set user(User value) {
-    if (value == null) return;
-    _user = value;
-  }
 
   static Future<bool> hasTokenAuthentication() async {
     final storage = FlutterSecureStorage();
@@ -78,7 +72,7 @@ class Auth {
 
     if (result.isOk()) {
       result = ParsedResponse<AuthResponse>(result.statusCode, AuthResponse.fromJson(resp.data));
-      _user = result.body.user;
+      userBloc.setUser(result.body.user);
       _token = result.body.token;
       _tokenExpires = DateTime.now().add(const Duration(days: 7));
 
@@ -147,12 +141,9 @@ class Auth {
     }
 
     if (user != null) {
-      _user = User.fromJson(jsonDecode(user));
+      var u = User.fromJson(jsonDecode(user));
+      userBloc.setUser(u);
     }
-  }
-
-  static bool isSignedIn() {
-    return _user != null && _token != null && _tokenExpires != null;
   }
 
   static _setInterceptorToken() async {
@@ -168,7 +159,7 @@ class Auth {
 
   static Future<bool> signOut() {
     var comp = Completer<bool>();
-    _user = null;
+    userBloc.clear();
     _token = null;
     _isAuthenticated$.sink.add(false);
     _timer.cancel();

@@ -83,6 +83,7 @@ flutter:
     - assets/weather/snow.png
     - assets/weather/sunny.png
     - assets/weather/windy.png
+    - assets/house.png
     - secrets.json # env file
     
   #  - images/a_dot_burr.jpeg

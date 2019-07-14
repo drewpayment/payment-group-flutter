@@ -1,14 +1,13 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:location/location.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
-import 'package:pay_track/bloc/location_bloc.dart';
 import 'package:pay_track/bloc/route_bloc.dart';
+import 'package:pay_track/bloc/user_bloc.dart';
 import 'package:pay_track/bloc/weather_bloc.dart';
 import 'package:pay_track/models/config.dart';
 import 'package:pay_track/models/current_weather.dart';
+import 'package:pay_track/models/user.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/pages/login_page.dart';
 import 'package:pay_track/pages/manage_contacts.dart';
@@ -102,6 +101,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
 
   Widget _getSignedInBody() {
     return SingleChildScrollView(
+      physics: ScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -119,7 +119,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             }
           ),
           Container(
-            margin: EdgeInsets.only(top: 16),
+            margin: EdgeInsets.only(top: 8),
             // elevation: 8.0,
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -129,31 +129,70 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ]..add(_getAdminButton()),
             ),
           ),
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(
+              child: Image(
+                image: AssetImage('assets/house.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _getAdminButton() {
-    if ((Auth.user?.userRole?.role ?? 0) > 5) {
-      return InkWell(
-        borderRadius: BorderRadius.circular(10),
-        child: Card(
-          margin: EdgeInsets.all(30),
-          color: Theme.of(context).accentColor,
-          child: Center(
-            child: Icon(Icons.person_pin,
-              size: 70,
-              color: Colors.white,
-            )
-          ),
-        ),
-        onTap: () {
-          Navigator.pushNamed(context, ManageContacts.routeName);
+    final textStyle = TextStyle(
+      fontSize: 58,
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+    );
+
+    return StreamBuilder(
+      initialData: null,
+      stream: userBloc.stream,
+      builder: (context, AsyncSnapshot<User> snap) {
+        if (snap.hasData) {
+          final user = snap.data;
+
+          if ((user.userRole?.role ?? 0) > 5) {
+            return Container(
+              color: Theme.of(context).accentColor,
+              child: InkWell(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text('C', style: textStyle),
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 8),
+                      padding: EdgeInsets.symmetric(vertical: 8),
+                      color: Theme.of(context).accentColor,
+                      child: Center(
+                        child: Icon(Icons.person_pin,
+                          size: 60,
+                          color: Colors.white,
+                        )
+                      ),
+                    ),
+                    Text('NTACTS', style: textStyle),
+                    Icon(Icons.arrow_forward, size: 58, color: Colors.white),
+                  ],
+                ),
+                onTap: () {
+                  Navigator.pushNamed(context, ManageContacts.routeName);
+                },
+              ),
+              margin: EdgeInsets.symmetric(vertical: 8),
+            );
+          }
         }
-      );
-    }
-    return Container();
+
+        return Container();
+      }
+    );
   }
 
   Widget _getMapButton() {

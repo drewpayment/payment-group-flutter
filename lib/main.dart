@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     Auth.restoreStorage();
     locationBloc.init();
+    
     return FutureBuilder(
       initialData: null,
       future: Auth.hasTokenAuthentication(),

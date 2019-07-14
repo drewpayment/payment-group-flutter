@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
+import 'package:pay_track/bloc/user_bloc.dart';
 import 'package:pay_track/models/Knock.dart';
 import 'package:pay_track/services/auth.dart';
 import 'package:pay_track/utils/state_hash.dart';
@@ -297,8 +298,10 @@ class AddContactFormState extends State<AddContactForm> {
                       isLoading = true;
                     });
 
+                    final user = userBloc.user;
+
                     var dto = Knock(
-                      clientId: Auth.user.session.clientId,
+                      clientId: user?.session?.clientId,
                       firstName: firstNameController.value.text,
                       lastName: lastNameController.value.text,
                       description: descriptionController.value.text,
