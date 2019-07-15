@@ -18,7 +18,7 @@ class _StaticMapProviderState extends State<StaticMapProvider> {
   int width;
   String apiKey;
   Uri renderUrl;
-  static const int defaultHeight = 200;
+  static const int defaultHeight = 300;
   static const int defaultWidth = 500;
   Map<String, String> defaultLocation = {
     'latitude': '37.4219999',

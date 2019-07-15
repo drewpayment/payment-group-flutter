@@ -84,6 +84,7 @@ flutter:
     - assets/weather/sunny.png
     - assets/weather/windy.png
     - assets/house.png
+    - assets/houses.png
     - secrets.json # env file
     
   #  - images/a_dot_burr.jpeg
@@ -107,6 +108,9 @@ flutter:
     - family: Raleway
       fonts: 
         - asset: assets/fonts/Raleway-Regular.ttf
+    - family: JustAnotherHand
+      fonts:
+        - asset: assets/fonts/JustAnotherHand-Regular.ttf
   #   - family: Schyler
   #     fonts:
   #       - asset: fonts/Schyler-Regular.ttf

@@ -83,7 +83,16 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         appBar: CustomAppBar(
           title: Text('${config.appName}'),
         ),
-        body: _getSignedInBody(),
+        body: Container(
+          height: MediaQuery.of(context).size.height,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/houses.png'),
+              alignment: Alignment.bottomCenter,
+            ),
+          ),
+          child: _getSignedInBody(),
+        ),
         floatingActionButton: FloatingActionButton.extended(
           icon: Icon(Icons.exit_to_app),
           label: Text('Sign Out'),
@@ -103,7 +112,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     return SingleChildScrollView(
       physics: ScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           StreamBuilder(
@@ -122,20 +130,10 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             margin: EdgeInsets.only(top: 8),
             // elevation: 8.0,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 _getMapButton(),
               ]..add(_getAdminButton()),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: Center(
-              child: Image(
-                image: AssetImage('assets/house.png'),
-                fit: BoxFit.cover,
-              ),
             ),
           ),
         ],
@@ -156,8 +154,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       builder: (context, AsyncSnapshot<User> snap) {
         if (snap.hasData) {
           final user = snap.data;
+          final role = user.userRole.role;
 
-          if ((user.userRole?.role ?? 0) > 5) {
+          if (role > 5) {
             return Container(
               color: Theme.of(context).accentColor,
               child: InkWell(
@@ -165,7 +164,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text('C', style: textStyle),
+                    Text('C', style: textStyle.copyWith(fontWeight: FontWeight.w400)),
                     Container(
                       margin: EdgeInsets.symmetric(vertical: 8),
                       padding: EdgeInsets.symmetric(vertical: 8),
@@ -177,7 +176,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                         )
                       ),
                     ),
-                    Text('NTACTS', style: textStyle),
+                    Text('NTACTS', style: textStyle.copyWith(fontWeight: FontWeight.w400)),
                     Icon(Icons.arrow_forward, size: 58, color: Colors.white),
                   ],
                 ),
@@ -187,10 +186,33 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               ),
               margin: EdgeInsets.symmetric(vertical: 8),
             );
-          }
+          } 
         }
 
-        return Container();
+        return Container(
+          margin: EdgeInsets.only(top: 8),
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(16),
+              child: Text('Those who have confidence in themselves gain the confidence of others.',
+                softWrap: true,
+                style: textStyle.copyWith(
+                  fontSize: 24,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w200,
+                  wordSpacing: 1.2,
+                  letterSpacing: 1.2,
+                  fontFamily: 'JustAnotherHand',
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        );
       }
     );
   }
