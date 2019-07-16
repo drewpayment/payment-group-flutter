@@ -79,9 +79,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         }
       },
       child: Scaffold(
-        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.45),
         appBar: CustomAppBar(
           title: Text('${config.appName}'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.exit_to_app),
+              onPressed: () {
+                Auth.signOut().then((isSignedOut) {
+                  if (isSignedOut) {
+                    Navigator.pushNamedAndRemoveUntil(context, LoginPage.routeName, ModalRoute.withName('/'));
+                  }
+                });
+              },
+            ),
+          ],
         ),
         body: Container(
           height: MediaQuery.of(context).size.height,
@@ -93,24 +104,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           ),
           child: _getSignedInBody(),
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          icon: Icon(Icons.exit_to_app),
-          label: Text('Sign Out'),
-          onPressed: () {
-            Auth.signOut().then((isSignedOut) {
-              if (isSignedOut) {
-                Navigator.pushNamedAndRemoveUntil(context, LoginPage.routeName, ModalRoute.withName('/'));
-              }
-            });
-          },
-        ),
       ),
     );
   }
 
   Widget _getSignedInBody() {
     return SingleChildScrollView(
-      physics: ScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[

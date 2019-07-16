@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:kiwi/kiwi.dart' as kiwi;
 import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/models/Knock.dart';
@@ -67,20 +68,20 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
   TextStyle _cardTitleTextStyle() {
     return const TextStyle(
       color: Colors.white,
-      fontFamily: 'Raleway',
-      fontSize: 19.0,
-      fontWeight: FontWeight.w500,
-      letterSpacing: 1.2,
+      // fontFamily: 'Raleway',
+      // fontSize: 19.0,
+      fontWeight: FontWeight.normal,
+      // letterSpacing: 1.2,
     );
   }
 
   TextStyle _cardSubtitleTextStyle() {
     return _cardTitleTextStyle().copyWith(
-      color: Colors.white,
-      fontFamily: 'Helvectica',
+      color: Colors.black,
+      fontFamily: 'Raleway',
       fontWeight: FontWeight.normal,
       fontSize: 16.0,
-      letterSpacing: 1.0,
+      // letterSpacing: 1.0,
     );
   }
 
@@ -89,61 +90,116 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
     return ListView.builder(
       itemCount: snap.data.length,
       itemBuilder: (context, index) {
-        var controller = AnimationController(duration: const Duration(milliseconds: 200), vsync: this);
-        var animation = controller.drive(_halfTween.chain(_easeInTween));
+        final desc = contacts[index].description != null 
+          ? '${contacts[index].description}'
+          : '${contacts[index].firstName} ${contacts[index].lastName}';
+
+        final cardAddr = Text(
+          '$desc\n${contacts[index].address} ${contacts[index].addressCont ?? ''}\n${contacts[index].city} ${contacts[index].state} ${contacts[index].zip}',
+          style: _cardSubtitleTextStyle(),
+          textAlign: TextAlign.left,
+        );
+
         return Card(
-          child: ListTileTheme(
-            iconColor: Colors.white,
-            selectedColor: Colors.grey,
-            child: ExpansionTile(
-              key: PageStorageKey(index),
-              leading: CircleAvatar(
-                child: Icon(Icons.home),
-                backgroundColor: Colors.white,
-                foregroundColor: Theme.of(context).primaryColor,
-              ),
-              title: contacts[index].description != null 
-                ? Text(contacts[index].description, style: _cardTitleTextStyle())
-                : Text('${contacts[index].firstName} ${contacts[index].lastName}', style: _cardTitleTextStyle()),
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(10.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Container(width: 45.0),
-                      Text(
-                        '${contacts[index].address} ${contacts[index].addressCont ?? ''}\n${contacts[index].city} ${contacts[index].state} ${contacts[index].zip}',
-                        style: _cardSubtitleTextStyle(),
+          margin: EdgeInsets.symmetric(vertical: 4),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4), 
+          ),
+          child: Container(
+            height: 70,
+            margin: EdgeInsets.all(16),
+            child: InkWell(
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  InkWell(
+                    child: Container(
+                      width: 45, 
+                      height: 45,
+                      child: Center(
+                        child: Icon(Icons.edit,
+                          color: Colors.white,
+                        ),
                       ),
-                      Spacer(),
-                      _getEditButton(contacts[index]),
-                    ],
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).accentColor,
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                    ),
+                    onTap: () => _handleEdit(contacts[index]),
                   ),
-                ),
-              ],
-              trailing: RotationTransition(
-                turns: animation,
-                child: const Icon(Icons.expand_more,
-                  color: Colors.white,
-                ),
+                  
+                  // VerticalDivider(),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        // cardDesc,
+                        cardAddr,
+                      ],
+                    ),
+                  ),
+                  InkWell(
+                    child: Container(
+                      height: 75,
+                      width: 40,
+                      child: Icon(Icons.arrow_forward_ios,
+                        color: Colors.black45,
+                        // size: 50,
+                      ),
+                      // decoration: BoxDecoration(
+                      //   color: Theme.of(context).accentColor,
+                      //   borderRadius: BorderRadius.circular(50),
+                      // ),
+                    ),
+                    onTap: () {
+                      Navigator.pushNamed(context, MapPage.routeName,
+                        arguments: MapPageRouterParams(
+                          contacts[index].dncContactId,
+                          contacts[index].lat,
+                          contacts[index].long,
+                        ),
+                      );
+                    }
+                  ),
+                ],
               ),
-              onExpansionChanged: (value) {
-                if (value) {
-                  controller.forward(from: 0.0);
-                } else {
-                  controller.reverse(from: 0.5);
-                }
-              },
+              onTap: () {
+                Navigator.pushNamed(context, MapPage.routeName,
+                  arguments: MapPageRouterParams(
+                    contacts[index].dncContactId,
+                    contacts[index].lat,
+                    contacts[index].long,
+                  ),
+                );
+              }
             ),
           ),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-          color: Theme.of(context).primaryColor,
-          elevation: 7,
-          margin: EdgeInsets.symmetric(vertical: 10.0),
         );
       },
       padding: EdgeInsets.all(16.0),
+    );
+  }
+
+  void _handleEdit(Knock contact) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (context) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          height: MediaQuery.of(context).size.height * 0.90,
+          // width: MediaQuery.of(context).size.width * 0.95,
+          child: SingleChildScrollView(
+            primary: true,
+            child: AddContactForm(contact: contact),
+          ),
+        );
+      }
     );
   }
 

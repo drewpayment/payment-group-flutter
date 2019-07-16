@@ -42,7 +42,7 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
       ),
       child: Scaffold(
         backgroundColor: Theme.of(context).primaryColor.withOpacity(0.45),
-        appBar: CustomAppBar(title: Text('${config.appName}')),
+        appBar: CustomAppBar(),
         body: LoginFormAnimation(animation: animation),
       ),
     );

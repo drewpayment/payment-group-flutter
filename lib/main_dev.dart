@@ -6,7 +6,7 @@ import 'package:kiwi/kiwi.dart' as kiwi;
 
 void main() {
   final config = ConfigModel(
-    appName: 'POSITS',
+    appName: 'TrackSite',
     flavor: 'Development',
     api: 'http://verostack/api',
     website: 'http://verostack/',
