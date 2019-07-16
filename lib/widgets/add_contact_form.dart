@@ -63,9 +63,9 @@ class AddContactFormState extends State<AddContactForm> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10.0),
         ),
-        padding: EdgeInsets.all(16.0),
+        // padding: EdgeInsets.all(16.0),
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.symmetric(horizontal: 32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: _getWidgets(),
@@ -98,26 +98,6 @@ class AddContactFormState extends State<AddContactForm> {
 
   List<Widget> _getWidgets() {
     var widgets = List<Widget>();
-
-    if (contact != null) {
-      widgets.add(Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text('Contact Details',
-            style: TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          IconButton(
-            icon: Icon(Icons.clear),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ));
-    }
 
     widgets.addAll([
       /// FIRST NAME

@@ -187,64 +187,51 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
       builder: (context) {
         return Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10.0),
           ),
-          height: MediaQuery.of(context).size.height * 0.90,
+          height: MediaQuery.of(context).size.height * 0.93,
           // width: MediaQuery.of(context).size.width * 0.95,
-          child: SingleChildScrollView(
-            primary: true,
-            child: AddContactForm(contact: contact),
+          child: Column(
+            children: <Widget>[
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                ),
+                padding: EdgeInsets.only(left: 16, top: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text('Contact Details',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.arrow_drop_down_circle, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  children: <Widget>[AddContactForm(contact: contact)],
+                ),
+              ),
+            ],
           ),
         );
       }
-    );
-  }
-
-  Widget _getEditButton(Knock contact) {
-    return ButtonBar(
-      alignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        IconButton(
-          color: Colors.white,
-          icon: Icon(Icons.edit),
-          onPressed: () {
-            showModalBottomSheet(
-              isScrollControlled: true,
-              context: context,
-              builder: (context) {
-                return Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  height: MediaQuery.of(context).size.height * 0.90,
-                  // width: MediaQuery.of(context).size.width * 0.95,
-                  child: SingleChildScrollView(
-                    primary: true,
-                    child: AddContactForm(contact: contact),
-                  ),
-                );
-              }
-            );
-          },
-        ),
-        IconButton(
-          color: Colors.white,
-          icon: Icon(Icons.map),
-          onPressed: () {
-            Navigator.pushReplacementNamed(context, MapPage.routeName,
-              arguments: MapPageRouterParams(
-                contact.dncContactId,
-                contact.lat,
-                contact.long,
-              ),
-            );
-          },
-        ),
-      ],
     );
   }
 
