@@ -36,17 +36,25 @@ class KnockBloc {
     }
   }
 
-  Future<bool> saveKnock(Knock knock) async {
-    var completer = Completer<bool>();
+  Future<Knock> saveKnock(Knock knock) async {
+    var completer = Completer<Knock>();
     var resp = await _knockRepo.saveKnock(knock);
     if (resp.isOk()) {
-      var copyKnocks = List<Knock>()..addAll(knocks);
-      copyKnocks.add(resp.body);
-      _knocks = copyKnocks;
-      filterKnocksByBoundary();
-      completer.complete(true);
+      
+      final updatedKnock = resp.body;
+
+      // TODO: ISN'T UPDATING WITH UPDATED KNOCK FOR SOME REASON, WTF
+      _knocks.forEach((k) {
+        if (k.dncContactId == updatedKnock.dncContactId) {
+          k = updatedKnock;
+        }
+      });
+
+      _knockFetcher.add(_knocks);
+
+      completer.complete(updatedKnock);
     } else {
-      completer.complete(false);
+      completer.complete(null);
     }
     return completer.future;
   }

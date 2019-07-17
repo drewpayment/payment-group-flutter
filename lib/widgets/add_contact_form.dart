@@ -7,17 +7,16 @@ import 'package:pay_track/utils/state_hash.dart';
 import 'package:pay_track/widgets/contact_form_field.dart';
 
 class AddContactForm extends StatefulWidget {
-  final Knock contact;
+  Knock contact;
 
   AddContactForm({this.contact});
 
   @override
-  AddContactFormState createState() => AddContactFormState(contact: contact);
+  AddContactFormState createState() => AddContactFormState();
 }
 
 class AddContactFormState extends State<AddContactForm> {
   final _formKey = GlobalKey<FormState>();
-  final Knock contact;
   String firstName, lastName, description, street, street2, city,
     state, zip, notes;
 
@@ -40,8 +39,6 @@ class AddContactFormState extends State<AddContactForm> {
   final cityController = TextEditingController();
   final zipController = TextEditingController();
   final notesController = TextEditingController();
-
-  AddContactFormState({this.contact});
 
   @override
   void initState() {
@@ -76,23 +73,23 @@ class AddContactFormState extends State<AddContactForm> {
   }
 
   void _setExistingContact() {
-    if (contact != null) {
-      if (contact?.firstName != null)
-        firstNameController.value = TextEditingValue(text: contact?.firstName);
-      if (contact?.lastName != null)
-        lastNameController.value = TextEditingValue(text: contact?.lastName);
-      if (contact?.description != null)
-        descriptionController.value = TextEditingValue(text: contact?.description);
-      if (contact?.address != null) 
-        streetController.value = TextEditingValue(text: contact?.address);
-      if (contact?.addressCont != null)
-        street2Controller.value = TextEditingValue(text: contact?.addressCont);
-      if (contact?.city != null)
-        cityController.value = TextEditingValue(text: contact?.city);
-      if (contact?.zip != null)
-        zipController.value = TextEditingValue(text: contact?.zip);
-      if (contact?.note != null)
-        notesController.value = TextEditingValue(text: contact?.note);
+    if (widget.contact != null) {
+      if (widget.contact?.firstName != null)
+        firstNameController.value = TextEditingValue(text: widget.contact?.firstName);
+      if (widget.contact?.lastName != null)
+        lastNameController.value = TextEditingValue(text: widget.contact?.lastName);
+      if (widget.contact?.description != null)
+        descriptionController.value = TextEditingValue(text: widget.contact?.description);
+      if (widget.contact?.address != null) 
+        streetController.value = TextEditingValue(text: widget.contact?.address);
+      if (widget.contact?.addressCont != null)
+        street2Controller.value = TextEditingValue(text: widget.contact?.addressCont);
+      if (widget.contact?.city != null)
+        cityController.value = TextEditingValue(text: widget.contact?.city);
+      if (widget.contact?.zip != null)
+        zipController.value = TextEditingValue(text: widget.contact?.zip);
+      if (widget.contact?.note != null)
+        notesController.value = TextEditingValue(text: widget.contact?.note);
     }
   }
 
@@ -179,7 +176,7 @@ class AddContactFormState extends State<AddContactForm> {
         },
       ),
       /// STATE
-      FormField(
+      FormField<String>(
         builder: (FormFieldState<String> formState) {
           return InputDecorator(
             decoration: InputDecoration(
@@ -210,7 +207,7 @@ class AddContactFormState extends State<AddContactForm> {
           state = value;
         },
         autovalidate: true,
-        initialValue: contact?.state,
+        initialValue: widget.contact?.state,
       ),
       /// ZIP CODE
       ContactFormField(
@@ -235,12 +232,8 @@ class AddContactFormState extends State<AddContactForm> {
               maxLines: 2,
               autocorrect: true,
               textInputAction: TextInputAction.done,
-              onChanged: (value) {
-                if (value.isNotEmpty) {
-                  notes = value;
-                }
-              },
               focusNode: _notesFocus,
+              controller: notesController,
             ),
             decoration: InputDecoration(
               labelText: 'Notes',
@@ -290,30 +283,45 @@ class AddContactFormState extends State<AddContactForm> {
                       city: cityController.value.text,
                       state: state,
                       zip: zipController.value.text,
+                      note: notesController.value.text,
                     );
 
-                    if (contact != null) {
-                      dto.dncContactId = contact.dncContactId;
+                    if (widget.contact != null) {
+                      dto.dncContactId = widget.contact.dncContactId;
                     }
 
                     var result = await bloc.saveKnock(dto);
 
-                    if (result) {
+                    if (result != null) {
                       _formKey.currentState?.reset();
                       setState(() {
+                        widget.contact = result;
                         isLoading = false;
                       });
-                      
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text('Saved.'),
-                        duration: Duration(milliseconds: 1500),
-                      )).closed.then((value) {
-                        if (dto.dncContactId != null) {
-                          Navigator.pop(context, true);
-                        } else {
-                          Navigator.pop(context);
+
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            content: Text('Successfully updated!'),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: Text('OK'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
                         }
+                      ).then((res) {
+                        Navigator.of(context).pop();
                       });
+                      
+                      // Scaffold.of(context).showSnackBar(SnackBar(
+                      //   content: Text('Saved.'),
+                      //   duration: Duration(milliseconds: 1500),
+                      // ));
                     }
                   }
                 },
