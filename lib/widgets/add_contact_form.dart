@@ -229,7 +229,7 @@ class AddContactFormState extends State<AddContactForm> {
               decoration: InputDecoration(
                 border: InputBorder.none,
               ),
-              maxLines: 2,
+              maxLines: 1,
               autocorrect: true,
               textInputAction: TextInputAction.done,
               focusNode: _notesFocus,

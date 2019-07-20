@@ -152,8 +152,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       stream: userBloc.stream,
       builder: (context, AsyncSnapshot<User> snap) {
         if (snap.hasData) {
-          final user = snap.data;
-          final role = user.userRole.role;
+          final User user = container<User>();
+          final int role = user?.userRole?.role ?? 0;
 
           if (role > 5) {
             return Container(

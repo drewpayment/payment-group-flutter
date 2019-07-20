@@ -8,6 +8,8 @@ import 'package:pay_track/pages/add_contact.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/router.dart';
 import 'package:pay_track/widgets/add_contact_form.dart';
+import 'package:pay_track/widgets/contact_form.dart';
+import 'package:pay_track/widgets/contact_form_provider.dart';
 
 import 'map_page.dart';
 
@@ -57,10 +59,11 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
       ),
       floatingActionButton: FloatingActionButton.extended(
         icon: Icon(Icons.add_circle),
-        label: Text('Restriction'),
-        onPressed: () {
-          Navigator.pushNamed(context, AddContactPage.routeName);
-        },
+        label: Text('Marker'),
+        onPressed: () => _handleAdd(),
+        // onPressed: () {
+        //   Navigator.pushNamed(context, AddContactPage.routeName);
+        // },
       ),
     );
   }
@@ -180,6 +183,61 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
         );
       },
       padding: EdgeInsets.all(16.0),
+    );
+  }
+
+  void _handleAdd() {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      builder: (context) {
+        return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          height: MediaQuery.of(context).size.height * 0.93,
+          // width: MediaQuery.of(context).size.width * 0.95,
+          child: Column(
+            children: <Widget>[
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                ),
+                padding: EdgeInsets.only(left: 16, top: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text('Contact Details',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.arrow_drop_down_circle, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  // children: <Widget>[AddContactForm()],
+                  children: <Widget>[
+                    ContactFormProvider(child: ContactForm()),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }
     );
   }
 
