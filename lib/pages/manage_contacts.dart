@@ -4,12 +4,11 @@ import 'package:kiwi/kiwi.dart' as kiwi;
 import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/models/Knock.dart';
 import 'package:pay_track/models/config.dart';
-import 'package:pay_track/pages/add_contact.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/router.dart';
-import 'package:pay_track/widgets/add_contact_form.dart';
 import 'package:pay_track/widgets/contact_form.dart';
 import 'package:pay_track/widgets/contact_form_provider.dart';
+import 'package:pay_track/widgets/edit_contact_form.dart';
 
 import 'map_page.dart';
 
@@ -59,7 +58,7 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
       ),
       floatingActionButton: FloatingActionButton.extended(
         icon: Icon(Icons.add_circle),
-        label: Text('Marker'),
+        label: Text('Contact'),
         onPressed: () => _handleAdd(),
         // onPressed: () {
         //   Navigator.pushNamed(context, AddContactPage.routeName);
@@ -283,7 +282,7 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
               ),
               Expanded(
                 child: ListView(
-                  children: <Widget>[AddContactForm(contact: contact)],
+                  children: <Widget>[EditContactForm(contact: contact)],
                 ),
               ),
             ],

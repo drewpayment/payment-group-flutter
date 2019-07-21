@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
-import 'package:pay_track/widgets/add_contact_form.dart';
 import 'package:kiwi/kiwi.dart' as kiwi;
+import 'package:pay_track/widgets/edit_contact_form.dart';
 
 class AddContactPage extends StatefulWidget {
   static const routeName = '/add-contact';
@@ -55,7 +55,7 @@ class AddContactPageState extends State<AddContactPage> {
             indent: 8.0,
             // endIndent: 8.0,
           ),
-          AddContactForm()
+          EditContactForm()
         ],
       ),
     );

@@ -2,20 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/bloc/user_bloc.dart';
 import 'package:pay_track/models/Knock.dart';
-import 'package:pay_track/services/auth.dart';
 import 'package:pay_track/utils/state_hash.dart';
 import 'package:pay_track/widgets/contact_form_field.dart';
 
-class AddContactForm extends StatefulWidget {
+class EditContactForm extends StatefulWidget {
   Knock contact;
 
-  AddContactForm({this.contact});
+  EditContactForm({this.contact});
 
   @override
-  AddContactFormState createState() => AddContactFormState();
+  _EditContactFormState createState() => _EditContactFormState();
 }
 
-class AddContactFormState extends State<AddContactForm> {
+class _EditContactFormState extends State<EditContactForm> {
   final _formKey = GlobalKey<FormState>();
   String firstName, lastName, description, street, street2, city,
     state, zip, notes;

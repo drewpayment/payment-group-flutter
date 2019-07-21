@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:flutter/material.dart';
 import 'package:pay_track/utils/validators.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -15,18 +13,18 @@ class ContactFormBloc extends Validators {
   final _zipController = BehaviorSubject<String>();
   final _notesController = BehaviorSubject<String>();
 
-  Stream<String> get firstName => _firstNameController.stream.transform(validateNameField());
-  Stream<String> get lastName => _lastNameController.stream.transform(validateNameField());
-  Stream<String> get description => _descriptionController.stream.transform(validateDescription());
-  Stream<String> get street => _streetController.stream.transform(stringRequired);
+  Stream<String> get firstName => _firstNameController.stream;
+  Stream<String> get lastName => _lastNameController.stream;
+  Stream<String> get description => _descriptionController.stream;
+  Stream<String> get street => _streetController.stream;
   Stream<String> get street2 => _street2Controller.stream;
-  Stream<String> get city => _cityController.stream.transform(stringRequired);
-  Stream<String> get state => _stateController.stream.transform(stringRequired);
-  Stream<String> get zip => _zipController.stream.transform(stringRequired);
+  Stream<String> get city => _cityController.stream;
+  Stream<String> get state => _stateController.stream;
+  Stream<String> get zip => _zipController.stream;
   Stream<String> get notes => _notesController.stream;
 
   Stream<bool> get submitValid => 
-    Observable.combineLatest([firstName, lastName, description, street, city, state, zip], (l) => true);
+    Observable.combineLatest([firstName, lastName, street, city, state, zip], (l) => true);
 
   Function(String) get changeFirstName => _firstNameController.sink.add;
   Function(String) get changeLastName => _lastNameController.sink.add;
@@ -37,15 +35,6 @@ class ContactFormBloc extends Validators {
   Function(String) get changeState => _stateController.sink.add;
   Function(String) get changeZip => _zipController.sink.add;
   Function(String) get changeNotes => _notesController.sink.add;
-
-  final firstNameFocus = FocusNode();
-  final lastNameFocus = FocusNode();
-  final descriptionFocus = FocusNode();
-  final streetFocus = FocusNode();
-  final street2Focus = FocusNode();
-  final cityFocus = FocusNode();
-  final zipFocus = FocusNode();
-  final notesFocus = FocusNode();
 
   submit() {
     final firstName = _firstNameController.value;
@@ -86,6 +75,7 @@ class ContactFormBloc extends Validators {
       if (name != null) {
         sink.add(name);
       } else if (_descriptionController.value == null) {
+        print('Error: $name');
         sink.addError('Either Name or Description is required.');
       }
     });
@@ -96,6 +86,7 @@ class ContactFormBloc extends Validators {
       if (desc != null) {
         sink.add(desc);
       } else if (_firstNameController.value == null && _lastNameController.value == null) {
+        print('Error: $desc');
         sink.addError('Either Name or Description is required.');
       }
     });

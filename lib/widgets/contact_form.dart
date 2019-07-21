@@ -1,31 +1,48 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:pay_track/bloc/contact_form_bloc.dart';
 import 'package:pay_track/utils/state_hash.dart';
 import 'package:pay_track/widgets/contact_form_provider.dart';
 
-class ContactForm extends StatelessWidget {
+class ContactForm extends StatefulWidget {
+  @override
+  _ContactFormState createState() => _ContactFormState();
+}
+
+class _ContactFormState extends State<ContactForm> {
+
+  final _formKey = GlobalKey<FormState>();
+
+  final firstNameFocus = FocusNode();
+  final lastNameFocus = FocusNode();
+  final descriptionFocus = FocusNode();
+  final streetFocus = FocusNode();
+  final street2Focus = FocusNode();
+  final cityFocus = FocusNode();
+  final zipFocus = FocusNode();
+  final notesFocus = FocusNode();
 
   @override
   Widget build(BuildContext context) {
     final bloc = ContactFormProvider.of(context);
 
-    return Container(
-      margin: EdgeInsets.all(20),
-      child: Column(
-        children: <Widget>[
-          firstNameField(bloc),
-          lastNameField(bloc),
-          descriptionField(bloc),
-          streetField(bloc),
-          street2Field(bloc),
-          cityField(bloc),
-          stateField(bloc),
-          zipField(bloc),
-          notesField(bloc),
-          saveButton(bloc),
-        ],
+    return Form(
+      key: _formKey,
+      child: Container(
+        margin: EdgeInsets.all(20),
+        child: Column(
+          children: <Widget>[
+            firstNameField(bloc),
+            lastNameField(bloc),
+            descriptionField(bloc),
+            streetField(bloc),
+            street2Field(bloc),
+            cityField(bloc),
+            stateField(bloc),
+            zipField(bloc),
+            notesField(bloc),
+            saveButton(bloc),
+          ],
+        ),
       ),
     );
   }
@@ -34,16 +51,20 @@ class ContactForm extends StatelessWidget {
     return StreamBuilder(
       stream: bloc.firstName,
       builder: (context, snap) {
-        return TextField(
+        return TextFormField(
           decoration: InputDecoration(
             labelText: 'First Name',
             errorText: snap.error,
           ),
-          controller: TextEditingController(text: snap.data),
-          onChanged: bloc.changeFirstName,
-          focusNode: bloc.firstNameFocus,
-          onSubmitted: (value) => _fieldFocusChange(context, bloc.firstNameFocus, bloc.lastNameFocus),
+          onFieldSubmitted: (value) => _fieldFocusChange(context, firstNameFocus, lastNameFocus),
+          onSaved: bloc.changeFirstName,
+          focusNode: firstNameFocus,
           autofocus: false,
+          validator: (value) {
+            if (value.isEmpty) {
+              return 'First name required.';
+            }
+          },
         );  
       }
     );
@@ -53,15 +74,15 @@ class ContactForm extends StatelessWidget {
     return StreamBuilder(
       stream: bloc.lastName,
       builder: (context, snap) {
-        return TextField(
-          controller: TextEditingController(text: snap.data),
+        return TextFormField(
           decoration: InputDecoration(
             labelText: 'Last Name',
             errorText: snap.error,
           ),
-          onChanged: bloc.changeLastName,
-          focusNode: bloc.lastNameFocus,
-          onSubmitted: (value) => _fieldFocusChange(context, bloc.lastNameFocus, bloc.descriptionFocus),
+          onSaved: bloc.changeLastName,
+          focusNode: lastNameFocus,
+          onFieldSubmitted: (value) => _fieldFocusChange(context, lastNameFocus, descriptionFocus),
+          validator: bloc.stringRequired,
         );
       }
     );
@@ -71,15 +92,15 @@ class ContactForm extends StatelessWidget {
     return StreamBuilder(
       stream: bloc.description,
       builder: (context, snap) {
-        return TextField(
-          controller: TextEditingController(text: snap.data),
+        return TextFormField(
           decoration: InputDecoration(
             labelText: 'Description',
             errorText: snap.error,
           ),
-          onChanged: bloc.changeDescription,
-          focusNode: bloc.descriptionFocus,
-          onSubmitted: (value) => _fieldFocusChange(context, bloc.descriptionFocus, bloc.streetFocus),
+          onSaved: bloc.changeDescription,
+          focusNode: descriptionFocus,
+          onFieldSubmitted: (value) => _fieldFocusChange(context, descriptionFocus, streetFocus),
+          validator: bloc.stringRequired,
         );
       },
     );
@@ -89,15 +110,15 @@ class ContactForm extends StatelessWidget {
     return StreamBuilder(
       stream: bloc.street,
       builder: (context, snap) {
-        return TextField(
-          controller: TextEditingController(text: snap.data),
+        return TextFormField(
           decoration: InputDecoration(
             labelText: 'Street',
             errorText: snap.error,
           ),
-          onChanged: bloc.changeStreet,
-          focusNode: bloc.streetFocus,
-          onSubmitted: (value) => _fieldFocusChange(context, bloc.streetFocus, bloc.street2Focus),
+          onSaved: bloc.changeStreet,
+          focusNode: streetFocus,
+          onFieldSubmitted: (value) => _fieldFocusChange(context, streetFocus, street2Focus),
+          validator: bloc.stringRequired,
         );
       }
     );
@@ -107,15 +128,14 @@ class ContactForm extends StatelessWidget {
     return StreamBuilder(
       stream: bloc.street2,
       builder: (context, snap) {
-        return TextField(
-          controller: TextEditingController(text: snap.data),
+        return TextFormField(
           decoration: InputDecoration(
             labelText: 'Apt/Unit/Suite #',
             errorText: snap.error,
           ),
-          onChanged: bloc.changeStreet2,
-          focusNode: bloc.street2Focus,
-          onSubmitted: (value) => _fieldFocusChange(context, bloc.street2Focus, bloc.cityFocus),
+          onSaved: bloc.changeStreet2,
+          focusNode: street2Focus,
+          onFieldSubmitted: (value) => _fieldFocusChange(context, street2Focus, cityFocus),
         );
       }
     );
@@ -125,15 +145,15 @@ class ContactForm extends StatelessWidget {
     return StreamBuilder(
       stream: bloc.city,
       builder: (context, snap) {
-        return TextField(
-          controller: TextEditingController(text: snap.data),
+        return TextFormField(
           decoration: InputDecoration(
             labelText: 'City',
             errorText: snap.error,
           ),
-          onChanged: bloc.changeCity,
-          focusNode: bloc.cityFocus,
-          onSubmitted: (value) => FocusScope.of(context).requestFocus(FocusNode()),
+          onSaved: bloc.changeCity,
+          focusNode: cityFocus,
+          onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(FocusNode()),
+          validator: bloc.stringRequired,
         );
       }
     );
@@ -143,28 +163,48 @@ class ContactForm extends StatelessWidget {
     return StreamBuilder(
       stream: bloc.state,
       builder: (context, snap) {
-        return InputDecorator(
-          decoration: InputDecoration(
-            labelText: 'State',
-            errorText: snap.error,
-          ),
-          isEmpty: !snap.hasData,
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton(
-              value: snap.data,
-              onChanged: (value) {
-                bloc.changeState(value);
-                FocusScope.of(context).requestFocus(FocusNode());
-              },
-              items: StateHelper.statesArray.map((s) {
-                return DropdownMenuItem(
-                  key: Key(s['abbreviation']),
-                  value: s['abbreviation'],
-                  child: Text('${s['name']}'),
-                );
-              }).toList(),
-            ),
-          ),
+        return FormField(
+          builder: (state) {
+            return Column(
+              children: <Widget>[
+                InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: 'State',
+                    errorText: snap.error,
+                  ),
+                  isEmpty: !snap.hasData,
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton(
+                      value: snap.data,
+                      onChanged: (value) {
+                        // bloc.changeState(value);
+                        FocusScope.of(context).requestFocus(FocusNode());
+                      },
+                      items: StateHelper.statesArray.map((s) {
+                        return DropdownMenuItem(
+                          key: Key(s['abbreviation']),
+                          value: s['abbreviation'],
+                          child: Text('${s['name']}'),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(state.hasError ? state.errorText : '',
+                  style: TextStyle(
+                    color: Colors.redAccent.shade700,
+                    fontSize: 12,
+                    decorationColor: Colors.redAccent.shade700,
+                  ),
+                ),
+              ],
+            );
+          },
+          onSaved: bloc.changeState,
+          validator: bloc.stringRequired,
+          autovalidate: false,
+          enabled: true,
         );
       }
     );
@@ -174,15 +214,15 @@ class ContactForm extends StatelessWidget {
     return StreamBuilder(
       stream: bloc.zip,
       builder: (context, snap) {
-        return TextField(
-          controller: TextEditingController(text: snap.data),
+        return TextFormField(
           decoration: InputDecoration(
             labelText: 'Zip',
             errorText: snap.error,
           ),
-          onChanged: bloc.changeZip,
-          focusNode: bloc.zipFocus,
-          onSubmitted: (value) => _fieldFocusChange(context, bloc.zipFocus, bloc.notesFocus),
+          onSaved: bloc.changeZip,
+          focusNode: zipFocus,
+          onFieldSubmitted: (value) => _fieldFocusChange(context, zipFocus, notesFocus),
+          validator: bloc.stringRequired,
         );
       }
     );
@@ -192,30 +232,31 @@ class ContactForm extends StatelessWidget {
     return StreamBuilder(
       stream: bloc.notes,
       builder: (context, snap) {
-        return TextField(
-          controller: TextEditingController(text: snap.data),
+        return TextFormField(
           decoration: InputDecoration(
             labelText: 'Note',
             errorText: snap.error,
           ),
-          onChanged: bloc.changeNotes,
-          focusNode: bloc.notesFocus,
-          onSubmitted: (value) => FocusScope.of(context).requestFocus(FocusNode()),
+          onSaved: bloc.changeNotes,
+          focusNode: notesFocus,
+          onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(FocusNode()),
+          validator: bloc.stringRequired,
         );
       }
     );
   }
 
   Widget saveButton(ContactFormBloc bloc) {
-    return StreamBuilder(
-      stream: bloc.submitValid,
-      builder: (context, snap) {
-        return RaisedButton(
-          child: Text('Save'),
-          color: Theme.of(context).primaryColor.withOpacity(0.45),
-          onPressed: snap.hasData ? bloc.submit : null,
-        );
-      }
+    
+    return RaisedButton(
+      child: Text('Save'),
+      color: Theme.of(context).primaryColor.withOpacity(0.45),
+      onPressed: () {
+        if (_formKey.currentState.validate()) {
+          _formKey.currentState.save();
+          bloc.submit();
+        }
+      },
     );
   }
 
