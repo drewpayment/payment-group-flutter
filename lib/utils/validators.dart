@@ -3,9 +3,9 @@ import 'dart:async';
 
 class Validators {
 
-  String stringRequired(String value) {
+  String stringRequired(String value, {String message}) {
     if (value == null || value.isEmpty) {
-      return 'Field required.';
+      return message ?? 'Field required.';
     }
   }
 

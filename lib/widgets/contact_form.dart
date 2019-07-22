@@ -82,7 +82,7 @@ class _ContactFormState extends State<ContactForm> {
           onSaved: bloc.changeLastName,
           focusNode: lastNameFocus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, lastNameFocus, descriptionFocus),
-          validator: bloc.stringRequired,
+          validator: (value) => bloc.stringRequired(value, message: 'Last name required.'),
         );
       }
     );
@@ -166,18 +166,24 @@ class _ContactFormState extends State<ContactForm> {
         return FormField(
           builder: (state) {
             return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 InputDecorator(
                   decoration: InputDecoration(
                     labelText: 'State',
                     errorText: snap.error,
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: state.hasError ? Colors.redAccent.shade700 : Theme.of(context).hintColor,
+                      ),
+                    ),
                   ),
                   isEmpty: !snap.hasData,
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton(
                       value: snap.data,
                       onChanged: (value) {
-                        // bloc.changeState(value);
+                        bloc.changeState(value);
                         FocusScope.of(context).requestFocus(FocusNode());
                       },
                       items: StateHelper.statesArray.map((s) {
@@ -192,17 +198,17 @@ class _ContactFormState extends State<ContactForm> {
                 ),
                 SizedBox(height: 5),
                 Text(state.hasError ? state.errorText : '',
+                  textAlign: TextAlign.start,
                   style: TextStyle(
                     color: Colors.redAccent.shade700,
                     fontSize: 12,
-                    decorationColor: Colors.redAccent.shade700,
                   ),
                 ),
               ],
             );
           },
           onSaved: bloc.changeState,
-          validator: bloc.stringRequired,
+          validator: (value) => bloc.stringRequired(value, message: 'State is required.'),
           autovalidate: false,
           enabled: true,
         );
