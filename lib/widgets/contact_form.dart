@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pay_track/bloc/contact_form_bloc.dart';
+import 'package:pay_track/pages/manage_contacts.dart';
 import 'package:pay_track/utils/state_hash.dart';
 import 'package:pay_track/widgets/contact_form_provider.dart';
 
@@ -9,7 +10,7 @@ class ContactForm extends StatefulWidget {
 }
 
 class _ContactFormState extends State<ContactForm> {
-
+  bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
 
   final firstNameFocus = FocusNode();
@@ -60,11 +61,7 @@ class _ContactFormState extends State<ContactForm> {
           onSaved: bloc.changeFirstName,
           focusNode: firstNameFocus,
           autofocus: false,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'First name required.';
-            }
-          },
+          validator: (value) => bloc.stringRequired(value, message: 'Please enter a first name.'),
         );  
       }
     );
@@ -82,7 +79,7 @@ class _ContactFormState extends State<ContactForm> {
           onSaved: bloc.changeLastName,
           focusNode: lastNameFocus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, lastNameFocus, descriptionFocus),
-          validator: (value) => bloc.stringRequired(value, message: 'Last name required.'),
+          validator: (value) => bloc.stringRequired(value, message: 'Please enter a last name.'),
         );
       }
     );
@@ -100,7 +97,6 @@ class _ContactFormState extends State<ContactForm> {
           onSaved: bloc.changeDescription,
           focusNode: descriptionFocus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, descriptionFocus, streetFocus),
-          validator: bloc.stringRequired,
         );
       },
     );
@@ -118,7 +114,7 @@ class _ContactFormState extends State<ContactForm> {
           onSaved: bloc.changeStreet,
           focusNode: streetFocus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, streetFocus, street2Focus),
-          validator: bloc.stringRequired,
+          validator: (value) => bloc.stringRequired(value, message: 'Please enter a street.'),
         );
       }
     );
@@ -153,7 +149,7 @@ class _ContactFormState extends State<ContactForm> {
           onSaved: bloc.changeCity,
           focusNode: cityFocus,
           onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(FocusNode()),
-          validator: bloc.stringRequired,
+          validator: (value) => bloc.stringRequired(value, message: 'Please enter a city.'),
         );
       }
     );
@@ -162,55 +158,44 @@ class _ContactFormState extends State<ContactForm> {
   Widget stateField(ContactFormBloc bloc) {
     return StreamBuilder(
       stream: bloc.state,
-      builder: (context, snap) {
-        return FormField(
-          builder: (state) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: 'State',
-                    errorText: snap.error,
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        color: state.hasError ? Colors.redAccent.shade700 : Theme.of(context).hintColor,
-                      ),
-                    ),
-                  ),
-                  isEmpty: !snap.hasData,
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton(
-                      value: snap.data,
-                      onChanged: (value) {
-                        bloc.changeState(value);
-                        FocusScope.of(context).requestFocus(FocusNode());
-                      },
-                      items: StateHelper.statesArray.map((s) {
-                        return DropdownMenuItem(
-                          key: Key(s['abbreviation']),
-                          value: s['abbreviation'],
-                          child: Text('${s['name']}'),
-                        );
-                      }).toList(),
-                    ),
+      builder: (context, AsyncSnapshot<String> snap) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            InputDecorator(
+              decoration: InputDecoration(
+                labelText: 'State',
+                errorText: snap.error,
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: snap.hasError ? Colors.redAccent.shade700 : Theme.of(context).hintColor,
                   ),
                 ),
-                SizedBox(height: 5),
-                Text(state.hasError ? state.errorText : '',
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                    color: Colors.redAccent.shade700,
-                    fontSize: 12,
-                  ),
+              ),
+              isEmpty: !snap.hasData,
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton(
+                  value: snap.data,
+                  onChanged: bloc.changeState,
+                  items: StateHelper.statesArray.map((s) {
+                    return DropdownMenuItem(
+                      key: Key(s['abbreviation']),
+                      value: s['abbreviation'],
+                      child: Text('${s['name']}'),
+                    );
+                  }).toList(),
                 ),
-              ],
-            );
-          },
-          onSaved: bloc.changeState,
-          validator: (value) => bloc.stringRequired(value, message: 'State is required.'),
-          autovalidate: false,
-          enabled: true,
+              ),
+            ),
+            SizedBox(height: 5),
+            Text(snap.hasError ? snap.error : '',
+              textAlign: TextAlign.start,
+              style: TextStyle(
+                color: Colors.redAccent.shade700,
+                fontSize: 12,
+              ),
+            ),
+          ],
         );
       }
     );
@@ -246,23 +231,69 @@ class _ContactFormState extends State<ContactForm> {
           onSaved: bloc.changeNotes,
           focusNode: notesFocus,
           onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(FocusNode()),
-          validator: bloc.stringRequired,
         );
       }
     );
   }
 
   Widget saveButton(ContactFormBloc bloc) {
-    
-    return RaisedButton(
-      child: Text('Save'),
-      color: Theme.of(context).primaryColor.withOpacity(0.45),
-      onPressed: () {
-        if (_formKey.currentState.validate()) {
-          _formKey.currentState.save();
-          bloc.submit();
-        }
-      },
+    return Padding(
+      padding: EdgeInsets.only(top: 16),
+      child: RaisedButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Icon(Icons.save_alt, color: Colors.white),
+            Text('Save',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+        color: Theme.of(context).primaryColor,
+        onPressed: () async {
+          if (_formKey.currentState.validate()) {
+            _formKey.currentState.save();
+            isLoading = true;
+
+            await showDialog<void>(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) {
+                bloc.submit().then((resp) {
+                  Navigator.pop(context);
+
+                  if (resp.isOk()) {
+                    ManageContacts.scaffoldKey.currentState.showSnackBar(SnackBar(
+                      content: Text('Saved new contact.'),
+                      duration: Duration(milliseconds: 2500),
+                      behavior: SnackBarBehavior.floating,
+                    ));
+                  } else {
+                    ManageContacts.scaffoldKey.currentState.showSnackBar(SnackBar(
+                      content: Text('Network Error - ${resp.message}'),
+                      duration: Duration(milliseconds: 2000),
+                      behavior: SnackBarBehavior.floating,
+                    ));
+                  }
+                });
+
+                return SimpleDialog(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  contentPadding: EdgeInsets.all(24),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  title: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+            );
+          }
+        },
+      ),
     );
   }
 

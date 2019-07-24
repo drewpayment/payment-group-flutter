@@ -6,7 +6,7 @@ import 'package:pay_track/utils/state_hash.dart';
 import 'package:pay_track/widgets/contact_form_field.dart';
 
 class EditContactForm extends StatefulWidget {
-  Knock contact;
+  final Knock contact;
 
   EditContactForm({this.contact});
 
@@ -18,7 +18,6 @@ class _EditContactFormState extends State<EditContactForm> {
   final _formKey = GlobalKey<FormState>();
   String firstName, lastName, description, street, street2, city,
     state, zip, notes;
-
   bool isLoading = false;
 
   final _firstNameFocus = FocusNode();
@@ -294,7 +293,6 @@ class _EditContactFormState extends State<EditContactForm> {
                     if (result != null) {
                       _formKey.currentState?.reset();
                       setState(() {
-                        widget.contact = result;
                         isLoading = false;
                       });
 

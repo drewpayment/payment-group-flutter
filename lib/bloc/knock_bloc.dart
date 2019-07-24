@@ -37,26 +37,25 @@ class KnockBloc {
   }
 
   Future<Knock> saveKnock(Knock knock) async {
-    var completer = Completer<Knock>();
     var resp = await _knockRepo.saveKnock(knock);
     if (resp.isOk()) {
-      
       final updatedKnock = resp.body;
 
-      // TODO: ISN'T UPDATING WITH UPDATED KNOCK FOR SOME REASON, WTF
-      _knocks.forEach((k) {
-        if (k.dncContactId == updatedKnock.dncContactId) {
-          k = updatedKnock;
+      if (knock.dncContactId != null && knock.dncContactId > 0) {
+        for(var i = 0; i < _knocks.length; i++) {
+          if (_knocks[i].dncContactId == updatedKnock.dncContactId) {
+            _knocks[i] = updatedKnock;
+          }
         }
-      });
+      } else {
+        _knocks.add(updatedKnock);
+      }
 
       _knockFetcher.add(_knocks);
 
-      completer.complete(updatedKnock);
-    } else {
-      completer.complete(null);
-    }
-    return completer.future;
+      return updatedKnock;
+    } 
+    return null;
   }
 
   void _fetchMarkers(List<Knock> knocks) async {

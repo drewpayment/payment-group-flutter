@@ -14,6 +14,7 @@ import 'map_page.dart';
 
 class ManageContacts extends StatefulWidget {
   static const routeName = '/manage-contacts';
+  static final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   ManageContactsState createState() => ManageContactsState();
@@ -42,6 +43,7 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: ManageContacts.scaffoldKey,
       backgroundColor: Theme.of(context).primaryColor.withOpacity(0.45),
       appBar: CustomAppBar(title: Text('')),
       body: StreamBuilder(

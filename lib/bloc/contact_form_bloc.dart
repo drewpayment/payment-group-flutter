@@ -1,8 +1,15 @@
 import 'dart:async';
+import 'package:pay_track/bloc/knock_bloc.dart';
+import 'package:pay_track/models/Knock.dart';
+import 'package:pay_track/models/parsed_response.dart';
+import 'package:pay_track/models/user.dart';
 import 'package:pay_track/utils/validators.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:kiwi/kiwi.dart' as kiwi;
 
 class ContactFormBloc extends Validators {
+  final container = kiwi.Container();
+
   final _firstNameController = BehaviorSubject<String>();
   final _lastNameController = BehaviorSubject<String>();
   final _descriptionController = BehaviorSubject<String>();
@@ -36,26 +43,25 @@ class ContactFormBloc extends Validators {
   Function(String) get changeZip => _zipController.sink.add;
   Function(String) get changeNotes => _notesController.sink.add;
 
-  submit() {
-    final firstName = _firstNameController.value;
-    final lastName = _lastNameController.value;
-    final description = _descriptionController.value;
-    final street = _streetController.value;
-    final street2 = _street2Controller.value;
-    final city = _cityController.value;
-    final state = _stateController.value;
-    final zip = _zipController.value;
-    final notes = _notesController.value;
+  Future<ParsedResponse> submit() async {
+    final user = container<User>();
 
-    print('First Name: $firstName');
-    print('Last Name: $lastName');
-    print('Description: $description');
-    print('Street: $street');
-    print('Street 2: $street2');
-    print('City: $city');
-    print('State: $state');
-    print('Zip: $zip');
-    print('Notes: $notes');
+    final dto = Knock(
+      firstName: _firstNameController.value,
+      lastName: _lastNameController.value,
+      description: _descriptionController.value,
+      address: _streetController.value,
+      addressCont: _street2Controller.value,
+      city: _cityController.value,
+      state: _stateController.value,
+      zip: _zipController.value,
+      note: _notesController.value,
+      clientId: user?.session?.clientId,
+    );
+
+    final contact = await bloc.saveKnock(dto);
+
+    return ParsedResponse(contact != null ? 200 : 400, contact);
   }
 
   void dispose() {
