@@ -13,6 +13,8 @@ class KnockBloc {
   final _knockRepo = Repository.get();
   final _knockFetcher = BehaviorSubject<List<Knock>>();
 
+  Function(List<Knock>) get changeKnocks => _knockFetcher.sink.add;
+
   Set<Marker> _markers;
   final _markerFetcher = BehaviorSubject<Set<Marker>>();
 
@@ -51,7 +53,7 @@ class KnockBloc {
         _knocks.add(updatedKnock);
       }
 
-      _knockFetcher.add(_knocks);
+      changeKnocks(_knocks);
 
       return updatedKnock;
     } 
@@ -103,8 +105,8 @@ class KnockBloc {
   }
 
   void dispose() {
-    _knockFetcher.close();
-    _markerFetcher.close();
+    _knockFetcher?.close();
+    _markerFetcher?.close();
   }
 
 }

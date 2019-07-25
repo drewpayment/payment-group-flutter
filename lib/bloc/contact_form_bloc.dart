@@ -46,6 +46,7 @@ class ContactFormBloc extends Validators {
   Future<ParsedResponse> submit() async {
     final user = container<User>();
 
+    print('Sending State: ${_stateController.value}');
     final dto = Knock(
       firstName: _firstNameController.value,
       lastName: _lastNameController.value,

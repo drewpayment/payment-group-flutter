@@ -22,33 +22,39 @@ class _ContactFormState extends State<ContactForm> {
   final zipFocus = FocusNode();
   final notesFocus = FocusNode();
 
+  ContactFormBloc bloc;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    bloc = ContactFormProvider.of(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final bloc = ContactFormProvider.of(context);
-
     return Form(
       key: _formKey,
       child: Container(
         margin: EdgeInsets.all(20),
         child: Column(
           children: <Widget>[
-            firstNameField(bloc),
-            lastNameField(bloc),
-            descriptionField(bloc),
-            streetField(bloc),
-            street2Field(bloc),
-            cityField(bloc),
-            stateField(bloc),
-            zipField(bloc),
-            notesField(bloc),
-            saveButton(bloc),
+            firstNameField,
+            lastNameField,
+            descriptionField,
+            streetField,
+            street2Field,
+            cityField,
+            stateField,
+            zipField,
+            notesField,
+            saveButton,
           ],
         ),
       ),
     );
   }
 
-  Widget firstNameField(ContactFormBloc bloc) {
+  Widget get firstNameField {
     return StreamBuilder(
       stream: bloc.firstName,
       builder: (context, snap) {
@@ -60,14 +66,14 @@ class _ContactFormState extends State<ContactForm> {
           onFieldSubmitted: (value) => _fieldFocusChange(context, firstNameFocus, lastNameFocus),
           onSaved: bloc.changeFirstName,
           focusNode: firstNameFocus,
-          autofocus: false,
+          autofocus: true,
           validator: (value) => bloc.stringRequired(value, message: 'Please enter a first name.'),
         );  
       }
     );
   }
 
-  Widget lastNameField(ContactFormBloc bloc) {
+  Widget get lastNameField {
     return StreamBuilder(
       stream: bloc.lastName,
       builder: (context, snap) {
@@ -85,7 +91,7 @@ class _ContactFormState extends State<ContactForm> {
     );
   }
 
-  Widget descriptionField(ContactFormBloc bloc) {
+  Widget get descriptionField {
     return StreamBuilder(
       stream: bloc.description,
       builder: (context, snap) {
@@ -102,7 +108,7 @@ class _ContactFormState extends State<ContactForm> {
     );
   }
 
-  Widget streetField(ContactFormBloc bloc) {
+  Widget get streetField {
     return StreamBuilder(
       stream: bloc.street,
       builder: (context, snap) {
@@ -120,7 +126,7 @@ class _ContactFormState extends State<ContactForm> {
     );
   }
 
-  Widget street2Field(ContactFormBloc bloc) {
+  Widget get street2Field {
     return StreamBuilder(
       stream: bloc.street2,
       builder: (context, snap) {
@@ -137,7 +143,7 @@ class _ContactFormState extends State<ContactForm> {
     );
   }
 
-  Widget cityField(ContactFormBloc bloc) {
+  Widget get cityField {
     return StreamBuilder(
       stream: bloc.city,
       builder: (context, snap) {
@@ -155,53 +161,33 @@ class _ContactFormState extends State<ContactForm> {
     );
   }
 
-  Widget stateField(ContactFormBloc bloc) {
+  Widget get stateField {
     return StreamBuilder(
       stream: bloc.state,
       builder: (context, AsyncSnapshot<String> snap) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            InputDecorator(
-              decoration: InputDecoration(
-                labelText: 'State',
-                errorText: snap.error,
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: snap.hasError ? Colors.redAccent.shade700 : Theme.of(context).hintColor,
-                  ),
-                ),
-              ),
-              isEmpty: !snap.hasData,
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton(
-                  value: snap.data,
-                  onChanged: bloc.changeState,
-                  items: StateHelper.statesArray.map((s) {
-                    return DropdownMenuItem(
-                      key: Key(s['abbreviation']),
-                      value: s['abbreviation'],
-                      child: Text('${s['name']}'),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-            SizedBox(height: 5),
-            Text(snap.hasError ? snap.error : '',
-              textAlign: TextAlign.start,
-              style: TextStyle(
-                color: Colors.redAccent.shade700,
-                fontSize: 12,
-              ),
-            ),
-          ],
+        return DropdownButtonFormField(
+          decoration: InputDecoration(
+            labelText: 'State',
+          ),
+          value: snap.data,
+          items: StateHelper.statesArray.map((s) {
+            return DropdownMenuItem(
+              key: Key(s['abbreviation']),
+              value: s['abbreviation'],
+              child: Text('${s['name']}'),
+            );
+          }).toList(),
+          onChanged: bloc.changeState,
+          onSaved: bloc.changeState,
+          validator: (value) {
+            if (value == null) return 'Please select a state.';
+          },
         );
       }
     );
   }
 
-  Widget zipField(ContactFormBloc bloc) {
+  Widget get zipField {
     return StreamBuilder(
       stream: bloc.zip,
       builder: (context, snap) {
@@ -219,7 +205,7 @@ class _ContactFormState extends State<ContactForm> {
     );
   }
 
-  Widget notesField(ContactFormBloc bloc) {
+  Widget get notesField {
     return StreamBuilder(
       stream: bloc.notes,
       builder: (context, snap) {
@@ -236,7 +222,7 @@ class _ContactFormState extends State<ContactForm> {
     );
   }
 
-  Widget saveButton(ContactFormBloc bloc) {
+  Widget get saveButton {
     return Padding(
       padding: EdgeInsets.only(top: 16),
       child: RaisedButton(
@@ -264,7 +250,7 @@ class _ContactFormState extends State<ContactForm> {
               barrierDismissible: false,
               builder: (context) {
                 bloc.submit().then((resp) {
-                  Navigator.pop(context);
+                  Navigator.of(context, rootNavigator: true).pop();
 
                   if (resp.isOk()) {
                     ManageContacts.scaffoldKey.currentState.showSnackBar(SnackBar(
@@ -281,12 +267,14 @@ class _ContactFormState extends State<ContactForm> {
                   }
                 });
 
-                return SimpleDialog(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  contentPadding: EdgeInsets.all(24),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  title: Center(
-                    child: CircularProgressIndicator(),
+                return Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    padding: EdgeInsets.all(10),
+                    child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
                   ),
                 );
               }
