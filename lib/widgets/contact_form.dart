@@ -9,7 +9,7 @@ class ContactForm extends StatefulWidget {
   _ContactFormState createState() => _ContactFormState();
 }
 
-class _ContactFormState extends State<ContactForm> {
+class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin {
   bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
 
@@ -22,12 +22,33 @@ class _ContactFormState extends State<ContactForm> {
   final zipFocus = FocusNode();
   final notesFocus = FocusNode();
 
+  // AnimationController _controller;
+  // Animation _animation;
+
   ContactFormBloc bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    // _controller = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+    // _animation = Tween(begin: 0.0, end: 300).animate(_controller)
+    //   ..addListener(() {
+    //     setState(() {});
+    //   });
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     bloc = ContactFormProvider.of(context);
+
+    // firstNameFocus.addListener(() => firstNameFocus.hasFocus ? _controller.forward() : _controller.reverse());
+    // lastNameFocus.addListener(() => scrollFocus(lastNameFocus));
+    // descriptionFocus.addListener(() => scrollFocus(descriptionFocus));
+    // streetFocus.addListener(() => scrollFocus(streetFocus));
+    // street2Focus.addListener(() => scrollFocus(street2Focus));
+    // cityFocus.addListener(() => scrollFocus(cityFocus));
+    // notesFocus.addListener(() => notesFocus.hasFocus ? _controller.forward() : _controller.reverse());
   }
 
   @override
@@ -35,7 +56,7 @@ class _ContactFormState extends State<ContactForm> {
     return Form(
       key: _formKey,
       child: Container(
-        margin: EdgeInsets.all(20),
+        margin: EdgeInsets.fromLTRB(20, 20, 20, MediaQuery.of(context).viewInsets.bottom),
         child: Column(
           children: <Widget>[
             firstNameField,
@@ -68,6 +89,7 @@ class _ContactFormState extends State<ContactForm> {
           focusNode: firstNameFocus,
           autofocus: true,
           validator: (value) => bloc.stringRequired(value, message: 'Please enter a first name.'),
+          textInputAction: TextInputAction.next,
         );  
       }
     );
@@ -86,6 +108,7 @@ class _ContactFormState extends State<ContactForm> {
           focusNode: lastNameFocus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, lastNameFocus, descriptionFocus),
           validator: (value) => bloc.stringRequired(value, message: 'Please enter a last name.'),
+          textInputAction: TextInputAction.next,
         );
       }
     );
@@ -103,6 +126,7 @@ class _ContactFormState extends State<ContactForm> {
           onSaved: bloc.changeDescription,
           focusNode: descriptionFocus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, descriptionFocus, streetFocus),
+          textInputAction: TextInputAction.next,
         );
       },
     );
@@ -121,6 +145,7 @@ class _ContactFormState extends State<ContactForm> {
           focusNode: streetFocus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, streetFocus, street2Focus),
           validator: (value) => bloc.stringRequired(value, message: 'Please enter a street.'),
+          textInputAction: TextInputAction.next,
         );
       }
     );
@@ -138,6 +163,7 @@ class _ContactFormState extends State<ContactForm> {
           onSaved: bloc.changeStreet2,
           focusNode: street2Focus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, street2Focus, cityFocus),
+          textInputAction: TextInputAction.next,
         );
       }
     );
@@ -156,6 +182,7 @@ class _ContactFormState extends State<ContactForm> {
           focusNode: cityFocus,
           onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(FocusNode()),
           validator: (value) => bloc.stringRequired(value, message: 'Please enter a city.'),
+          textInputAction: TextInputAction.next,
         );
       }
     );
@@ -200,6 +227,7 @@ class _ContactFormState extends State<ContactForm> {
           focusNode: zipFocus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, zipFocus, notesFocus),
           validator: bloc.stringRequired,
+          textInputAction: TextInputAction.next,
         );
       }
     );
@@ -217,6 +245,7 @@ class _ContactFormState extends State<ContactForm> {
           onSaved: bloc.changeNotes,
           focusNode: notesFocus,
           onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(FocusNode()),
+          textInputAction: TextInputAction.done,
         );
       }
     );
@@ -289,4 +318,5 @@ class _ContactFormState extends State<ContactForm> {
     currentFocus.unfocus();
     FocusScope.of(context).requestFocus(nextFocus);
   }
+
 }

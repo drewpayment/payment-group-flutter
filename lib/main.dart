@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
       future: Auth.hasTokenAuthentication(),
       builder: (context, AsyncSnapshot<bool> snap) {
         return MaterialApp(
+          debugShowCheckedModeBanner: false,
           navigatorKey: Catcher.navigatorKey,
           title: 'Flutter Demo',
           theme: buildTheme(),

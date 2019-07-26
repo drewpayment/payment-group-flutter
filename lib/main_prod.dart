@@ -16,6 +16,7 @@ void main() {
   );
   var container = kiwi.Container();
   container.registerInstance(config);
+  container.silent = true;
 
   Catcher(
     ScopedModel(
