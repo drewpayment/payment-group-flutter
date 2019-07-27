@@ -46,7 +46,6 @@ class _MapPageState extends State<MapPage> {
 
   @override
   void initState() {
-    bloc.fetchAllKnocks();
     super.initState();
   }
 

@@ -8,6 +8,7 @@ import 'package:pay_track/models/Knock.dart';
 import 'package:pay_track/models/geocode_response.dart';
 import 'package:pay_track/models/parsed_response.dart';
 import 'package:pay_track/models/secret.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final int NO_INTERNET = 404;
 
@@ -34,7 +35,17 @@ class Repository {
     }
 
     String url = '${HttpClient.url('dnc-contacts?zip=$zipCode')}';
-    var response = await HttpClient.get<List<dynamic>>(url);    
+    print('URL: $url');
+
+    Response<List<dynamic>> response;
+    try {
+      response = await HttpClient.get<List<dynamic>>(url);   
+    } on DioError catch(err) {
+      print(err.message);
+      launch(url);
+      return ParsedResponse(err.response?.statusCode ?? 500, null, message: err.response?.statusMessage);
+    }
+
     result = ParsedResponse(response.statusCode, null);
 
     if (result.isOk()) {

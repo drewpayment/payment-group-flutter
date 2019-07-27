@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pay_track/bloc/knock_bloc.dart';
+import 'package:pay_track/bloc/weather_bloc.dart';
 import 'package:pay_track/models/config.dart';
 import 'package:pay_track/pages/home_page.dart';
 import 'package:pay_track/services/auth.dart';
@@ -191,7 +193,10 @@ class LoginFormState extends State<LoginForm> {
       });
 
       Auth.signIn(_username, _password).then((result) {
+        // LOGGED IN! LET'S START LOADING SOME RESOURCES WE NEED IN THE BACKGROUND! 
         if (result.isOk()) {
+          bloc.fetchAllKnocks();
+          weatherBloc.fetchWeather();
           _formKey.currentState?.reset();
           isLoading = false;
           Navigator.pushReplacementNamed(context, HomePage.routeName);

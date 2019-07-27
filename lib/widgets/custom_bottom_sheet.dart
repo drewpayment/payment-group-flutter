@@ -14,7 +14,7 @@ class CustomBottomSheet {
   }) {
     final br = BorderRadius.circular(50);
     shape = shape != null ? shape
-      : RoundedRectangleBorder(borderRadius: br);
+      : RoundedRectangleBorder(borderRadius: BorderRadius.circular(10));
     return showModalBottomSheet(
       isScrollControlled: isScrollControlled,
       context: context,

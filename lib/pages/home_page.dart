@@ -49,14 +49,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void initState() {
     super.initState();
     config = container.resolve<ConfigModel>();
-
-    /// listen for changed to authenticated state in auth service
-    Auth.isAuthenticated.listen((signedIn) {
-      if (signedIn) {
-        bloc.fetchAllKnocks();
-        weatherBloc.fetchWeather();
-      } 
-    });
   }
 
   @override
