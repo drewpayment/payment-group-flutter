@@ -1,4 +1,5 @@
 import 'package:catcher/catcher_plugin.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:pay_track/bloc/location_bloc.dart';
 import 'package:pay_track/data/http.dart';
@@ -24,19 +25,19 @@ class MyApp extends StatelessWidget {
     Auth.restoreStorage();
     locationBloc.init();
     
-    return FutureBuilder(
-      initialData: null,
-      future: Auth.hasTokenAuthentication(),
-      builder: (context, AsyncSnapshot<bool> snap) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          navigatorKey: Catcher.navigatorKey,
-          title: 'Flutter Demo',
-          theme: buildTheme(),
-          home: snap.hasData && snap.data ? HomePage() : LoginPage(),
-          routes: Router.routes,
-        );
-      },
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      navigatorKey: Catcher.navigatorKey,
+      title: 'Flutter',
+      theme: buildTheme(),
+      home: FutureBuilder(
+        future: Auth.hasTokenAuthentication(),
+        builder: (context, AsyncSnapshot<bool> snap) {
+          if (snap.hasData && snap.data) return HomePage();
+          return LoginPage();
+        }
+      ),
+      routes: Router.routes,
     );
     
   }

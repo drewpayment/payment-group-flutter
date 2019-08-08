@@ -22,33 +22,44 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
   final zipFocus = FocusNode();
   final notesFocus = FocusNode();
 
-  // AnimationController _controller;
-  // Animation _animation;
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final streetController = TextEditingController();
+  final street2Controller = TextEditingController();
+  final cityController = TextEditingController();
+  final zipController = TextEditingController();
+  final notesController = TextEditingController();
 
   ContactFormBloc bloc;
+
+  bool isButtonPressed = false;
+
+  final stateItems = StateHelper.statesArray.map((s) {
+    return DropdownMenuItem(
+      key: Key(s['abbreviation']),
+      value: s['abbreviation'],
+      child: Text('${s['name']}'),
+    );
+  }).toList();
 
   @override
   void initState() {
     super.initState();
-    // _controller = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
-    // _animation = Tween(begin: 0.0, end: 300).animate(_controller)
-    //   ..addListener(() {
-    //     setState(() {});
-    //   });
+    firstNameController.addListener(updateFirstName);
+    lastNameController.addListener(updateLastName);
+    descriptionController.addListener(updateDescription);
+    streetController.addListener(updateStreet);
+    street2Controller.addListener(updateStreet2);
+    cityController.addListener(updateCity);
+    zipController.addListener(updateZip);
+    notesController.addListener(updateNotes);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     bloc = ContactFormProvider.of(context);
-
-    // firstNameFocus.addListener(() => firstNameFocus.hasFocus ? _controller.forward() : _controller.reverse());
-    // lastNameFocus.addListener(() => scrollFocus(lastNameFocus));
-    // descriptionFocus.addListener(() => scrollFocus(descriptionFocus));
-    // streetFocus.addListener(() => scrollFocus(streetFocus));
-    // street2Focus.addListener(() => scrollFocus(street2Focus));
-    // cityFocus.addListener(() => scrollFocus(cityFocus));
-    // notesFocus.addListener(() => notesFocus.hasFocus ? _controller.forward() : _controller.reverse());
   }
 
   @override
@@ -85,11 +96,11 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
             errorText: snap.error,
           ),
           onFieldSubmitted: (value) => _fieldFocusChange(context, firstNameFocus, lastNameFocus),
-          onSaved: bloc.changeFirstName,
           focusNode: firstNameFocus,
           autofocus: true,
           validator: (value) => bloc.stringRequired(value, message: 'Please enter a first name.'),
           textInputAction: TextInputAction.next,
+          controller: firstNameController,
         );  
       }
     );
@@ -104,11 +115,11 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
             labelText: 'Last Name',
             errorText: snap.error,
           ),
-          onSaved: bloc.changeLastName,
           focusNode: lastNameFocus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, lastNameFocus, descriptionFocus),
           validator: (value) => bloc.stringRequired(value, message: 'Please enter a last name.'),
           textInputAction: TextInputAction.next,
+          controller: lastNameController,
         );
       }
     );
@@ -123,10 +134,10 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
             labelText: 'Description',
             errorText: snap.error,
           ),
-          onSaved: bloc.changeDescription,
           focusNode: descriptionFocus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, descriptionFocus, streetFocus),
           textInputAction: TextInputAction.next,
+          controller: descriptionController,
         );
       },
     );
@@ -141,7 +152,7 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
             labelText: 'Street',
             errorText: snap.error,
           ),
-          onSaved: bloc.changeStreet,
+          controller: streetController,
           focusNode: streetFocus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, streetFocus, street2Focus),
           validator: (value) => bloc.stringRequired(value, message: 'Please enter a street.'),
@@ -160,7 +171,7 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
             labelText: 'Apt/Unit/Suite #',
             errorText: snap.error,
           ),
-          onSaved: bloc.changeStreet2,
+          controller: street2Controller,
           focusNode: street2Focus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, street2Focus, cityFocus),
           textInputAction: TextInputAction.next,
@@ -178,7 +189,7 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
             labelText: 'City',
             errorText: snap.error,
           ),
-          onSaved: bloc.changeCity,
+          controller: cityController,
           focusNode: cityFocus,
           onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(FocusNode()),
           validator: (value) => bloc.stringRequired(value, message: 'Please enter a city.'),
@@ -197,15 +208,8 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
             labelText: 'State',
           ),
           value: snap.data,
-          items: StateHelper.statesArray.map((s) {
-            return DropdownMenuItem(
-              key: Key(s['abbreviation']),
-              value: s['abbreviation'],
-              child: Text('${s['name']}'),
-            );
-          }).toList(),
+          items: stateItems,
           onChanged: bloc.changeState,
-          onSaved: bloc.changeState,
           validator: (value) {
             if (value == null) return 'Please select a state.';
           },
@@ -223,7 +227,7 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
             labelText: 'Zip',
             errorText: snap.error,
           ),
-          onSaved: bloc.changeZip,
+          controller: zipController,
           focusNode: zipFocus,
           onFieldSubmitted: (value) => _fieldFocusChange(context, zipFocus, notesFocus),
           validator: bloc.stringRequired,
@@ -242,7 +246,7 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
             labelText: 'Note',
             errorText: snap.error,
           ),
-          onSaved: bloc.changeNotes,
+          controller: notesController,
           focusNode: notesFocus,
           onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(FocusNode()),
           textInputAction: TextInputAction.done,
@@ -269,54 +273,87 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
           ],
         ),
         color: Theme.of(context).primaryColor,
-        onPressed: () async {
-          if (_formKey.currentState.validate()) {
-            _formKey.currentState.save();
-            isLoading = true;
-
-            await showDialog<void>(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) {
-                bloc.submit().then((resp) {
-                  Navigator.of(context, rootNavigator: true).pop();
-
-                  if (resp.isOk()) {
-                    ManageContacts.scaffoldKey.currentState.showSnackBar(SnackBar(
-                      content: Text('Saved new contact.'),
-                      duration: Duration(milliseconds: 2500),
-                      behavior: SnackBarBehavior.floating,
-                    ));
-                  } else {
-                    ManageContacts.scaffoldKey.currentState.showSnackBar(SnackBar(
-                      content: Text('Network Error - ${resp.message}'),
-                      duration: Duration(milliseconds: 2000),
-                      behavior: SnackBarBehavior.floating,
-                    ));
-                  }
-                });
-
-                return Center(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                    padding: EdgeInsets.all(10),
-                    child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
-                  ),
-                );
-              }
-            );
-          }
-        },
+        onPressed: isButtonPressed 
+          ? null
+          : _saveButtonHandler,
       ),
     );
+  }
+
+  void _saveButtonHandler() async {
+    
+    if (_formKey.currentState.validate()) {
+      setState(() {
+        isButtonPressed = !isButtonPressed;
+        isLoading = true;
+      });
+
+      bloc.submit().then((resp) {
+        Navigator.of(context, rootNavigator: true)
+          ..pop()
+          ..pop();
+
+        if (resp.isOk()) {
+          ManageContacts.scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Text('Saved new contact.'),
+            duration: Duration(milliseconds: 2500),
+            behavior: SnackBarBehavior.floating,
+          ));
+        } else {
+          ManageContacts.scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Text('Network Error - ${resp.message}'),
+            duration: Duration(milliseconds: 2000),
+            behavior: SnackBarBehavior.floating,
+          ));
+        }
+      });
+
+      await showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return Center(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+                borderRadius: BorderRadius.circular(50),
+              ),
+              padding: EdgeInsets.all(10),
+              child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+            ),
+          );
+        }
+      );
+    }
   }
 
   void _fieldFocusChange(BuildContext context, FocusNode currentFocus, FocusNode nextFocus) {
     currentFocus.unfocus();
     FocusScope.of(context).requestFocus(nextFocus);
+  }
+
+  void updateFirstName() => bloc.changeFirstName(firstNameController.text);
+  void updateLastName() => bloc.changeLastName(lastNameController.text);
+  void updateDescription() => bloc.changeDescription(descriptionController.text);
+  void updateStreet() => bloc.changeStreet(streetController.text);
+  void updateStreet2() => bloc.changeStreet2(street2Controller.text);
+  void updateCity() => bloc.changeCity(cityController.text);
+  void updateZip() => bloc.changeZip(zipController.text);
+  void updateNotes() => bloc.changeNotes(notesController.text);
+
+
+  @override
+  void dispose() {
+    firstNameController.removeListener(updateFirstName);
+    lastNameController.removeListener(updateLastName);
+    descriptionController.removeListener(updateDescription);
+    streetController.removeListener(updateStreet);
+    street2Controller.removeListener(updateStreet2);
+    cityController.removeListener(updateCity);
+    zipController.removeListener(updateZip);
+    notesController.removeListener(updateNotes);
+    bloc.dispose();
+    super.dispose();
   }
 
 }

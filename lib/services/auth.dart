@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get_ip/get_ip.dart';
 import 'package:pay_track/bloc/user_bloc.dart';
 import 'package:pay_track/data/http.dart';
 import 'package:pay_track/data/repository.dart';
@@ -11,6 +12,8 @@ import 'package:pay_track/models/parsed_response.dart';
 import 'package:pay_track/models/user.dart';
 import 'package:pay_track/utils/storage_keys.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:kiwi/kiwi.dart' as kiwi;
+import 'package:sentry/sentry.dart' as s;
 
 class Auth {
   static String _token;
@@ -51,22 +54,12 @@ class Auth {
     ParsedResponse<AuthResponse> result = ParsedResponse(NO_INTERNET, null);
     var url = '${HttpClient.url('authenticate')}';
 
-    Response resp;
-    try {
-      resp = await HttpClient.post(url, 
-        data: {
-          'username': username,
-          'password': password
-        },
-      );
-    } on DioError catch(e) {
-      if (e?.response?.statusCode == 401) {
-        result = ParsedResponse(401, null, message: 'Unauthorized. Please try again.');
-      } else {
-        result = ParsedResponse(e?.response?.statusCode ?? 400, null, message: e?.message); 
-      }
-      return result;
-    }
+    Response resp = await HttpClient.post(url, 
+      data: {
+        'username': username,
+        'password': password
+      },
+    );
 
     result = ParsedResponse(resp.statusCode, null);
 
@@ -75,8 +68,19 @@ class Auth {
       userBloc.setUser(result.body.user);
       _token = result.body.token;
       _tokenExpires = DateTime.now().add(const Duration(days: 7));
-
       _isAuthenticated$.sink.add(true);
+
+      final ip = await GetIp.ipAddress;
+      final u = result.body.user;
+      final container = kiwi.Container();
+      final sentry = container<s.SentryClient>();
+      sentry.userContext = s.User(
+        email: u.email,
+        id: u.id.toString(),
+        ipAddress: ip,
+        username: u.username,
+        extras: u.toJson(),
+      );
 
       final storage = FlutterSecureStorage();
 
