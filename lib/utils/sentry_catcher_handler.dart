@@ -8,11 +8,10 @@ class SentryCatcherHandler implements ReportHandler {
   @override
   Future<bool> handle(Report error) async {
     final sentry = container<s.SentryClient>();
-    await sentry.captureException(
+    sentry.captureException(
       exception: error.error,
       stackTrace: error.stackTrace,
     );
-
     return true;
   }
 

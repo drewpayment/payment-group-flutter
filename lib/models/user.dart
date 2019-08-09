@@ -82,21 +82,19 @@ class UserDetail {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'userDetailId': userDetailId,
-      'userId': userId,
-      'street': street,
-      'street2': street2,
-      'city': city,
-      'state': state, 
-      'zip': zip,
-      'phone': phone,
-      'bankAccount': bankAccount,
-      'bankRouting': bankRouting,
-      'birthDate': birthDate,
-    };
-  }
+  Map<String, dynamic> toJson() =>{
+    'userDetailId': userDetailId,
+    'userId': userId,
+    'street': street,
+    'street2': street2,
+    'city': city,
+    'state': state, 
+    'zip': zip,
+    'phone': phone,
+    'bankAccount': bankAccount,
+    'bankRouting': bankRouting,
+    'birthDate': birthDate.toIso8601String(),
+  };
 }
 
 /// USER ROLES

@@ -43,10 +43,9 @@ class ContactFormBloc extends Validators {
   Function(String) get changeZip => _zipController.sink.add;
   Function(String) get changeNotes => _notesController.sink.add;
 
-  Future<ParsedResponse> submit() async {
+  Future<ParsedResponse<Knock>> submit() async {
     final user = container<User>();
 
-    print('Sending State: ${_stateController.value}');
     final dto = Knock(
       firstName: _firstNameController.value,
       lastName: _lastNameController.value,
@@ -60,9 +59,7 @@ class ContactFormBloc extends Validators {
       clientId: user?.session?.clientId,
     );
 
-    final contact = await bloc.saveKnock(dto);
-
-    return ParsedResponse(contact != null ? 200 : 400, contact);
+    return await bloc.saveKnock(dto);
   }
 
   void dispose() {

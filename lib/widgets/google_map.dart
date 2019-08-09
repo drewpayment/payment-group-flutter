@@ -100,7 +100,7 @@ class GoogleMapState extends State<GoogleMapWidget> {
 
   CameraPosition _getInitialCameraPosition() {
     LatLng target;
-    if (navigateToContact != null) {
+    if (navigateToContact != null && navigateToContact.lat != null && navigateToContact.long != null) {
       target = LatLng(navigateToContact.lat, navigateToContact.long);
     } else {
       target = _mapCenter;

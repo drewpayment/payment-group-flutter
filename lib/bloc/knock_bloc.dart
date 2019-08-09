@@ -1,14 +1,15 @@
-
 import 'dart:async';
-
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
+import 'package:pay_track/data/geocoding_service.dart';
 import 'package:pay_track/data/repository.dart';
 import 'package:pay_track/models/Knock.dart';
+import 'package:pay_track/models/parsed_response.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:kiwi/kiwi.dart' as kiwi;
 
 class KnockBloc {
-
+  final container = kiwi.Container();
+  GeocodingService geoService;
   List<Knock> _knocks;
   final _knockRepo = Repository.get();
   final _knockFetcher = BehaviorSubject<List<Knock>>();
@@ -27,6 +28,7 @@ class KnockBloc {
   GoogleMapController mapController;
 
   KnockBloc() {
+    geoService = container<GeocodingService>();
     fetchAllKnocks();
   }
 
@@ -38,12 +40,23 @@ class KnockBloc {
     }
   }
 
-  Future<Knock> saveKnock(Knock knock) async {
-    var resp = await _knockRepo.saveKnock(knock);
+  Future<ParsedResponse<Knock>> saveKnock(Knock knock) async {
+    var result = ParsedResponse(NO_INTERNET, null, message: 'Initalization error. Please restart the app.');
+    final knockLatLng = await _getGeocodeResponse(knock);
+    
+    // If we couldn't find lat/lng then we aren't going to be able to save the contact 
+    // for use with the map
+    if (!knockLatLng.isOk()) {
+      return knockLatLng;
+    }
+
+    var resp = await _knockRepo.saveKnock(knockLatLng.body);
+
     if (resp.isOk()) {
       final updatedKnock = resp.body;
+      result = ParsedResponse(resp.statusCode, updatedKnock);
 
-      if (knock.dncContactId != null && knock.dncContactId > 0) {
+      if (updatedKnock.dncContactId != null && updatedKnock.dncContactId > 0) {
         for(var i = 0; i < _knocks.length; i++) {
           if (_knocks[i].dncContactId == updatedKnock.dncContactId) {
             _knocks[i] = updatedKnock;
@@ -54,10 +67,71 @@ class KnockBloc {
       }
 
       changeKnocks(_knocks);
+    } else {
+      result = ParsedResponse(resp.statusCode, null, message: resp.message);
+    }
 
-      return updatedKnock;
-    } 
-    return null;
+    return result;
+  }
+
+  ///
+  /// Makes call to Google Geocoding API to get the lat/lng coords for the 
+  /// knock that the user is trying to save. This will get the information needed 
+  /// to store it, but will also keep us from having to do this check in the api 
+  /// and validate all of this information from there and should shorten api calls. 
+  ///
+  Future<ParsedResponse<Knock>> _getGeocodeResponse(Knock knock) async {
+    var result = ParsedResponse<Knock>(NO_INTERNET, null);
+    var addr = StringBuffer();
+    addr.write('${knock.address}+');
+    if (knock.addressCont != null) addr.write('${knock.addressCont}+');
+    addr.write('${knock.city}+');
+    addr.write('${knock.state}+');
+    addr.write('${knock.zip}');
+    final address = addr.toString();
+    final gps = await geoService.getGeocode(address);
+
+    if (gps.isOk()) {
+      final g = gps.body;
+
+      // google api returns an invalid result or error
+      if (g.status != GeocodeResponseStatus.ok) {
+        final errorMessage = _buildGeocodingErrorMessage(g.status);
+        return ParsedResponse<Knock>(gps.statusCode, knock, message: errorMessage);
+      }
+        
+      final loc = g.results?.first?.geometry?.location;
+      knock.lat = loc?.lat;
+      knock.long = loc?.lng;
+      result = ParsedResponse<Knock>(gps.statusCode, knock, message: g.status);
+    } else {
+      result = ParsedResponse(gps.statusCode, null, message: gps.message);
+    }
+
+    return result;
+  }
+
+  String _buildGeocodingErrorMessage(String geocodeStatus) {
+    String errorMessage;
+    switch(geocodeStatus) {
+      case GeocodeResponseStatus.invalidRequest: {
+        errorMessage = 'Address component missing, please try again.';
+      }
+      break;
+      case GeocodeResponseStatus.zeroResults: {
+        errorMessage = 'Were unable to find coordinates for that address.';
+      }
+      break;
+      case GeocodeResponseStatus.requestDenied:
+      case GeocodeResponseStatus.unknownError:
+      case GeocodeResponseStatus.overQueryLimit:
+      case GeocodeResponseStatus.overDailyLimit:
+      default: {
+        errorMessage = 'Fatal error. Could not make request. Please contact support.';
+      }
+      break;
+    }
+    return errorMessage;
   }
 
   void _fetchMarkers(List<Knock> knocks) async {

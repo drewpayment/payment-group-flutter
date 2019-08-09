@@ -296,13 +296,13 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
         if (resp.isOk()) {
           ManageContacts.scaffoldKey.currentState.showSnackBar(SnackBar(
             content: Text('Saved new contact.'),
-            duration: Duration(milliseconds: 2500),
+            duration: Duration(milliseconds: 1500),
             behavior: SnackBarBehavior.floating,
           ));
         } else {
           ManageContacts.scaffoldKey.currentState.showSnackBar(SnackBar(
             content: Text('Network Error - ${resp.message}'),
-            duration: Duration(milliseconds: 2000),
+            duration: Duration(milliseconds: 4000),
             behavior: SnackBarBehavior.floating,
           ));
         }

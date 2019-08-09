@@ -35,11 +35,11 @@ class HttpClient {
     if (_dio == null) _dio = Dio();
     (_dio.transformer as DefaultTransformer).jsonDecodeCallback = parseJson;
 
-    addInterceptor(InterceptorsWrapper(
-      onError: (DioError err) {
-        print(err.message);
-      },
-    ));
+    // addInterceptor(InterceptorsWrapper(
+    //   onError: (DioError err) {
+    //     print(err.message);
+    //   },
+    // ));
   }
 
   static addInterceptor(InterceptorsWrapper interceptor) {

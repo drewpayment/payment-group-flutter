@@ -25,8 +25,8 @@ void main() {
     debugConfig: CatcherOptions(
       SilentReportMode(), 
       [
-        ConsoleHandler(),
         SentryCatcherHandler(),
+        ConsoleHandler(),
       ],
     ),
   );

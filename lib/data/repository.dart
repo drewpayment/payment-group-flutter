@@ -106,22 +106,20 @@ class Repository {
 
   Future<ParsedResponse<Knock>> saveKnock(Knock dto) async {
     ParsedResponse<Knock> result = ParsedResponse(NO_INTERNET, null);
-    String uri = dto.dncContactId != null ? '${HttpClient.url('dnc-contacts/${dto.dncContactId}')}' : '${HttpClient.url('dnc-contacts')}';
+    
+    String uri = dto.dncContactId != null 
+      ? '${HttpClient.url('dnc-contacts/${dto.dncContactId}')}' 
+      : '${HttpClient.url('dnc-contacts')}';
+
     var payload = json.encode(dto.toMap());
     
-    Response response;
-    try {
-      response = await HttpClient.post(uri, data: payload);
-    } on DioError catch(err) {
-      print(err.message);
-      return ParsedResponse(err.response.statusCode, null, message: err.response.statusMessage);
-    }
-
+    final response = await HttpClient.post(uri, data: payload);
     result = ParsedResponse(response.statusCode, null);
 
     if (result.isOk()) {
       result = ParsedResponse(result.statusCode, Knock.fromJson(response.data));
     }
+
     return result;
   }
 
