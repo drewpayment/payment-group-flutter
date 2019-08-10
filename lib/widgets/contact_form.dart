@@ -301,7 +301,7 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
           ));
         } else {
           ManageContacts.scaffoldKey.currentState.showSnackBar(SnackBar(
-            content: Text('Network Error - ${resp.message}'),
+            content: Text('Error: ${resp.message}'),
             duration: Duration(milliseconds: 4000),
             behavior: SnackBarBehavior.floating,
           ));

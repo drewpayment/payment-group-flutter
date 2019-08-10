@@ -41,7 +41,7 @@ class KnockBloc {
   }
 
   Future<ParsedResponse<Knock>> saveKnock(Knock knock) async {
-    var result = ParsedResponse(NO_INTERNET, null, message: 'Initalization error. Please restart the app.');
+    var result = ParsedResponse<Knock>(NO_INTERNET, null, message: 'Initalization error. Please restart the app.');
     final knockLatLng = await _getGeocodeResponse(knock);
     
     // If we couldn't find lat/lng then we aren't going to be able to save the contact 
@@ -50,11 +50,13 @@ class KnockBloc {
       return knockLatLng;
     }
 
+    print('Latitude: ${knockLatLng.body.lat}\nLongitude: ${knockLatLng.body.long}');
+
     var resp = await _knockRepo.saveKnock(knockLatLng.body);
 
     if (resp.isOk()) {
       final updatedKnock = resp.body;
-      result = ParsedResponse(resp.statusCode, updatedKnock);
+      result = ParsedResponse<Knock>(resp.statusCode, updatedKnock);
 
       if (updatedKnock.dncContactId != null && updatedKnock.dncContactId > 0) {
         for(var i = 0; i < _knocks.length; i++) {
@@ -68,7 +70,7 @@ class KnockBloc {
 
       changeKnocks(_knocks);
     } else {
-      result = ParsedResponse(resp.statusCode, null, message: resp.message);
+      result = ParsedResponse<Knock>(resp.statusCode, null, message: resp.message);
     }
 
     return result;
@@ -105,7 +107,7 @@ class KnockBloc {
       knock.long = loc?.lng;
       result = ParsedResponse<Knock>(gps.statusCode, knock, message: g.status);
     } else {
-      result = ParsedResponse(gps.statusCode, null, message: gps.message);
+      result = ParsedResponse<Knock>(gps.statusCode, null, message: gps.message);
     }
 
     return result;

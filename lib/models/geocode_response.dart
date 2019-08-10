@@ -19,6 +19,7 @@ class GeocodeResult {
   Geometry geometry;
   String placeId;
   List<String> types;
+  bool partialMatch;
 
   GeocodeResult({
     this.addressComponents,
@@ -26,6 +27,7 @@ class GeocodeResult {
     this.geometry,
     this.placeId,
     this.types,
+    this.partialMatch,
   });
 
   factory GeocodeResult.fromJson(Map<String, dynamic> m) {
@@ -35,6 +37,7 @@ class GeocodeResult {
       geometry: Geometry.fromJson(m['geometry']),
       placeId: m['place_id'],
       types: _parseTypes(m['types']),
+      partialMatch: m['partial_match'] ?? false,
     );
   }
 

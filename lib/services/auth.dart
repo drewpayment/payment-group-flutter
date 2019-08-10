@@ -166,7 +166,7 @@ class Auth {
     userBloc.clear();
     _token = null;
     _isAuthenticated$.sink.add(false);
-    _timer.cancel();
+    _timer?.cancel();
 
     comp.complete(true);
     return comp.future;
