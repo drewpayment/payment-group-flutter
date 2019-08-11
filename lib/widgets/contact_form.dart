@@ -289,20 +289,27 @@ class _ContactFormState extends State<ContactForm> with TickerProviderStateMixin
       });
 
       bloc.submit().then((resp) {
-        Navigator.of(context, rootNavigator: true)
-          ..pop()
-          ..pop();
+        
 
         if (resp.isOk()) {
+          Navigator.of(context, rootNavigator: true)
+            ..pop()
+            ..pop();
+
           ManageContacts.scaffoldKey.currentState.showSnackBar(SnackBar(
             content: Text('Saved new contact.'),
             duration: Duration(milliseconds: 1500),
             behavior: SnackBarBehavior.floating,
           ));
         } else {
-          ManageContacts.scaffoldKey.currentState.showSnackBar(SnackBar(
+          Navigator.of(context, rootNavigator: true)..pop();
+
+          setState(() {
+            isButtonPressed = !isButtonPressed;
+          });
+
+          Scaffold.of(context).showSnackBar(SnackBar(
             content: Text('Error: ${resp.message}'),
-            duration: Duration(milliseconds: 4000),
             behavior: SnackBarBehavior.floating,
           ));
         }

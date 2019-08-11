@@ -1,7 +1,6 @@
 import 'package:catcher/catcher_plugin.dart';
 import 'package:pay_track/main.dart';
 import 'package:pay_track/models/config.dart';
-import 'package:pay_track/utils/sentry_catcher_handler.dart';
 import 'package:kiwi/kiwi.dart' as kiwi;
 import 'package:sentry/sentry.dart' as s;
 
@@ -25,7 +24,6 @@ void main() {
     debugConfig: CatcherOptions(
       SilentReportMode(), 
       [
-        SentryCatcherHandler(),
         ConsoleHandler(),
       ],
     ),

@@ -58,7 +58,9 @@ class _MapPageState extends State<MapPage> {
           Knock navigateToContact;
 
           if (routeParams != null) {
-            navigateToContact = contacts.firstWhere((c) => c.dncContactId == routeParams.dncContactId);
+            navigateToContact = contacts.firstWhere((c) => c.dncContactId == routeParams?.dncContactId,
+              orElse: () => null,
+            );
           }
           
           return Scaffold(
@@ -96,8 +98,9 @@ class _MapPageState extends State<MapPage> {
     return Align(
       alignment: Alignment.bottomLeft,
       child: Container(
+        color: Colors.black26,
         margin: EdgeInsets.symmetric(vertical: 20.0),
-        height: 170,
+        height: MediaQuery.of(context).size.height * 0.10,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: contacts.length,

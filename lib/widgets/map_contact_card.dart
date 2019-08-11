@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/models/Knock.dart';
-import 'package:pay_track/models/secret.dart';
-import 'package:pay_track/pages/map_page.dart';
-import 'package:pay_track/router.dart';
-import 'package:pay_track/widgets/network_image_loader.dart';
 
 class MapContactCard extends StatelessWidget {
   final Knock contact;
@@ -16,44 +12,6 @@ class MapContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      initialData: null,
-      future: _getStreetViewImage(),
-      builder: (context, AsyncSnapshot<Widget> snap) {
-        if (snap.hasData) {
-          return _cardBody(snap.data, context);
-        }
-        return Container();
-      },
-    );
-  }
-
-  Future<Widget> _getStreetViewImage() async {
-    // not sure if this is going to be too much to do... could cost quite a bit of $$$ 
-    return Image(
-      fit: BoxFit.none,
-      image: AssetImage('assets/icons_map_pin_point.png'),
-    );
-
-    // var secret = await SecretLoader.load('secrets.json');
-    // var uri = '$api?location=${contact.lat},${contact.long}&key=${secret.googleMapsAPI}&signature=${secret.streetViewSecret}';
-
-    // try {
-    //   var netImage = new NetworkImageLoader(uri);
-    //   var res = await netImage.load();
-    //   return Image(
-    //     fit: BoxFit.scaleDown,
-    //     image: MemoryImage(res),
-    //   );
-    // } on Exception {
-    //   return Image(
-    //     fit: BoxFit.none,
-    //     image: AssetImage('assets/icons_map_pin_point.png'),
-    //   );
-    // }
-  }
-
-  Widget _cardBody(Widget image, BuildContext context) {
     return InkWell(
       onTap: () {
         // go to location... 
@@ -62,25 +20,16 @@ class MapContactCard extends StatelessWidget {
       child: Container(
         child: FittedBox(
           child: Material(
-            color: Colors.white,
-            elevation: 14,
-            borderRadius: BorderRadius.circular(15),
-            shadowColor: const Color(0xB02196F3),
+            color: Theme.of(context).primaryColor,
+            elevation: 7,
+            borderRadius: BorderRadius.circular(5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Container(
-                  width: 180,
-                  height: 200,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: image,
-                  ),
-                ),
-                Container(
-                  width: 200,
+                  width: MediaQuery.of(context).size.width * 0.5,
                   child: Padding(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(18),
                     child: _contactInformationContainer(),
                   ),
                 ),
@@ -97,24 +46,31 @@ class MapContactCard extends StatelessWidget {
       ? '${contact.firstName} ${contact.lastName}'
       : '${contact.description}';
 
+    final addressStyle = const TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+      color: Colors.white,
+    );
+
     var widgets = List<Widget>()..addAll([
-      Text('$desc',
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          letterSpacing: -0.5,
-          color: Colors.redAccent,
-        ),
+      // Text('$desc',
+      //   style: TextStyle(
+      //     fontSize: 20,
+      //     fontWeight: FontWeight.bold,
+      //     letterSpacing: -0.5,
+      //   ),
+      // ),
+      Text('${contact.address}', 
+        softWrap: true,
+        style: addressStyle,
       ),
-      Text('Address:'),
-      Text('${contact.address}', softWrap: true),
     ]);
 
     if (contact.addressCont != null) {
-      widgets.add(Text('${contact.addressCont}', softWrap: true));
+      widgets.add(Text('${contact.addressCont}', softWrap: true, style: addressStyle));
     }
 
-    widgets.add(Text('${contact.city}, ${contact.state} ${contact.zip}', softWrap: true));
+    widgets.add(Text('${contact.city}, ${contact.state} ${contact.zip}', softWrap: true, style: addressStyle));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,

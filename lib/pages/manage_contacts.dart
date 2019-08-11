@@ -91,21 +91,22 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
     );
   }
 
+  Widget _contactCardAddress(Knock contact) {
+    final desc = contact.description != null 
+          ? '${contact.description}'
+          : '${contact.firstName} ${contact.lastName}';
+    return Text(
+      '$desc\n${contact.address} ${contact.addressCont ?? ''}\n${contact.city} ${contact.state} ${contact.zip}',
+      style: _cardSubtitleTextStyle(),
+      textAlign: TextAlign.left,
+    );
+  }
+
   Widget _getListView(AsyncSnapshot<List<Knock>> snap) {
     var contacts = snap.data;
     return ListView.builder(
       itemCount: snap.data.length,
       itemBuilder: (context, index) {
-        final desc = contacts[index].description != null 
-          ? '${contacts[index].description}'
-          : '${contacts[index].firstName} ${contacts[index].lastName}';
-
-        final cardAddr = Text(
-          '$desc\n${contacts[index].address} ${contacts[index].addressCont ?? ''}\n${contacts[index].city} ${contacts[index].state} ${contacts[index].zip}',
-          style: _cardSubtitleTextStyle(),
-          textAlign: TextAlign.left,
-        );
-
         return Card(
           margin: EdgeInsets.symmetric(vertical: 4),
           shape: RoundedRectangleBorder(
@@ -119,57 +120,85 @@ class ManageContactsState extends State<ManageContacts> with TickerProviderState
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  InkWell(
-                    child: Container(
-                      width: 45, 
-                      height: 45,
-                      child: Center(
-                        child: Icon(Icons.edit,
-                          color: Colors.white,
+                  Padding(
+                    padding: EdgeInsets.only(right: 25),
+                    child: InkWell(
+                      child: Container(
+                        width: 45, 
+                        height: 45,
+                        child: Center(
+                          child: Icon(Icons.edit,
+                            color: Colors.white,
+                          ),
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).accentColor,
+                          borderRadius: BorderRadius.circular(50),
                         ),
                       ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).accentColor,
-                        borderRadius: BorderRadius.circular(50),
-                      ),
+                      onTap: () => _handleEdit(contacts[index]),
                     ),
-                    onTap: () => _handleEdit(contacts[index]),
                   ),
-                  
                   // VerticalDivider(),
-                  Expanded(
+                  Flexible(
+                    fit: FlexFit.tight,
+                    flex: 1,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        // cardDesc,
-                        cardAddr,
+                        _contactCardAddress(contacts[index]),
                       ],
                     ),
                   ),
-                  InkWell(
-                    child: Container(
-                      height: 75,
-                      width: 40,
-                      child: Icon(Icons.arrow_forward_ios,
-                        color: Colors.black45,
-                        // size: 50,
-                      ),
-                      // decoration: BoxDecoration(
-                      //   color: Theme.of(context).accentColor,
-                      //   borderRadius: BorderRadius.circular(50),
-                      // ),
-                    ),
-                    onTap: () {
-                      Navigator.pushNamed(context, MapPage.routeName,
-                        arguments: MapPageRouterParams(
-                          contacts[index].dncContactId,
-                          contacts[index].lat,
-                          contacts[index].long,
+                  Expanded(
+                    flex: 0,
+                    child: IgnorePointer(
+                      child: InkWell(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(Icons.map,
+                              color: Colors.black45,
+                            ),
+                            Icon(Icons.arrow_forward_ios,
+                              color: Colors.black45,
+                            )
+                          ],
                         ),
-                      );
-                    }
+                        onTap: () {},
+                      ),
+                    )
                   ),
+                  // InkWell(
+                  //   child: Container(
+                  //     height: 75,
+                  //     width: 40,
+                  //     child: Row(
+                  //       mainAxisSize: MainAxisSize.min,
+                  //       crossAxisAlignment: CrossAxisAlignment.center,
+                  //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  //       children: <Widget>[
+                  //         Icon(Icons.map,
+                  //           color: Colors.black45,
+                  //         ),
+                  //         Icon(Icons.arrow_forward_ios,
+                  //           color: Colors.black45,
+                  //         )
+                  //       ],
+                  //     ),
+                  //   ),
+                  //   onTap: () {
+                  //     Navigator.pushNamed(context, MapPage.routeName,
+                  //       arguments: MapPageRouterParams(
+                  //         contacts[index].dncContactId,
+                  //         contacts[index].lat,
+                  //         contacts[index].long,
+                  //       ),
+                  //     );
+                  //   }
+                  // ),
                 ],
               ),
               onTap: () {

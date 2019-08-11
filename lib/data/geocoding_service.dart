@@ -33,7 +33,12 @@ class GeocodingService {
 
   ParsedResponse<GeocodeResponse> _checkLocationAccuracy(GeocodeResponse response) {
     var result = ParsedResponse<GeocodeResponse>(200, response);
-    final g = response.results.first;
+    final g = (response?.results?.length ?? 0) > 0 
+      ? response?.results?.first : null;
+
+    if (g == null) {
+      return ParsedResponse<GeocodeResponse>(400, null, message: 'Could not find the address you entered.');
+    }
 
     // unable to match the address exactly 
     if (g.partialMatch) {

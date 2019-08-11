@@ -41,6 +41,7 @@ class KnockBloc {
   }
 
   Future<ParsedResponse<Knock>> saveKnock(Knock knock) async {
+    final id = knock.dncContactId ?? 0;
     var result = ParsedResponse<Knock>(NO_INTERNET, null, message: 'Initalization error. Please restart the app.');
     final knockLatLng = await _getGeocodeResponse(knock);
     
@@ -50,15 +51,13 @@ class KnockBloc {
       return knockLatLng;
     }
 
-    print('Latitude: ${knockLatLng.body.lat}\nLongitude: ${knockLatLng.body.long}');
-
     var resp = await _knockRepo.saveKnock(knockLatLng.body);
 
     if (resp.isOk()) {
       final updatedKnock = resp.body;
       result = ParsedResponse<Knock>(resp.statusCode, updatedKnock);
 
-      if (updatedKnock.dncContactId != null && updatedKnock.dncContactId > 0) {
+      if (id > 0) {
         for(var i = 0; i < _knocks.length; i++) {
           if (_knocks[i].dncContactId == updatedKnock.dncContactId) {
             _knocks[i] = updatedKnock;
@@ -91,9 +90,9 @@ class KnockBloc {
     addr.write('${knock.state}+');
     addr.write('${knock.zip}');
     final address = addr.toString();
-    final gps = await geoService.getGeocode(address);
+    final gps = await geoService.getGeocode(address)..mergeStatus(result);
 
-    if (gps.isOk()) {
+    if (result.isOk()) {
       final g = gps.body;
 
       // google api returns an invalid result or error
@@ -106,9 +105,7 @@ class KnockBloc {
       knock.lat = loc?.lat;
       knock.long = loc?.lng;
       result = ParsedResponse<Knock>(gps.statusCode, knock, message: g.status);
-    } else {
-      result = ParsedResponse<Knock>(gps.statusCode, null, message: gps.message);
-    }
+    } 
 
     return result;
   }

@@ -1,9 +1,9 @@
 
 
 class ParsedResponse<T> {
-  final int statusCode;
-  final T body;
-  final String message;
+  int statusCode;
+  T body;
+  String message;
 
   ParsedResponse(this.statusCode, this.body, {this.message});
 
@@ -12,4 +12,15 @@ class ParsedResponse<T> {
   }
 
   bool get hasError => statusCode < 200 || statusCode > 299;
+
+  void mergeAll(ParsedResponse<T> merged) {
+    merged.body = body;
+    merged.statusCode = statusCode;
+    merged.message = message;
+  }
+
+  void mergeStatus(ParsedResponse merged) {
+    merged.statusCode = statusCode;
+    merged.message = message;
+  }
 }
