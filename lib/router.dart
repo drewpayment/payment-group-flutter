@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pay_track/pages/map_search.dart';
-
 import 'pages/add_contact.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
@@ -16,7 +14,6 @@ class Router {
     LoginPage.routeName: (_) => LoginPage(),
     AddContactPage.routeName: (_) => AddContactPage(),
     ManageContacts.routeName: (_) => ManageContacts(),
-    MapSearch.routeName: (_) => MapSearch(),
   };
 
 }

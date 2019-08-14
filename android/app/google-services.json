@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:206757578983:android:2dc46d072c36fa5c",
         "android_client_info": {
-          "package_name": "app.paytrack"
+          "package_name": "app.tracksite"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "206757578983-ko6vvnjb3njch0bk2secbr2s12v3cbmm.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "app.paytrack",
+            "package_name": "app.tracksite",
             "certificate_hash": "d14e2c07c77bbdc1fe186f1028ac2dc89d704eca"
           }
         },

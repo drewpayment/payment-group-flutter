@@ -89,10 +89,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         body: Container(
           height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/houses.png'),
-              alignment: Alignment.bottomCenter,
-            ),
+            color: Theme.of(context).primaryColor,
+            // image: DecorationImage(
+            //   image: AssetImage('assets/houses.png'),
+            //   alignment: Alignment.bottomCenter,
+            // ),
           ),
           child: _getSignedInBody(),
         ),
@@ -118,7 +119,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             }
           ),
           Container(
-            margin: EdgeInsets.only(top: 8),
+            // margin: EdgeInsets.only(bottom: 24),
             // elevation: 8.0,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -175,7 +176,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                   Navigator.pushNamed(context, ManageContacts.routeName);
                 },
               ),
-              margin: EdgeInsets.symmetric(vertical: 8),
+              padding: EdgeInsets.symmetric(vertical: 28),
             );
           } 
         }

@@ -5,14 +5,11 @@ import 'package:location/location.dart';
 import 'package:pay_track/bloc/knock_bloc.dart';
 import 'package:pay_track/models/Knock.dart';
 import 'package:pay_track/models/config.dart';
-import 'package:pay_track/models/secret.dart';
 import 'package:pay_track/pages/custom_app_bar.dart';
 import 'package:pay_track/router.dart';
 import 'package:pay_track/widgets/google_map.dart';
 import 'package:kiwi/kiwi.dart' as kiwi;
 import 'package:pay_track/widgets/map_contact_card.dart';
-
-import 'map_search.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({Key key}) : super(key: key);
